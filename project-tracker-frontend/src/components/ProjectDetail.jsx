@@ -13,6 +13,7 @@ import BoardList from "./BoardList";
 import CreateBoardModal from "./CreateBoardModal";
 import TaskList from "../pages/TaskList";
 import ProjectTimeline from "./ProjectTimeline";
+import ProjectMembers from "./ProjectMembers";
 
 const ProjectDetail = () => {
   const { projectId } = useParams();
@@ -31,6 +32,7 @@ const ProjectDetail = () => {
       <Tabs value={tab} onChange={(e, v) => setTab(v)} sx={{ mt: 2 }}>
         <Tab label="All Tasks" />
         <Tab label="Sprint Boards" />
+        <Tab label="Members" />
         <Tab label="Timeline" />
       </Tabs>
 
@@ -67,8 +69,15 @@ const ProjectDetail = () => {
         </Box>
       )}
 
-      {/* ================= TIMELINE ================= */}
+      {/* ================= MEMBERS ================= */}
       {tab === 2 && (
+        <Box mt={3}>
+          <ProjectMembers projectId={projectId} />
+        </Box>
+      )}
+
+      {/* ================= TIMELINE ================= */}
+      {tab === 3 && (
         <Box mt={3}>
           <ProjectTimeline projectId={projectId} />
         </Box>
