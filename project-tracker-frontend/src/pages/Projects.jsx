@@ -1,49 +1,52 @@
-import React, { useEffect,useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Container, Typography, Button, Box } from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import CreateProjectModal from "../components/CreateProjectModal";
 
 const Projects = () => {
-  const { teamId } = useParams();
+  const { departmentId, teamId } = useParams();
   const navigate = useNavigate();
 
   const [open, setOpen] = useState(false);
   const [refresh, setRefresh] = useState(false);
+  const [projects, setProjects] = useState([]);
 
-  const[projects, setProjects] = useState([]);
-
-  // logged-in user
   const user = JSON.parse(localStorage.getItem("user"));
+  const token = localStorage.getItem("token");
 
   const canAddProject =
-  ["PRODUCT MANAGER", "PROJECT MANAGER"].includes(
-    user?.job_profile?.toUpperCase()
-  );
+    ["PRODUCT MANAGER", "PROJECT MANAGER"].includes(
+      user?.job_profile?.toUpperCase()
+    );
 
-   
-  //  fetch projects of team
+  /* ================= FETCH PROJECTS ================= */
   const fetchProjects = async () => {
+    if (!departmentId || !teamId) return;
+
     try {
       const res = await axios.get(
-        "http://127.0.0.1:8000/api/v1/project/list"
+        `http://127.0.0.1:8000/api/v1/project/department/${departmentId}/team/${teamId}/project`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
       );
 
-      // team wise filter
-      const teamProjects = res.data.projects.filter(
-        (p) => p.team_id === Number(teamId)
-      );
-
-      setProjects(teamProjects);
+      // ✅ backend list directly return kar raha hai
+      setProjects(res.data);
     } catch (err) {
-      console.error("Failed to fetch projects", err);
+      console.error(
+        "Failed to fetch projects",
+        err.response?.data || err
+      );
     }
   };
 
-  //  load projects on page load
   useEffect(() => {
     fetchProjects();
-  }, [teamId, refresh]);
+  }, [departmentId, teamId, refresh]);
 
   return (
     <Container>
@@ -51,7 +54,6 @@ const Projects = () => {
         Projects
       </Typography>
 
-      {/* PM only */}
       {canAddProject && (
         <Box mb={2}>
           <Button variant="contained" onClick={() => setOpen(true)}>
@@ -60,15 +62,14 @@ const Projects = () => {
         </Box>
       )}
 
-      {/* Create Project Modal */}
       <CreateProjectModal
         open={open}
         onClose={() => setOpen(false)}
+        deptId={departmentId}
         teamId={teamId}
-        onCreated={() => setRefresh(prev => !prev)}
+        onCreated={() => setRefresh((prev) => !prev)}
       />
 
-      {/*  Projects List */}
       {projects.length === 0 ? (
         <Typography>No projects found</Typography>
       ) : (
@@ -84,7 +85,9 @@ const Projects = () => {
               "&:hover": { backgroundColor: "#f5f5f5" }
             }}
             onClick={() =>
-              navigate(`/project/${proj.project_id}`)
+              navigate(
+                `/department/${departmentId}/team/${teamId}/project/${proj.project_id}`
+              )
             }
           >
             <Typography fontWeight={600}>

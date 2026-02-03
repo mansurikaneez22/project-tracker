@@ -16,7 +16,7 @@ import ProjectTimeline from "./ProjectTimeline";
 import ProjectMembers from "./ProjectMembers";
 
 const ProjectDetail = () => {
-  const { projectId } = useParams();
+  const { departmentId, teamId, projectId } = useParams(); 
 
   const [tab, setTab] = useState(0);
   const [openBoardModal, setOpenBoardModal] = useState(false);
@@ -28,7 +28,6 @@ const ProjectDetail = () => {
         Project
       </Typography>
 
-      {/* ================= TABS ================= */}
       <Tabs value={tab} onChange={(e, v) => setTab(v)} sx={{ mt: 2 }}>
         <Tab label="All Tasks" />
         <Tab label="Sprint Boards" />
@@ -36,14 +35,18 @@ const ProjectDetail = () => {
         <Tab label="Timeline" />
       </Tabs>
 
-      {/* ================= ALL TASKS ================= */}
+      {/* ALL TASKS */}
       {tab === 0 && (
         <Box mt={3}>
-          <TaskList projectId={projectId} />
+          <TaskList
+            deptId={departmentId}
+            teamId={teamId}
+            projectId={projectId}
+          />
         </Box>
       )}
 
-      {/* ================= SPRINT BOARDS ================= */}
+      {/* SPRINT BOARDS */}
       {tab === 1 && (
         <Box mt={3}>
           <Box mb={2}>
@@ -58,28 +61,40 @@ const ProjectDetail = () => {
           <CreateBoardModal
             open={openBoardModal}
             onClose={() => setOpenBoardModal(false)}
+            deptId={departmentId}
+            teamId={teamId}
             projectId={projectId}
             onCreated={() => setRefreshBoards(prev => !prev)}
           />
 
           <BoardList
+            deptId={departmentId}
+            teamId={teamId}
             projectId={projectId}
             refresh={refreshBoards}
           />
         </Box>
       )}
 
-      {/* ================= MEMBERS ================= */}
+      {/* MEMBERS */}
       {tab === 2 && (
         <Box mt={3}>
-          <ProjectMembers projectId={projectId} />
+          <ProjectMembers
+            deptId={departmentId}
+            teamId={teamId}
+            projectId={projectId}
+          />
         </Box>
       )}
 
-      {/* ================= TIMELINE ================= */}
+      {/* TIMELINE */}
       {tab === 3 && (
         <Box mt={3}>
-          <ProjectTimeline projectId={projectId} />
+          <ProjectTimeline
+            deptId={departmentId}
+            teamId={teamId}
+            projectId={projectId}
+          />
         </Box>
       )}
     </Container>
@@ -87,3 +102,4 @@ const ProjectDetail = () => {
 };
 
 export default ProjectDetail;
+

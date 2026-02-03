@@ -21,7 +21,7 @@ from app.api.v1.routes.board_task_mapping_routes import router as board_task_map
 from app.api.v1.routes.attachment_routes import router as attachment_router
 from app.api.v1.routes.comment_routes import router as comment_router
 from app.api.v1.routes.notification_routes import router as notification_router
-
+from app.api.v1.routes.team_member_routes import router as team_member_router 
 
 app = FastAPI(title="Project Tracker API")
 
@@ -31,11 +31,12 @@ Base.metadata.create_all(bind=engine)
 #CORS fix for frontend error
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
@@ -60,3 +61,4 @@ app.include_router(board_task_mapping_router)
 app.include_router(attachment_router)
 app.include_router(comment_router)
 app.include_router(notification_router)
+app.include_router(team_member_router)

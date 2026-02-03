@@ -35,10 +35,11 @@ function TeamList() {
           <Card
             key={team.team_id}
             onClick={() =>
-              navigate(
-                `/department/${departmentId}/team/${team.team_id}/project`
-              )
-            }
+  navigate(
+    `/department/${departmentId}/team/${team.team_id}`
+  )
+}
+
             sx={{
               borderRadius: 2,
               cursor: "pointer",

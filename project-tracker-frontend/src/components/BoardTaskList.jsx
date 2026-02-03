@@ -6,33 +6,43 @@ import CreateTaskModal from "./CreateTaskModal";
 import api from "../services/api";
 
 const BoardTaskList = () => {
-  const { boardId, projectId } = useParams();
+  const { deptId, teamId, projectId, boardId } = useParams();
+
   const [tasks, setTasks] = useState([]);
   const [assignees, setAssignees] = useState([]);
   const [open, setOpen] = useState(false);
 
-  // Fetch project members
+  /* ================= PROJECT MEMBERS ================= */
   const fetchProjectMembers = useCallback(async () => {
+    if (!deptId || !teamId || !projectId) return;
+
     try {
-      const res = await api.get(`/api/v1/project-members/project/${projectId}`);
+      const res = await api.get(
+        `/api/v1/project/department/${deptId}/team/${teamId}/project/${projectId}/members`
+      );
       setAssignees(res.data || []);
     } catch (err) {
       console.error("Failed to fetch project members:", err);
       setAssignees([]);
     }
-  }, [projectId]);
+  }, [deptId, teamId, projectId]);
 
-  // Fetch board tasks
+  /* ================= BOARD TASKS ================= */
   const fetchTasks = useCallback(async () => {
+    if (!boardId) return;
+
     try {
-      const res = await api.get(`/api/v1/board_task_mapping/board/${boardId}/task`);
+      const res = await api.get(
+        `/api/v1/board_task_mapping/board/${boardId}/task`
+      );
       setTasks(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
-      console.error("Failed to fetch tasks:", err);
+      console.error("Failed to fetch board tasks:", err);
       setTasks([]);
     }
   }, [boardId]);
 
+  /* ================= EFFECT ================= */
   useEffect(() => {
     fetchProjectMembers();
     fetchTasks();
@@ -47,13 +57,18 @@ const BoardTaskList = () => {
         </Button>
       </Box>
 
-      {tasks.length === 0 && <Typography>No tasks in this board</Typography>}
+      {tasks.length === 0 && (
+        <Typography>No tasks in this board</Typography>
+      )}
 
       {tasks.map((task) => (
-        <TaskCard key={task.task_id} task={task} assignees={assignees} />
+        <TaskCard
+          key={task.task_id}
+          task={task}
+          assignees={assignees}
+        />
       ))}
 
-      {/* MODAL */}
       <CreateTaskModal
         open={open}
         onClose={() => setOpen(false)}

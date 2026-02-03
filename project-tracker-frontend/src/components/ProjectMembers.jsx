@@ -16,12 +16,14 @@ import axios from "axios";
 
 const rolePriority = {
   "PROJECT MANAGER": 1,
+  "PRODUCT MANAGER": 1,
   "TEAM LEADER": 2,
   "CONTRIBUTOR": 3
 };
 
-const ProjectMembers = ({ projectId }) => {
+const ProjectMembers = ({ deptId, teamId, projectId }) => {
   const [members, setMembers] = useState([]);
+  const [teamUsers, setTeamUsers] = useState([]);
   const [userId, setUserId] = useState("");
   const [roleId, setRoleId] = useState(3);
   const [loading, setLoading] = useState(false);
@@ -31,57 +33,101 @@ const ProjectMembers = ({ projectId }) => {
   const myUserId = Number(localStorage.getItem("user_id"));
 
   const authHeader = {
-    headers: { Authorization: `Bearer ${token}` }
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
   };
 
-  // ================= FETCH MEMBERS =================
-  const fetchMembers = async () => {
-    const res = await axios.get(
-      `http://127.0.0.1:8000/api/v1/project-members/project/${projectId}`,
-      authHeader
-    );
+  /* ================= FETCH PROJECT MEMBERS ================= */
+  const fetchProjectMembers = async () => {
+    try {
+      if (!deptId || !teamId || !projectId) {
+        console.warn("Missing IDs", { deptId, teamId, projectId });
+        return;
+      }
 
-    setMembers(res.data);
+      if (!token) {
+        console.error("Token missing");
+        return;
+      }
 
-    // find current user's role IN THIS PROJECT
-    const myRecord = res.data.find((m) => m.user_id === myUserId);
+      const res = await axios.get(
+        `http://127.0.0.1:8000/api/v1/department/${deptId}/team/${teamId}/project/${projectId}/members/`,
+        authHeader
+      );
 
-    if (myRecord) {
-      setMyProjectRole(myRecord.role_type);
+      setMembers(res.data || []);
+
+      const me = res.data?.find(m => m.user_id === myUserId);
+      if (me) setMyProjectRole(me.role_type);
+    } catch (err) {
+      console.error(
+        "Error fetching project members:",
+        err.response?.data || err.message
+      );
+    }
+  };
+
+  /* ================= FETCH TEAM USERS ================= */
+  const fetchTeamUsers = async () => {
+    try {
+      if (!deptId || !teamId) return;
+
+      const res = await axios.get(
+        `http://127.0.0.1:8000/api/v1/department/${deptId}/team/${teamId}/members`,
+        authHeader
+      );
+
+      setTeamUsers(res.data || []);
+    } catch (err) {
+      console.error(
+        "Error fetching team users:",
+        err.response?.data || err.message
+      );
     }
   };
 
   useEffect(() => {
-    fetchMembers();
-  }, [projectId]);
+    if (deptId && teamId && projectId) {
+      fetchProjectMembers();
+      fetchTeamUsers();
+    }
+  }, [deptId, teamId, projectId]);
 
-  // ================= PERMISSION =================
+  /* ================= PERMISSION ================= */
   const canManageMembers =
     myProjectRole === "PROJECT MANAGER" ||
     myProjectRole === "PRODUCT MANAGER" ||
     myProjectRole === "TEAM LEADER";
 
-  // ================= SORT MEMBERS =================
+  /* ================= SORT ================= */
   const sortedMembers = [...members].sort(
     (a, b) => rolePriority[a.role_type] - rolePriority[b.role_type]
   );
 
-  // ================= ADD MEMBER =================
+  /* ================= ADD MEMBER ================= */
   const handleAddMember = async () => {
     if (!userId) return;
 
     setLoading(true);
-    await axios.post(
-      "http://127.0.0.1:8000/api/v1/project-members",
-      {
-        project_id: projectId,
-        user_id: userId,
-        role_id: roleId
-      },
-      authHeader
-    );
-    setLoading(false);
-    fetchMembers();
+    try {
+      await axios.post(
+        `http://127.0.0.1:8000/api/v1/department/${deptId}/team/${teamId}/project/${projectId}/members`,
+        {
+          user_id: Number(userId),
+          role_id: Number(roleId)
+        },
+        authHeader
+      );
+
+      setUserId("");
+      setRoleId(3);
+      fetchProjectMembers();
+    } catch (err) {
+      alert(err.response?.data?.detail || "Failed to add member");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -90,7 +136,7 @@ const ProjectMembers = ({ projectId }) => {
         Project Members
       </Typography>
 
-      {/* ===== ADD MEMBER BOX ===== */}
+      {/* ===== ADD MEMBER ===== */}
       {canManageMembers && (
         <Paper sx={{ p: 2, mb: 3 }}>
           <Box display="flex" gap={2}>
@@ -99,9 +145,14 @@ const ProjectMembers = ({ projectId }) => {
               value={userId}
               onChange={(e) => setUserId(e.target.value)}
               displayEmpty
+              sx={{ minWidth: 180 }}
             >
               <MenuItem value="">Select User</MenuItem>
-              {/* team users dropdown later */}
+              {teamUsers.map((u) => (
+                <MenuItem key={u.user_id} value={u.user_id}>
+                  {u.user_name}
+                </MenuItem>
+              ))}
             </Select>
 
             <Select
@@ -109,8 +160,8 @@ const ProjectMembers = ({ projectId }) => {
               value={roleId}
               onChange={(e) => setRoleId(e.target.value)}
             >
-              <MenuItem value={1}>PM</MenuItem>
-              <MenuItem value={2}>TL</MenuItem>
+              <MenuItem value={1}>Project Manager</MenuItem>
+              <MenuItem value={2}>Team Leader</MenuItem>
               <MenuItem value={3}>Contributor</MenuItem>
             </Select>
 
@@ -119,7 +170,7 @@ const ProjectMembers = ({ projectId }) => {
               onClick={handleAddMember}
               disabled={loading}
             >
-              Add Member
+              Add
             </Button>
           </Box>
         </Paper>

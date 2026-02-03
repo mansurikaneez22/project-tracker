@@ -14,7 +14,6 @@ import {
 
 const AdminDashboard = () => {
 
-  const [roles, setRoles] = useState([]);
   const [companies, setCompanies] = useState([]);
   const [departments, setDepartments] = useState([]);
   const [teams, setTeams] = useState([]);
@@ -24,18 +23,13 @@ const AdminDashboard = () => {
     full_name: "",
     email: "",
     password: "",
-    role_id: "",
+    job_profile: "",
     company_id: "",
     department_id: "",
     team_id: ""
   });
 
   /* ================= LOAD DATA ================= */
-
-  const loadRoles = async () => {
-    const res = await api.get("/api/v1/role/system");
-    setRoles(res.data);
-  };
 
   const loadCompanies = async () => {
     const res = await api.get("/api/v1/company/");
@@ -49,29 +43,12 @@ const AdminDashboard = () => {
   };
 
   const loadTeams = async (departmentId) => {
-
-  if (!departmentId) {
-    console.warn("🚫 loadTeams blocked, invalid id:", departmentId);
-    return;
-  }
-
-  console.log("🚀 loadTeams called with:", departmentId);
-
-  try {
-    const res = await api.get(
-      `/api/v1/department/${departmentId}/team`
-    );
-
+    if (!departmentId) return;
+    const res = await api.get(`/api/v1/department/${departmentId}/team`);
     setTeams(res.data);
-  } catch (err) {
-    console.error("❌ Load teams error:", err);
-  }
-};
-
-
+  };
 
   useEffect(() => {
-    loadRoles();
     loadCompanies();
   }, []);
 
@@ -89,35 +66,24 @@ const AdminDashboard = () => {
     if (name === "company_id") {
       setDepartments([]);
       setTeams([]);
-
       setForm(prev => ({
         ...prev,
         department_id: "",
         team_id: ""
       }));
 
-      if (value) {
-        loadDepartments(Number(value));
-      }
+      if (value) loadDepartments(Number(value));
     }
 
     // DEPARTMENT CHANGE
     if (name === "department_id") {
-
-      if (!value) {
-        console.warn("Invalid department id: ", value);
-        setTeams([]);
-        return;
-      }
-      
-
+      setTeams([]);
       setForm(prev => ({
         ...prev,
-        department_id: value,
         team_id: ""
       }));
-    
-      loadTeams(Number(value));
+
+      if (value) loadTeams(Number(value));
     }
   };
 
@@ -125,20 +91,11 @@ const AdminDashboard = () => {
 
   const createUser = async () => {
     try {
-      const selectedRole = roles.find(
-        r => String(r.id) === String(form.role_id)
-      );
-
-      if (!selectedRole) {
-        alert("Select role");
-        return;
-      }
-
       await api.post("/api/v1/user/", {
         user_name: form.full_name,
         email_id: form.email,
         password: form.password,
-        job_profile: selectedRole.role_type,
+        job_profile: form.job_profile,
         department_id: Number(form.department_id),
         team_id: Number(form.team_id)
       });
@@ -149,7 +106,7 @@ const AdminDashboard = () => {
         full_name: "",
         email: "",
         password: "",
-        role_id: "",
+        job_profile: "",
         company_id: "",
         department_id: "",
         team_id: ""
@@ -189,6 +146,7 @@ const AdminDashboard = () => {
             sx={{ mb: 2 }}
             label="Email"
             name="email"
+            autoComplete="off"
             value={form.email}
             onChange={handleChange}
           />
@@ -199,25 +157,29 @@ const AdminDashboard = () => {
             label="Password"
             type="password"
             name="password"
+            autoComplete="new-password"
             value={form.password}
             onChange={handleChange}
           />
 
-          {/* ROLE */}
+          {/* JOB PROFILE */}
           <Select
             fullWidth
             sx={{ mb: 2 }}
-            name="role_id"
-            value={form.role_id}
+            name="job_profile"
+            value={form.job_profile}
             onChange={handleChange}
             displayEmpty
           >
-            <MenuItem value="" disabled>Select Role</MenuItem>
-            {roles.map(r => (
-              <MenuItem key={r.id} value={String(r.id)}>
-                {r.role_type}
-              </MenuItem>
-            ))}
+            <MenuItem value="" disabled>
+              Select Job Profile
+            </MenuItem>
+            <MenuItem value="PROJECT_MANAGER">Project Manager</MenuItem>
+            <MenuItem value="TEAM_LEADER">Team Leader</MenuItem>
+            <MenuItem value="DEVELOPER">Developer</MenuItem>
+            <MenuItem value="DESIGNER">Designer</MenuItem>
+            <MenuItem value="QA">QA</MenuItem>
+            < MenuItem value="TESTER">Tester</MenuItem>
           </Select>
 
           {/* COMPANY */}
@@ -242,48 +204,36 @@ const AdminDashboard = () => {
             fullWidth
             sx={{ mb: 2 }}
             name="department_id"
-            value={form.department_id || ""}
+            value={form.department_id}
             onChange={handleChange}
             displayEmpty
             disabled={!form.company_id}
           >
-            <MenuItem 
-            value="">
-              Select Department
-            </MenuItem>
-
-            {departments.map(dept => (
-              <MenuItem key={dept.department_id}
-               value={dept.department_id}>
-                {dept.department_name}
+            <MenuItem value="" disabled>Select Department</MenuItem>
+            {departments.map(d => (
+              <MenuItem key={d.department_id} value={String(d.department_id)}>
+                {d.department_name}
               </MenuItem>
             ))}
           </Select>
 
           {/* TEAM */}
           <Select
-  fullWidth
-  sx={{ mb: 2 }}
-  name="team_id"
-  value={form.team_id || ""}
-  onChange={handleChange}
-  displayEmpty
-  disabled={!form.department_id}
->
-  <MenuItem value="" disabled>
-    Select Team
-  </MenuItem>
-
-  {teams.map((t) => (
-    <MenuItem key={t.team_id} value={String(t.team_id)}>
-      {t.team_name}
-    </MenuItem>
-  ))}
-</Select>
-<Typography variant="caption">
-  Teams count: {teams.length}
-</Typography>
-
+            fullWidth
+            sx={{ mb: 2 }}
+            name="team_id"
+            value={form.team_id}
+            onChange={handleChange}
+            displayEmpty
+            disabled={!form.department_id}
+          >
+            <MenuItem value="" disabled>Select Team</MenuItem>
+            {teams.map(t => (
+              <MenuItem key={t.team_id} value={String(t.team_id)}>
+                {t.team_name}
+              </MenuItem>
+            ))}
+          </Select>
 
           <Button
             fullWidth
@@ -306,5 +256,4 @@ const AdminDashboard = () => {
   );
 };
 
-
-export default AdminDashboard ;
+export default AdminDashboard;

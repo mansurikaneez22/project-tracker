@@ -2,31 +2,33 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { List, ListItem, ListItemText } from "@mui/material";
 
-function ProjectsList({ teamId , refresh, onProjectClick }) {
+function ProjectsList({ deptId, teamId, refresh, onProjectClick }) {
   const [projects, setProjects] = useState([]);
 
-  // Fetch project function
-   const fetchProjects = async () => {
+  const fetchProjects = async () => {
     if (!teamId) return;
 
     try {
+      const token = localStorage.getItem("token");
+
       const res = await axios.get(
-        "http://127.0.0.1:8000/api/v1/project/list"
+        `http://127.0.0.1:8000/api/v1/project/department/${deptId}/team/${teamId}/project`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
       );
 
-      const teamProjects = res.data.projects.filter(
-        (p) => p.team_id === Number(teamId)
-      );
-
-      setProjects(teamProjects);
+      setProjects(res.data);
     } catch (err) {
-      console.error("Failed to fetch projects", err);
+      console.error("Failed to fetch projects", err.response?.data || err);
     }
   };
-  //auto refresh changes
+
   useEffect(() => {
     fetchProjects();
-  }, [teamId, fetchProjects, refresh]); 
+  }, [deptId, teamId, refresh]);
 
   return (
     <List>
@@ -34,7 +36,13 @@ function ProjectsList({ teamId , refresh, onProjectClick }) {
         <ListItem
           key={proj.project_id}
           button
-          onClick={() => onProjectClick(proj.project_id)} // ✅ click works
+          onClick={() =>
+            onProjectClick({
+              deptId,
+              teamId,
+              projectId: proj.project_id
+            })
+          }
         >
           <ListItemText
             primary={proj.project_title}
