@@ -18,6 +18,7 @@ import TaskDetail from "./pages/TaskDetail";
 import BoardTaskList from "./components/BoardTaskList";
 import BoardTaskPage from "./pages/BoardTaskPage";
 import TeamDetail from "./components/Teamdetail";
+import SprintBoard from "./pages/SprintBoardPage";
 
 function App() {
   const userRole = localStorage.getItem("role"); // "PM", "TL", "Member"
@@ -75,6 +76,11 @@ function App() {
           {/* Projects & tasks */}
           <Route path="/department/:departmentId/team/:teamId/project" element={<Projects />} />
           <Route path="/department/:departmentId/team/:teamId/project/:projectId/tasks" element={<TaskList />} />
+          
+          <Route path="/board/:boardId" element={<SprintBoard />}
+/>
+
+        
         </Routes>
       </BrowserRouter>
     </ThemeProvider>

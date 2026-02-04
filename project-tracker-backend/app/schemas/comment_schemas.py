@@ -9,10 +9,13 @@ class CommentBase(BaseModel):
 class CommentCreate(CommentBase):
     pass
 
+class CommentUpdate(BaseModel):
+    content: str
+
 class CommentResponse(CommentBase):
     comment_id: int
     created_at: datetime
     updated_at: datetime | None
 
     class Config:
-        orm_mode = True
+        orm_mode = True   

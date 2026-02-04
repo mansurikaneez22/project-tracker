@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Box, Typography } from "@mui/material";
 import BoardCard from "./BoardCard";
@@ -8,36 +8,51 @@ const BoardList = ({ projectId, refresh }) => {
   const [boards, setBoards] = useState([]);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (!projectId) return;
-
-    fetchBoards();
-  }, [projectId, refresh]);
-
-  const fetchBoards = async () => {
+  const fetchBoards = useCallback(async () => {
     try {
       const res = await api.get(
         `/api/v1/board/project/${projectId}`
       );
 
-      setBoards(res.data.boards); // backend aligned
+      // backend aligned response
+      setBoards(res.data.boards || []);
     } catch (err) {
       console.error("Error fetching boards:", err);
+      setBoards([]);
     }
-  };
+  }, [projectId]);
 
-  if (boards.length === 0) {
-    return <Typography>No boards found for this project</Typography>;
+  useEffect(() => {
+    if (projectId) {
+      fetchBoards();
+    }
+  }, [projectId, refresh, fetchBoards]);
+
+  /* ===== EMPTY STATE ===== */
+  if (!boards.length) {
+    return (
+      <Typography
+        color="text.secondary"
+        sx={{ mt: 2 }}
+      >
+        No sprint boards yet. Create one to start tracking tasks 🚀
+      </Typography>
+    );
   }
 
+  /* ===== BOARD LIST ===== */
   return (
-    <Box>
+    <Box display="flex" flexDirection="column" gap={2}>
       {boards.map((board) => (
         <Box
           key={board.board_id}
-          sx={{ cursor: "pointer" }}
+          sx={{
+            cursor: "pointer"
+          }}
           onClick={() =>
-            navigate(`/project/${projectId}/board/${board.board_id}`)
+            navigate(
+              `/project/${projectId}/board/${board.board_id}`
+            )
           }
         >
           <BoardCard board={board} />

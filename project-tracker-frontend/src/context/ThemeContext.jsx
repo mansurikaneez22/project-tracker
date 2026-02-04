@@ -1,84 +1,67 @@
 // src/context/ThemeContext.jsx
 import React, { createContext, useState, useMemo, useContext } from "react";
 import { createTheme, ThemeProvider as MuiThemeProvider } from "@mui/material/styles";
+import CssBaseline from "@mui/material/CssBaseline";
 
-const ThemeContext = createContext();
+const ThemeContext = createContext(null);
 
 export const ThemeProvider = ({ children }) => {
-  const [mode, setMode] = useState("light"); // default light mode
+  const [mode, setMode] = useState("light");
 
   const toggleTheme = () => {
     setMode(prev => (prev === "light" ? "dark" : "light"));
   };
 
-  const theme = useMemo(() => {
-    const isDark = mode === "dark";
+  const theme = useMemo(
+    () =>
+      createTheme({
+        palette: {
+          mode,
 
-    return createTheme({
-      palette: {
-        mode,
-        ...(isDark
-          ? {
-              background: {
-                default: "#121212", // page background
-                paper: "#1E1E1E",   // card/paper background
+          //  PALETTE
+          primary: { main: "#9AC1F0" },
+          secondary: { main: "#72FA93" },
+          success: { main: "#A0E548" },
+          warning: { main: "#E45F2B" },
+          info: { main: "#F6C445" },
+
+          background: {
+            default: mode === "light" ? "#F8F6F4" : "#0F1115",
+            paper: mode === "light" ? "#FFFFFF" : "#1A1D23",
+          },
+        },
+
+        shape: {
+          borderRadius: 14,
+        },
+
+        components: {
+          MuiCard: {
+            styleOverrides: {
+              root: {
+                transition: "all 0.3s ease",
               },
-              primary: {
-                main: "#1976d2",    // buttons, inputs
-              },
-              text: {
-                primary: "#ffffff",
-                secondary: "#aaaaaa",
-              },
-            }
-          : {
-              background: {
-                default: "#f5f5f5",
-                paper: "#fff",
-              },
-              primary: {
-                main: "#1976d2",
-              },
-              text: {
-                primary: "#000000",
-                secondary: "#555555",
-              },
-            }),
-      },
-      components: {
-        MuiPaper: {
-          styleOverrides: {
-            root: {
-              borderRadius: "8px",       // nice rounded cards
-              padding: "16px",           // consistent padding
             },
           },
         },
-        MuiTextField: {
-          styleOverrides: {
-            root: {
-              backgroundColor: isDark ? "#1E1E1E" : "#fff",
-              borderRadius: "4px",
-            },
-          },
-        },
-        MuiButton: {
-          styleOverrides: {
-            root: {
-              color: "#fff",
-              textTransform: "none",      // optional: remove uppercase
-            },
-          },
-        },
-      },
-    });
-  }, [mode]);
+      }),
+    [mode]
+  );
 
   return (
     <ThemeContext.Provider value={{ mode, toggleTheme }}>
-      <MuiThemeProvider theme={theme}>{children}</MuiThemeProvider>
+      <MuiThemeProvider theme={theme}>
+        <CssBaseline />
+        {children}
+      </MuiThemeProvider>
     </ThemeContext.Provider>
   );
 };
 
-export const useThemeContext = () => useContext(ThemeContext);
+export const useThemeContext = () => {
+  const context = useContext(ThemeContext);
+  if (!context) {
+    throw new Error("useThemeContext must be used inside ThemeProvider");
+  }
+  return context;
+};
