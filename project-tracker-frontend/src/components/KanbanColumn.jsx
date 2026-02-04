@@ -21,6 +21,7 @@ const KanbanColumn = ({ status, tasks }) => {
               key={task.task_id}
               task={task}
               index={index}
+              draggable
             />
           ))}
           {provided.placeholder}

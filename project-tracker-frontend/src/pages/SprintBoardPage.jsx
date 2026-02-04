@@ -1,76 +1,128 @@
-import { useEffect, useState } from "react";
-import { Box, Typography } from "@mui/material";
-import { DragDropContext } from "@hello-pangea/dnd";
-import api from "../services/api";
-import KanbanColumn from "../components/KanbanColumn";
+import {
+  Box,
+  Typography,
+  Button,
+  Card,
+  CardContent,
+  Chip,
+  Stack
+} from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
-const STATUSES = [
-  { key: "TODO", label: "To Do" },
-  { key: "IN PROGRESS", label: "In Progress" },
-  { key: "DONE", label: "Done" }
-];
+/* ---------- Helpers ---------- */
 
-const SprintBoardPage = () => {
-  const [tasks, setTasks] = useState([]);
+const formatDate = (date) => {
+  if (!date) return "—";
+  return new Date(date).toLocaleDateString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric"
+  });
+};
 
-  useEffect(() => {
-    const fetchTasks = async () => {
-      const res = await api.get("/api/v1/task/list");
-      setTasks(res.data);
-    };
-    fetchTasks();
-  }, []);
+const getSprintStatus = (start, end) => {
+  if (!start || !end) return "UPCOMING";
 
-  const onDragEnd = async (result) => {
-    const { destination, source, draggableId } = result;
-    if (!destination) return;
-    if (
-      destination.droppableId === source.droppableId &&
-      destination.index === source.index
-    )
-      return;
+  const now = new Date();
+  if (now < new Date(start)) return "UPCOMING";
+  if (now > new Date(end)) return "COMPLETED";
+  return "ACTIVE";
+};
 
-    const newStatus = destination.droppableId;
+const statusColor = {
+  ACTIVE: "success",
+  UPCOMING: "info",
+  COMPLETED: "default"
+};
 
-    setTasks((prev) =>
-      prev.map((t) =>
-        t.task_id.toString() === draggableId
-          ? { ...t, status: newStatus }
-          : t
-      )
-    );
+/* ---------- Component ---------- */
 
-    await api.post(`/api/v1/task/${draggableId}`, {
-      status: newStatus
-    });
-  };
-
-  const tasksByStatus = (status) =>
-    tasks.filter((t) => t.status === status);
+const SprintBoards = ({ sprints = [], departmentId, teamId, projectId }) => {
+  const navigate = useNavigate();
 
   return (
-    <DragDropContext onDragEnd={onDragEnd}>
-      <Box display="flex" gap={2} p={2}>
-        {STATUSES.map((col) => (
-          <Box key={col.key} sx={{ minWidth: 320 }}>
-            <Typography
-              variant="h6"
-              fontWeight={600}
-              align="center"
-              mb={1}
-            >
-              {col.label}
-            </Typography>
+    <Box>
+      <Box display="flex" justifyContent="space-between" mb={3}>
+        <Typography variant="h5" fontWeight={600}>
+          Sprint Boards
+        </Typography>
 
-            <KanbanColumn
-              status={col.key}
-              tasks={tasksByStatus(col.key)}
-            />
-          </Box>
-        ))}
+        <Button variant="contained" sx={{ borderRadius: 2 }}>
+          + Add Sprint
+        </Button>
       </Box>
-    </DragDropContext>
+
+      <Stack spacing={2}>
+        {sprints.length === 0 && (
+          <Typography color="text.secondary">
+            No sprints created yet.
+          </Typography>
+        )}
+
+        {sprints.map((sprint) => {
+          const status = getSprintStatus(
+            sprint.start_date,
+            sprint.end_date
+          );
+
+          return (
+            <Card
+              key={sprint.sprint_id}
+              sx={{
+                borderRadius: 3,
+                transition: "0.2s",
+                "&:hover": {
+                  boxShadow: 6,
+                  transform: "translateY(-2px)"
+                }
+              }}
+            >
+              <CardContent>
+                <Box
+                  display="flex"
+                  justifyContent="space-between"
+                  alignItems="center"
+                  mb={1}
+                >
+                  <Typography variant="h6" fontWeight={600}>
+                    {sprint.sprint_name}
+                  </Typography>
+
+                  <Chip
+                    label={status}
+                    color={statusColor[status] || "default"}
+                    size="small"
+                  />
+                </Box>
+
+                <Typography variant="body2" color="text.secondary" mb={1}>
+                  {sprint.description || "No description"}
+                </Typography>
+
+                <Typography variant="caption" color="text.secondary">
+                  {formatDate(sprint.start_date)} →{" "}
+                  {formatDate(sprint.end_date)}
+                </Typography>
+
+                <Box mt={2}>
+                  <Button
+                    size="small"
+                    onClick={() =>
+                      navigate(
+                        `/project/${projectId}/sprint/${sprint.sprint_id}`
+                      )
+                    }
+                  >
+                    Open Board →
+                  </Button>
+                </Box>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </Stack>
+    </Box>
   );
 };
 
-export default SprintBoardPage;
+export default SprintBoards;

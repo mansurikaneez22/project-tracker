@@ -1,28 +1,31 @@
 import { useEffect, useState } from "react";
-import { Box, Grid, Typography } from "@mui/material";
+import { Grid, Typography } from "@mui/material";
 import { DragDropContext } from "@hello-pangea/dnd";
 import KanbanColumn from "./KanbanColumn";
 import api from "../services/api";
-
-const COLUMNS = ["TODO", "IN PROGRESS", "DONE"];
+import { COLUMNS } from "../constants/status";
 
 const KanbanBoard = ({ boardId }) => {
   const [tasks, setTasks] = useState([]);
 
   useEffect(() => {
-    fetchTasks();
+    if (boardId) fetchTasks();
   }, [boardId]);
 
   const fetchTasks = async () => {
-    const res = await api.get(
-      `/api/v1/board_task_mapping/board/${boardId}/task`
-    );
-    setTasks(res.data || []);
+    try {
+      const res = await api.get(
+        `/api/v1/board_task_mapping/board/${boardId}/task`
+      );
+      setTasks(res.data || []);
+    } catch (err) {
+      console.error("Fetch tasks failed", err);
+    }
   };
 
   const groupedTasks = {
     TODO: tasks.filter(t => t.status === "TODO"),
-    "IN PROGRESS": tasks.filter(t => t.status === "IN PROGRESS"),
+    IN_PROGRESS: tasks.filter(t => t.status === "IN_PROGRESS"),
     DONE: tasks.filter(t => t.status === "DONE")
   };
 
@@ -30,11 +33,23 @@ const KanbanBoard = ({ boardId }) => {
     if (!destination) return;
     if (destination.droppableId === source.droppableId) return;
 
-    await api.post(`/api/v1/task/${draggableId}`, {
-      status: destination.droppableId
-    });
+    // 🔹 Optimistic UI
+    setTasks(prev =>
+      prev.map(task =>
+        task.task_id.toString() === draggableId
+          ? { ...task, status: destination.droppableId }
+          : task
+      )
+    );
 
-    fetchTasks();
+    try {
+      await api.patch(`/api/v1/task/${draggableId}/status`, {
+        status: destination.droppableId
+      });
+    } catch (err) {
+      console.error("Status update failed", err);
+      fetchTasks(); // rollback
+    }
   };
 
   return (
@@ -43,13 +58,10 @@ const KanbanBoard = ({ boardId }) => {
         {COLUMNS.map(status => (
           <Grid item xs={12} md={4} key={status}>
             <Typography variant="h6" mb={1}>
-              {status}
+              {status.replace("_", " ")}
             </Typography>
 
-            <KanbanColumn
-              status={status}
-              tasks={groupedTasks[status]}
-            />
+            <KanbanColumn status={status} tasks={groupedTasks[status]} />
           </Grid>
         ))}
       </Grid>

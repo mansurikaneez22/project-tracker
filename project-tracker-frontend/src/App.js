@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
-import { ThemeProvider } from "./context/ThemeContext"; // <-- import theme context
-import Navbar from "./components/Navbar"; // <-- add a navbar with toggle
+import { ThemeProvider } from "./context/ThemeContext";
+import Navbar from "./components/Navbar";
 
 import Login from "./pages/Login";
 import DepartmentList from "./components/DepartmentList";
@@ -18,33 +18,53 @@ import TaskDetail from "./pages/TaskDetail";
 import BoardTaskList from "./components/BoardTaskList";
 import BoardTaskPage from "./pages/BoardTaskPage";
 import TeamDetail from "./components/Teamdetail";
-import SprintBoard from "./pages/SprintBoardPage";
+import SprintBoard from "./pages/SprintBoard";
 
 function App() {
-  const userRole = localStorage.getItem("role"); // "PM", "TL", "Member"
+  const userRole = localStorage.getItem("role");
 
   return (
     <ThemeProvider>
       <BrowserRouter>
-        <Navbar /> {/* Always visible, has toggle button */}
+        <Navbar />
+
         <Routes>
-          {/* Login */}
+          {/* Auth */}
           <Route path="/" element={<Login />} />
           <Route path="/login" element={<Login />} />
 
-          {/* Redirect OLD plural route */}
-          <Route path="/departments" element={<Navigate to="/department" replace />} />
+          {/* Redirect */}
+          <Route
+            path="/departments"
+            element={<Navigate to="/department" replace />}
+          />
 
           {/* Departments */}
           <Route path="/department" element={<DepartmentList />} />
+          <Route
+            path="/department/:departmentId/team"
+            element={<TeamList />}
+          />
 
           {/* Teams */}
-          <Route path="/department/:departmentId/team" element={<TeamList />} />
+          <Route
+            path="/department/:departmentId/team/:teamId"
+            element={<TeamDetail />}
+          />
 
           {/* Projects */}
-          <Route path="/department/:departmentId/team/:teamId/project" element={<Projects />} />
-          <Route path="/department/:departmentId/team/:teamId/project/:projectId" element={<ProjectDetail />} />
-          <Route path="/project/:projectId" element={<ProjectDetail />} />
+          <Route
+            path="/department/:departmentId/team/:teamId/project"
+            element={<Projects />}
+          />
+          <Route
+            path="/department/:departmentId/team/:teamId/project/:projectId"
+            element={<ProjectDetail />}
+          />
+          <Route
+            path="/project/:projectId"
+            element={<ProjectDetail />}
+          />
 
           {/* Admin */}
           <Route
@@ -66,21 +86,19 @@ function App() {
           <Route path="/tasks" element={<TaskList userRole={userRole} />} />
           <Route path="/task/:id" element={<TaskDetail />} />
 
-          {/* BOARD TASKS */}
-          <Route path="/project/:projectId/board/:boardId" element={<BoardTaskList />} />
+          {/* OLD board task list (LIST view) */}
+          <Route
+            path="/project/:projectId/board/:boardId"
+            element={<BoardTaskList />}
+          />
+
           <Route path="/board-tasks" element={<BoardTaskPage />} />
 
-          {/* Teams detail */}
-          <Route path="/department/:departmentId/team/:teamId" element={<TeamDetail />} />
-
-          {/* Projects & tasks */}
-          <Route path="/department/:departmentId/team/:teamId/project" element={<Projects />} />
-          <Route path="/department/:departmentId/team/:teamId/project/:projectId/tasks" element={<TaskList />} />
-          
-          <Route path="/board/:boardId" element={<SprintBoard />}
-/>
-
-        
+          {/* ✅ SPRINT BOARD (KANBAN) */}
+          <Route
+            path="/project/:projectId/sprint/:sprintId"
+            element={<SprintBoard />}
+          />
         </Routes>
       </BrowserRouter>
     </ThemeProvider>

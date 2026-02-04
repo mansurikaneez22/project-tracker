@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from app.database.database import get_db
 from app.models.task import Task
 from app.models.board_task_mapping import BoardTaskMapping
-from app.schemas.task_schemas import TaskCreate, TaskUpdate
+from app.schemas.task_schemas import TaskCreate, TaskUpdate, TaskStatusUpdate
 
 router = APIRouter(
     prefix="/api/v1/task",
@@ -103,6 +103,26 @@ def delete_task(
         "task_id": task_id
     }
 
+@router.patch("/{task_id}/status")
+def update_task_status(
+    task_id: int,
+    payload: TaskStatusUpdate,
+    db: Session = Depends(get_db)
+):
+    task = db.query(Task).filter(Task.task_id == task_id).first()
+
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+
+    task.status = payload.status
+    db.commit()
+    db.refresh(task)
+
+    return {
+        "message": "Task status updated successfully",
+        "task_id": task.task_id,
+        "status": task.status
+    }
 
 
 

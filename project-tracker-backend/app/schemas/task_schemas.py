@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from datetime import datetime
 from typing import Optional
+from typing import Literal
 
 class TaskCreate(BaseModel):
     task_title: str
@@ -37,3 +38,5 @@ class TaskUpdate(BaseModel):
     status: Optional[str] = None
     dependency: Optional[int] = None
 
+class TaskStatusUpdate(BaseModel):
+    status: Literal["TODO", "IN_PROGRESS", "DONE"]
