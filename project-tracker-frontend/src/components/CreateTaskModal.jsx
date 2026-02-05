@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import {
   Dialog,
   DialogTitle,
@@ -20,6 +21,8 @@ const CreateTaskModal = ({
   boardId,
   refreshTasks
 }) => {
+  const { departmentId, teamId } = useParams();
+
   const initialFormState = {
     task_title: "",
     task_description: "",
@@ -28,31 +31,45 @@ const CreateTaskModal = ({
     estimation_points: 1,
     start_date: "",
     due_date: "",
-    status: "TODO" // ✅ IMPORTANT
+    status: "TODO"
   };
 
   const [form, setForm] = useState(initialFormState);
-  const [assignees, setAssignees] = useState([]);
+  const [teamMembers, setTeamMembers] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (open) {
-      setForm(initialFormState);
-      fetchProjectMembers();
-    }
-  }, [open]);
+  // ================================
+  // FETCH TEAM MEMBERS (ASSIGNEES)
+  // ================================
+  const fetchTeamMembers = async () => {
+    if (!departmentId || !teamId) return;
 
-  const fetchProjectMembers = async () => {
     try {
       const res = await api.get(
-        `/api/v1/project-members/project/${projectId}`
+        `/api/v1/project/department/${departmentId}/team/${teamId}/members`
       );
-      setAssignees(res.data || []);
+      setTeamMembers(res.data || []);
     } catch (err) {
-      console.error("Failed to fetch project members:", err);
-      setAssignees([]);
+      console.error("Failed to fetch team members:", err);
+      setTeamMembers([]);
     }
   };
 
+  // ================================
+  // EFFECT
+  // ================================
+  useEffect(() => {
+    if (open) {
+      setForm(initialFormState);
+      fetchTeamMembers();
+    } else {
+      setTeamMembers([]);
+    }
+  }, [open, departmentId, teamId]);
+
+  // ================================
+  // HANDLERS
+  // ================================
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -64,8 +81,9 @@ const CreateTaskModal = ({
       return;
     }
 
+    setLoading(true);
+
     try {
-      // ✅ TASK CREATE PAYLOAD
       const payload = {
         task_title: form.task_title.trim(),
         task_description: form.task_description?.trim() || null,
@@ -76,29 +94,33 @@ const CreateTaskModal = ({
         estimation_points: Number(form.estimation_points || 1),
         start_date: form.start_date || null,
         due_date: form.due_date || null,
-        status: form.status // ✅ VERY IMPORTANT
+        status: form.status
       };
 
       const res = await api.post("/api/v1/task/", payload);
       const taskId = res.data.task_id;
 
-      // ✅ MAP TASK TO SPRINT (BOARD)
-      await api.post("/api/v1/board_task_mapping", {
-        board_id: Number(boardId),
-        task_id: taskId
-      });
+      // map task to sprint/board
+      if (boardId) {
+        await api.post("/api/v1/board_task_mapping", {
+          board_id: Number(boardId),
+          task_id: taskId
+        });
+      }
 
-      refreshTasks();
+      refreshTasks?.();
       onClose();
       setForm(initialFormState);
     } catch (err) {
-      console.error(
-        "BACKEND ERROR 👉",
-        err.response?.data || err.message
-      );
+      console.error("BACKEND ERROR 👉", err.response?.data || err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
+  // ================================
+  // UI
+  // ================================
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
       <DialogTitle>Create Task</DialogTitle>
@@ -124,7 +146,6 @@ const CreateTaskModal = ({
           rows={3}
         />
 
-        {/* PRIORITY */}
         <FormControl fullWidth margin="dense">
           <InputLabel>Priority</InputLabel>
           <Select
@@ -139,7 +160,6 @@ const CreateTaskModal = ({
           </Select>
         </FormControl>
 
-        {/* STATUS ✅ */}
         <FormControl fullWidth margin="dense">
           <InputLabel>Status</InputLabel>
           <Select
@@ -154,7 +174,6 @@ const CreateTaskModal = ({
           </Select>
         </FormControl>
 
-        {/* ASSIGNEE */}
         <FormControl fullWidth margin="dense">
           <InputLabel>Assign To</InputLabel>
           <Select
@@ -163,10 +182,10 @@ const CreateTaskModal = ({
             onChange={handleChange}
             label="Assign To"
           >
-            <MenuItem value="">None</MenuItem>
-            {assignees.map((user) => (
-              <MenuItem key={user.user_id} value={user.user_id}>
-                {user.user_name}
+            <MenuItem value="">Unassigned</MenuItem>
+            {teamMembers.map((u) => (
+              <MenuItem key={u.user_id} value={u.user_id}>
+                {u.user_name}
               </MenuItem>
             ))}
           </Select>
@@ -207,9 +226,11 @@ const CreateTaskModal = ({
       </DialogContent>
 
       <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
-        <Button variant="contained" onClick={handleSubmit}>
-          Create Task
+        <Button onClick={onClose} disabled={loading}>
+          Cancel
+        </Button>
+        <Button variant="contained" onClick={handleSubmit} disabled={loading}>
+          {loading ? "Creating..." : "Create Task"}
         </Button>
       </DialogActions>
     </Dialog>

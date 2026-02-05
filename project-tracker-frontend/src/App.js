@@ -6,18 +6,21 @@ import Navbar from "./components/Navbar";
 import Login from "./pages/Login";
 import DepartmentList from "./components/DepartmentList";
 import TeamList from "./pages/TeamList";
+import TeamDetail from "./components/Teamdetail";
+
 import Projects from "./pages/Projects";
 import ProjectDetail from "./components/ProjectDetail";
+
 import AdminDashboard from "./pages/AdminDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminRoute from "./components/AdminRoute";
+
 import SetPassword from "./pages/SetPassword";
 import ForgotPassword from "./pages/ForgotPassword";
+
 import TaskList from "./pages/TaskList";
 import TaskDetail from "./pages/TaskDetail";
-import BoardTaskList from "./components/BoardTaskList";
-import BoardTaskPage from "./pages/BoardTaskPage";
-import TeamDetail from "./components/Teamdetail";
+
 import SprintBoard from "./pages/SprintBoard";
 
 function App() {
@@ -29,44 +32,64 @@ function App() {
         <Navbar />
 
         <Routes>
-          {/* Auth */}
+          {/* ================= AUTH ================= */}
           <Route path="/" element={<Login />} />
           <Route path="/login" element={<Login />} />
 
-          {/* Redirect */}
+          {/* ================= REDIRECTS ================= */}
           <Route
             path="/departments"
             element={<Navigate to="/department" replace />}
           />
 
-          {/* Departments */}
+          {/* ================= DEPARTMENTS ================= */}
           <Route path="/department" element={<DepartmentList />} />
           <Route
             path="/department/:departmentId/team"
             element={<TeamList />}
           />
 
-          {/* Teams */}
+          {/* ================= TEAMS ================= */}
           <Route
             path="/department/:departmentId/team/:teamId"
             element={<TeamDetail />}
           />
 
-          {/* Projects */}
+          {/* ================= PROJECTS ================= */}
           <Route
             path="/department/:departmentId/team/:teamId/project"
             element={<Projects />}
           />
+
           <Route
             path="/department/:departmentId/team/:teamId/project/:projectId"
             element={<ProjectDetail />}
           />
+
+          {/* direct project access */}
           <Route
             path="/project/:projectId"
             element={<ProjectDetail />}
           />
 
-          {/* Admin */}
+          {/* ================= BOARD / SPRINT (KANBAN) ================= */}
+          {/* sprint = board → single source of truth */}
+          <Route
+            path="/project/:projectId/board/:boardId"
+            element={<SprintBoard />}
+          />
+
+          {/* ================= TASKS ================= */}
+          <Route
+            path="/tasks"
+            element={<TaskList userRole={userRole} />}
+          />
+          <Route
+            path="/task/:id"
+            element={<TaskDetail />}
+          />
+
+          {/* ================= ADMIN ================= */}
           <Route
             path="/admin-dashboard"
             element={
@@ -78,27 +101,12 @@ function App() {
             }
           />
 
-          {/* Password */}
+          {/* ================= PASSWORD ================= */}
           <Route path="/set-password" element={<SetPassword />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
 
-          {/* Tasks */}
-          <Route path="/tasks" element={<TaskList userRole={userRole} />} />
-          <Route path="/task/:id" element={<TaskDetail />} />
-
-          {/* OLD board task list (LIST view) */}
-          <Route
-            path="/project/:projectId/board/:boardId"
-            element={<BoardTaskList />}
-          />
-
-          <Route path="/board-tasks" element={<BoardTaskPage />} />
-
-          {/* ✅ SPRINT BOARD (KANBAN) */}
-          <Route
-            path="/project/:projectId/sprint/:sprintId"
-            element={<SprintBoard />}
-          />
+          {/* ================= FALLBACK ================= */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
     </ThemeProvider>

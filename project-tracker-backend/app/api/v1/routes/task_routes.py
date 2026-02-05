@@ -5,6 +5,7 @@ from app.database.database import get_db
 from app.models.task import Task
 from app.models.board_task_mapping import BoardTaskMapping
 from app.schemas.task_schemas import TaskCreate, TaskUpdate, TaskStatusUpdate
+from app.models.board import Board
 
 router = APIRouter(
     prefix="/api/v1/task",
@@ -123,6 +124,3 @@ def update_task_status(
         "task_id": task.task_id,
         "status": task.status
     }
-
-
-

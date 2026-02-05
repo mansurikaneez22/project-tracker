@@ -4,6 +4,9 @@ from app.database.database import get_db
 from app.models.board_task_mapping import BoardTaskMapping
 from app.models.task import Task
 from app.schemas.board_task_mapping_schemas import BoardTaskMappingCreate
+from sqlalchemy import text 
+from app.models.user import User
+from app.dependencies.auth_dependency import get_current_user
 
 router = APIRouter(
     prefix="/api/v1/board_task_mapping",
@@ -42,14 +45,29 @@ def create_board_task_mapping(
 
 # 2️⃣ Get all tasks for a board
 @router.get("/board/{board_id}/task")
-def get_tasks_by_board(board_id: int, db: Session = Depends(get_db)):
-    mappings = db.query(BoardTaskMapping).filter(BoardTaskMapping.board_id == board_id).all()
-    if not mappings:
-        return {"message": "No tasks found for this board", "tasks": []}
-    
-    tasks = []
-    for m in mappings:
-        task = db.query(Task).filter(Task.task_id == m.task_id).first()
-        if task:
-            tasks.append(task)
-    return tasks
+def get_tasks_by_board(
+    board_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    query = text("""
+        SELECT
+            t.task_id,
+            t.task_title,
+            t.status,
+            t.priority,
+            t.start_date,
+            t.due_date,
+            u.user_name AS assignee_name
+        FROM board_task_mapping btm
+        JOIN task t ON t.task_id = btm.task_id
+        LEFT JOIN `user` u ON u.user_id = t.assignee_id
+        WHERE btm.board_id = :board_id
+    """)
+
+    result = db.execute(
+        query,
+        {"board_id": board_id}
+    ).mappings().all()
+
+    return result

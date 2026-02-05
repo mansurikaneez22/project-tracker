@@ -15,7 +15,8 @@ from app.schemas.project_schemas import (
     ProjectResponse
 )
 from app.dependencies.auth_dependency import get_current_user
-
+from app.models.board import Board
+from app.models.board_task_mapping import BoardTaskMapping
 
 router = APIRouter(
     prefix="/api/v1/project",
@@ -213,20 +214,36 @@ def get_tasks_by_project_scoped(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    # scope + permission check
     validate_project_scope(db, dept_id, team_id, project_id)
 
-    tasks = (
-        db.query(Task)
-        .filter(Task.project_id == project_id)
-        .all()
-    )
+    query = text("""
+        SELECT
+            t.task_id,
+            t.task_title,
+            t.start_date,
+            t.due_date,
+            t.priority,
+            u.user_name AS assignee_name,
+            b.board_title AS board_title
+        FROM task t
+        LEFT JOIN `user` u ON t.assignee_id = u.user_id
+        LEFT JOIN board_task_mapping btm ON btm.task_id = t.task_id
+        LEFT JOIN board b ON b.board_id = btm.board_id
+        WHERE t.project_id = :project_id
+    """)
+
+    result = db.execute(
+        query,
+        {"project_id": project_id}
+    ).mappings().all()
 
     return {
-        "count": len(tasks),
-        "tasks": tasks
+        "count": len(result),
+        "tasks": result
     }
 
-# ======================================================
+# ==================================================
 # PROJECT TIMELINE
 # ======================================================
 @router.get("/department/{dept_id}/team/{team_id}/project/{project_id}/timeline")
