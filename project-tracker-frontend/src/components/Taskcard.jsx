@@ -7,7 +7,7 @@ import {
   Stack,
   Divider
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Draggable } from "@hello-pangea/dnd";
 
 const statusColor = (status) => {
@@ -37,13 +37,22 @@ const priorityColor = (priority) => {
 };
 
 const TaskCardContent = ({ task, assignees, navigate }) => {
+  const { departmentId, teamId, projectId } = useParams();
+
   const assigneeName =
     assignees?.find((u) => u.user_id === task.assignee_id)?.user_name || "None";
 
+  const handleClick = (e) => {
+    e.stopPropagation();     // 🔥 VERY IMPORTANT (drag conflict fix)
+    e.preventDefault();
+
+    
+      navigate(`/project/${projectId}/task/${task.task_id}`);
+    
+  };
+
   return (
-    <Card
-      sx={{ mb: 2, borderRadius: 2, "&:hover": { boxShadow: 6 } }}
-    >
+    <Card sx={{ mb: 2, borderRadius: 2, "&:hover": { boxShadow: 6 } }}>
       <CardContent>
         <Box display="flex" justifyContent="space-between" mb={1}>
           <Typography variant="h6" fontWeight={600}>
@@ -56,10 +65,7 @@ const TaskCardContent = ({ task, assignees, navigate }) => {
           </Stack>
         </Box>
 
-        <Box
-          onClick={() => navigate(`/task/${task.task_id}`)}
-          sx={{ cursor: "pointer" }}
-        >
+        <Box onClick={handleClick} sx={{ cursor: "pointer" }}>
           <Typography variant="body2" color="text.secondary" mb={1}>
             {task.task_description}
           </Typography>
@@ -82,7 +88,13 @@ const TaskCard = ({ task, index, assignees = [], draggable = false }) => {
   const navigate = useNavigate();
 
   if (!draggable) {
-    return <TaskCardContent task={task} assignees={assignees} navigate={navigate} />;
+    return (
+      <TaskCardContent
+        task={task}
+        assignees={assignees}
+        navigate={navigate}
+      />
+    );
   }
 
   return (
@@ -90,7 +102,11 @@ const TaskCard = ({ task, index, assignees = [], draggable = false }) => {
       {(provided) => (
         <Box ref={provided.innerRef} {...provided.draggableProps}>
           <Box {...provided.dragHandleProps}>
-            <TaskCardContent task={task} assignees={assignees} navigate={navigate} />
+            <TaskCardContent
+              task={task}
+              assignees={assignees}
+              navigate={navigate}
+            />
           </Box>
         </Box>
       )}

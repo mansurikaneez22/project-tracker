@@ -41,31 +41,32 @@ const CreateTaskModal = ({
   // ================================
   // FETCH TEAM MEMBERS (ASSIGNEES)
   // ================================
-  const fetchTeamMembers = async () => {
-    if (!departmentId || !teamId) return;
+  const fetchProjectMembers = async () => {
+  if (!departmentId || !teamId || !projectId) return;
 
-    try {
-      const res = await api.get(
-        `/api/v1/project/department/${departmentId}/team/${teamId}/members`
-      );
-      setTeamMembers(res.data || []);
-    } catch (err) {
-      console.error("Failed to fetch team members:", err);
-      setTeamMembers([]);
-    }
-  };
+  try {
+    const res = await api.get(
+      `/api/v1/department/${departmentId}/team/${teamId}/project/${projectId}/members`
+    );
+    setTeamMembers(res.data || []);
+  } catch (err) {
+    console.error("Failed to fetch project members:", err);
+    setTeamMembers([]);
+  }
+};
 
   // ================================
   // EFFECT
   // ================================
   useEffect(() => {
-    if (open) {
-      setForm(initialFormState);
-      fetchTeamMembers();
-    } else {
-      setTeamMembers([]);
-    }
-  }, [open, departmentId, teamId]);
+  if (open) {
+    setForm(initialFormState);
+    fetchProjectMembers();
+  } else {
+    setTeamMembers([]);
+  }
+}, [open, departmentId, teamId, projectId]);
+
 
   // ================================
   // HANDLERS

@@ -84,10 +84,14 @@ function App() {
             path="/tasks"
             element={<TaskList userRole={userRole} />}
           />
-          <Route
+         {/* <Route
             path="/task/:id"
             element={<TaskDetail />}
-          />
+          />*/}
+         <Route
+  path="/department/:departmentId/team/:teamId/project/:projectId/task/:id"
+  element={<TaskDetail />}
+/>
 
           {/* ================= ADMIN ================= */}
           <Route
