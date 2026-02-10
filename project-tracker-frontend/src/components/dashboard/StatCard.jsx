@@ -1,26 +1,47 @@
-import { Card, Box, Typography } from "@mui/material";
+import { Card, CardContent, Typography, Box } from "@mui/material";
 
-const StatCard = ({ title, value }) => {
+const StatCard = ({ title, value, icon, color }) => {
   return (
-    <Card sx={{ borderRadius: 3, padding: 2, textAlign: "center" }}>
-      <Box
-        sx={{
-          margin: "0 auto",
-          borderRadius: "50%",
-          height: 100,
-          width: 100,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          backgroundColor: "#f5f5f5",
-        }}
-      >
-        <Typography variant="h6" fontWeight={600}>
-          {value}
-        </Typography>
-        <Typography variant="body2">{title}</Typography>
-      </Box>
+    <Card
+      sx={{
+        height: "100%",
+        borderRadius: 3,
+        boxShadow: "0 8px 24px rgba(0,0,0,0.05)",
+        transition: "0.3s",
+        "&:hover": {
+          transform: "translateY(-4px)",
+          boxShadow: "0 12px 30px rgba(0,0,0,0.1)",
+        },
+      }}
+    >
+      <CardContent>
+        <Box display="flex" alignItems="center" gap={2}>
+          <Box
+            sx={{
+              width: 48,
+              height: 48,
+              borderRadius: "50%",
+              backgroundColor: color,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "#fff",
+              fontSize: 22,
+            }}
+          >
+            {icon}
+          </Box>
+
+          <Box>
+            <Typography variant="body2" color="text.secondary">
+              {title}
+            </Typography>
+            <Typography variant="h5" fontWeight={700}>
+              {value}
+            </Typography>
+          </Box>
+        </Box>
+      </CardContent>
     </Card>
   );
 };

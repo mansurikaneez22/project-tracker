@@ -32,51 +32,91 @@ def pm_dashboard_summary(
     if current_user.job_profile != "PROJECT MANAGER":
         raise HTTPException(status_code=403, detail="Access denied")
 
+    pm_id = current_user.user_id
+
     summary = db.execute(text("""
         SELECT
-            (SELECT COUNT(*) FROM project WHERE project_manager = :pm_id) AS total_projects,
-            (SELECT COUNT(*) FROM board WHERE sprint_end_date >= CURDATE()) AS active_boards,
-            (SELECT COUNT(*) FROM task WHERE status != 'DONE') AS open_tasks,
-            (SELECT COUNT(*) FROM task WHERE due_date < CURDATE() AND status != 'DONE') AS overdue_tasks,
-            (SELECT SUM(CASE WHEN status='NOT_STARTED' THEN 1 ELSE 0 END)
-             FROM task WHERE project_id IN (SELECT project_id FROM project WHERE project_manager = :pm_id)) AS not_started,
-            (SELECT SUM(CASE WHEN status='IN_PROGRESS' THEN 1 ELSE 0 END)
-             FROM task WHERE project_id IN (SELECT project_id FROM project WHERE project_manager = :pm_id)) AS in_progress,
-            (SELECT SUM(CASE WHEN status='COMPLETED' THEN 1 ELSE 0 END)
-             FROM task WHERE project_id IN (SELECT project_id FROM project WHERE project_manager = :pm_id)) AS completed
-    """), {"pm_id": current_user.user_id}).mappings().first()
+            -- Projects
+            (SELECT COUNT(*)
+             FROM project
+             WHERE project_manager = :pm_id) AS total_projects,
 
-    # Prepare response in frontend-friendly format
+            -- ✅ Teams (DISTINCT team_id)
+            (SELECT COUNT(DISTINCT tm.team_id)
+             FROM team_member tm
+             JOIN task t ON t.assignee_id = tm.user_id
+             JOIN project p ON p.project_id = t.project_id
+             WHERE p.project_manager = :pm_id
+            ) AS team_count,
+
+            -- Open tasks
+            (SELECT COUNT(*)
+             FROM task
+             WHERE status != 'DONE'
+               AND project_id IN (
+                 SELECT project_id FROM project WHERE project_manager = :pm_id
+               )) AS open_tasks,
+
+            -- Overdue
+            (SELECT COUNT(*)
+             FROM task
+             WHERE due_date < CURDATE()
+               AND status != 'DONE'
+               AND project_id IN (
+                 SELECT project_id FROM project WHERE project_manager = :pm_id
+               )) AS overdue_tasks,
+
+            -- Status split
+            (SELECT COUNT(*)
+             FROM task
+             WHERE status = 'TODO'
+               AND project_id IN (
+                 SELECT project_id FROM project WHERE project_manager = :pm_id
+               )) AS todo,
+
+            (SELECT COUNT(*)
+             FROM task
+             WHERE status = 'IN_PROGRESS'
+               AND project_id IN (
+                 SELECT project_id FROM project WHERE project_manager = :pm_id
+               )) AS in_progress,
+
+            (SELECT COUNT(*)
+             FROM task
+             WHERE status = 'DONE'
+               AND project_id IN (
+                 SELECT project_id FROM project WHERE project_manager = :pm_id
+               )) AS done
+    """), {"pm_id": pm_id}).mappings().first()
+
+    project_progress = db.execute(text("""
+        SELECT
+            p.project_id,
+            p.project_title AS project_name,
+            ROUND(
+                (SUM(CASE WHEN t.status = 'DONE' THEN 1 ELSE 0 END)
+                 / NULLIF(COUNT(t.task_id), 0)) * 100
+            ) AS progress
+        FROM project p
+        LEFT JOIN task t ON t.project_id = p.project_id
+        WHERE p.project_manager = :pm_id
+        GROUP BY p.project_id, p.project_title
+    """), {"pm_id": pm_id}).mappings().all()
+
     return {
         "projects": summary.total_projects or 0,
-        "teams": 0,  # Replace with real team count if available
+        "teams": summary.team_count or 0,   # ✅ FIXED
         "tasks": summary.open_tasks or 0,
         "pending_tasks": summary.overdue_tasks or 0,
         "task_status": {
-            "NOT_STARTED": summary.not_started or 0,
+            "TODO": summary.todo or 0,
             "IN_PROGRESS": summary.in_progress or 0,
-            "COMPLETED": summary.completed or 0
+            "DONE": summary.done or 0
         },
-        "project_progress": []  # Fill this if you want a chart of projects
+        "project_progress": project_progress
     }
 
 
-# ---------------- Projects Overview ----------------
-@router.get("/projects/overview")
-def project_overview(
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
-    data = db.execute(text("""
-        SELECT
-            SUM(CASE WHEN status = 'NOT_STARTED' THEN 1 ELSE 0 END) AS not_started,
-            SUM(CASE WHEN status = 'IN_PROGRESS' THEN 1 ELSE 0 END) AS in_progress,
-            SUM(CASE WHEN status = 'COMPLETED' THEN 1 ELSE 0 END) AS completed
-        FROM project
-        WHERE project_manager = :pm_id
-    """), {"pm_id": current_user.user_id}).mappings().first()
-
-    return data
 
 # ---------------- Team Workload ----------------
 @router.get("/team/workload")
@@ -84,17 +124,27 @@ def team_workload(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    if current_user.job_profile != "PROJECT MANAGER":
+        raise HTTPException(status_code=403, detail="Access denied")
+
+    pm_id = current_user.user_id
+
     result = db.execute(text("""
         SELECT
-            u.user_name,
+            u.user_name AS name,
             COUNT(t.task_id) AS task_count
         FROM task t
         JOIN user u ON u.user_id = t.assignee_id
-        WHERE t.status != 'DONE'
+        JOIN project p ON p.project_id = t.project_id
+        WHERE p.project_manager = :pm_id
+          AND t.status != 'DONE'
         GROUP BY u.user_name
-    """)).mappings().all()
+        ORDER BY task_count DESC
+    """), {"pm_id": pm_id}).mappings().all()
 
     return result
+
+
 
 # ---------------- Active Boards / Sprints ----------------
 @router.get("/boards/active")
