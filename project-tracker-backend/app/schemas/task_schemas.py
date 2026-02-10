@@ -20,7 +20,8 @@ class TaskCreate(BaseModel):
     dependency: Optional[int] = None
 
     project_id: int
-
+    
+    board_id: int 
 #updateTask schema
 class TaskUpdate(BaseModel):
     task_title: Optional[str] = None

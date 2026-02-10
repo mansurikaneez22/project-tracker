@@ -7,9 +7,10 @@ import {
   Stack,
   Divider
 } from "@mui/material";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Draggable } from "@hello-pangea/dnd";
 
+/* ---------- Status Color ---------- */
 const statusColor = (status) => {
   switch (status) {
     case "TODO":
@@ -23,6 +24,7 @@ const statusColor = (status) => {
   }
 };
 
+/* ---------- Priority Color ---------- */
 const priorityColor = (priority) => {
   switch (priority) {
     case "High":
@@ -36,23 +38,45 @@ const priorityColor = (priority) => {
   }
 };
 
+/* ===================================================== */
+/* ================= TaskCardContent =================== */
+/* ===================================================== */
+
 const TaskCardContent = ({ task, assignees, navigate }) => {
-  const { departmentId, teamId, projectId } = useParams();
+
 
   const assigneeName =
-    assignees?.find((u) => u.user_id === task.assignee_id)?.user_name || "None";
+    assignees?.find((u) => u.user_id === task.assignee_id)?.user_name ||
+    "None";
 
   const handleClick = (e) => {
-    e.stopPropagation();     // 🔥 VERY IMPORTANT (drag conflict fix)
+    e.stopPropagation();
     e.preventDefault();
 
-    
-      navigate(`/project/${projectId}/task/${task.task_id}`);
-    
+    // ✅ Correct nested route
+    navigate(
+  `/project/${task.project_id}/task/${task.task_id}`,
+   {
+    state: {
+     
+      projectName: task.project_name,
+    }
+  }
+
+);
+
   };
 
   return (
-    <Card sx={{ mb: 2, borderRadius: 2, "&:hover": { boxShadow: 6 } }}>
+    <Card
+      onClick={handleClick}
+      sx={{
+        mb: 2,
+        borderRadius: 2,
+        cursor: "pointer",
+        "&:hover": { boxShadow: 6 }
+      }}
+    >
       <CardContent>
         <Box display="flex" justifyContent="space-between" mb={1}>
           <Typography variant="h6" fontWeight={600}>
@@ -60,29 +84,50 @@ const TaskCardContent = ({ task, assignees, navigate }) => {
           </Typography>
 
           <Stack direction="row" spacing={1}>
-            <Chip label={task.status} color={statusColor(task.status)} size="small" />
-            <Chip label={task.priority} color={priorityColor(task.priority)} size="small" />
+            <Chip
+              label={task.status}
+              color={statusColor(task.status)}
+              size="small"
+            />
+            <Chip
+              label={task.priority}
+              color={priorityColor(task.priority)}
+              size="small"
+            />
           </Stack>
         </Box>
 
-        <Box onClick={handleClick} sx={{ cursor: "pointer" }}>
-          <Typography variant="body2" color="text.secondary" mb={1}>
-            {task.task_description}
+        <Typography variant="body2" color="text.secondary" mb={1}>
+          {task.task_description}
+        </Typography>
+
+        <Divider sx={{ my: 1 }} />
+
+        <Box display="flex" justifyContent="space-between" flexWrap="wrap">
+          <Typography variant="caption">
+            👤 {assigneeName}
           </Typography>
 
-          <Divider sx={{ my: 1 }} />
+          <Typography variant="caption">
+            🗓️ {task.start_date?.slice(0, 10)}
+          </Typography>
 
-          <Box display="flex" justifyContent="space-between" flexWrap="wrap">
-            <Typography variant="caption">👤 {assigneeName}</Typography>
-            <Typography variant="caption">🗓️ {task.start_date?.slice(0, 10)}</Typography>
-            <Typography variant="caption">⏰ {task.due_date?.slice(0, 10)}</Typography>
-            <Typography variant="caption">⭐ {task.estimation_points}</Typography>
-          </Box>
+          <Typography variant="caption">
+            ⏰ {task.due_date?.slice(0, 10)}
+          </Typography>
+
+          <Typography variant="caption">
+            ⭐ {task.estimation_points}
+          </Typography>
         </Box>
       </CardContent>
     </Card>
   );
 };
+
+/* ===================================================== */
+/* ===================== TaskCard ====================== */
+/* ===================================================== */
 
 const TaskCard = ({ task, index, assignees = [], draggable = false }) => {
   const navigate = useNavigate();
@@ -98,16 +143,21 @@ const TaskCard = ({ task, index, assignees = [], draggable = false }) => {
   }
 
   return (
-    <Draggable draggableId={task.task_id.toString()} index={index}>
+    <Draggable
+  draggableId={task.task_id.toString()}
+  index={index}
+>
       {(provided) => (
-        <Box ref={provided.innerRef} {...provided.draggableProps}>
-          <Box {...provided.dragHandleProps}>
-            <TaskCardContent
-              task={task}
-              assignees={assignees}
-              navigate={navigate}
-            />
-          </Box>
+        <Box
+          ref={provided.innerRef}
+          {...provided.draggableProps}
+          {...provided.dragHandleProps}
+        >
+          <TaskCardContent
+            task={task}
+            assignees={assignees}
+            navigate={navigate}
+          />
         </Box>
       )}
     </Draggable>

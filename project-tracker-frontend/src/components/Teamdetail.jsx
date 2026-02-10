@@ -8,19 +8,19 @@ import Projects from "../pages/Projects";
 import TeamMembers from "./TeamMembers";
 
 const TeamDetail = () => {
-  const { departmentId, teamId } = useParams();
+  const { deptId, teamId } = useParams();
   const [team, setTeam] = useState(null);
   const [tab, setTab] = useState(0);
 
   useEffect(() => {
     // Fetch team info including projects
-    api.get(`/api/v1/department/${departmentId}/team`)
+    api.get(`/api/v1/department/${deptId}/team`)
       .then((res) => {
         const t = res.data.find(t => t.team_id === Number(teamId));
         setTeam(t || null);
       })
       .catch(err => console.error(err));
-  }, [departmentId, teamId]);
+  }, [deptId, teamId]);
 
   if (!team) return <Typography>Loading team...</Typography>;
 
@@ -58,10 +58,16 @@ const TeamDetail = () => {
         </Tabs>
 
         <Box p={3}>
-          {tab === 0 && <Projects teamId={teamId} />}
+          {tab === 0 && (
+  <Projects 
+    deptId={deptId}
+    teamId={teamId}
+  />
+)}
+
           {tab === 1 && projectId && (
             <TeamMembers 
-              departmentId={departmentId} 
+              deptId={deptId} 
               teamId={teamId} 
               projectId={projectId} 
             />

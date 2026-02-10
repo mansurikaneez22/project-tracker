@@ -47,27 +47,29 @@ def create_board_task_mapping(
 @router.get("/board/{board_id}/task")
 def get_tasks_by_board(
     board_id: int,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    db: Session = Depends(get_db)
 ):
-    query = text("""
-        SELECT
+   query = text("""
+ SELECT
             t.task_id,
             t.task_title,
+            t.task_description,
             t.status,
             t.priority,
             t.start_date,
             t.due_date,
-            u.user_name AS assignee_name
+            t.project_id,
+            t.assignee_id
         FROM board_task_mapping btm
         JOIN task t ON t.task_id = btm.task_id
-        LEFT JOIN `user` u ON u.user_id = t.assignee_id
+        LEFT JOIN project p ON p.project_id = t.project_id
         WHERE btm.board_id = :board_id
     """)
 
-    result = db.execute(
+
+   result = db.execute(
         query,
         {"board_id": board_id}
     ).mappings().all()
 
-    return result
+   return result

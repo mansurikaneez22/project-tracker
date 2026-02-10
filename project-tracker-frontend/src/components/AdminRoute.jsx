@@ -1,14 +1,13 @@
-import { Navigate } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
 
-const AdminRoute = ({ children }) => {
+const AdminRoute = () => {
+  const role = localStorage.getItem("role");
 
-  const role = localStorage.getItem("job_profile");
-
-  if (role !== "ADMIN") {
+  if (role !== "admin") {
     return <Navigate to="/department" replace />;
   }
 
-  return children;
+  return <Outlet />;
 };
 
 export default AdminRoute;

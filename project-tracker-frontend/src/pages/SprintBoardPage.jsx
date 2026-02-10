@@ -37,7 +37,7 @@ const statusColor = {
 
 /* ---------- Component ---------- */
 
-const SprintBoards = ({ sprints = [], departmentId, teamId, projectId }) => {
+const SprintBoards = ({ sprints = [], deptId, teamId, projectId }) => {
   const navigate = useNavigate();
 
   return (
@@ -109,7 +109,7 @@ const SprintBoards = ({ sprints = [], departmentId, teamId, projectId }) => {
                     size="small"
                     onClick={() =>
                       navigate(
-                        `/project/${projectId}/sprint/${sprint.sprint_id}`
+                         `/department/${deptId}/team/${teamId}/project/${projectId}/board/${sprint.sprint_id}`
                       )
                     }
                   >

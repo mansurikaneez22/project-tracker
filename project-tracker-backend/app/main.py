@@ -23,6 +23,7 @@ from app.api.v1.routes.comment_routes import router as comment_router
 from app.api.v1.routes.notification_routes import router as notification_router
 from app.api.v1.routes.team_member_routes import router as team_member_router 
 from app.api.v1.routes.admin_routes import router as admin_router
+from app.api.v1.routes.pm_dashboard_routes import router as pm_dashboard_router
 
 app = FastAPI(title="Project Tracker API")
 
@@ -66,3 +67,4 @@ app.include_router(comment_router)
 app.include_router(notification_router)
 app.include_router(team_member_router)
 app.include_router(admin_router)
+app.include_router(pm_dashboard_router)

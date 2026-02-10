@@ -18,42 +18,47 @@ import api from "../services/api";
 import CreateTaskModal from "../components/CreateTaskModal";
 
 const TaskList = () => {
-  const { departmentId, teamId, projectId } = useParams();
+  // ✅ FIRST get params
+  const { deptId, teamId, projectId } = useParams();
   const navigate = useNavigate();
 
   const [tasks, setTasks] = useState([]);
-  const [boards, setBoards] = useState([]);
   const [activeBoardId, setActiveBoardId] = useState(null);
   const [openCreateTask, setOpenCreateTask] = useState(false);
 
   const fetchTasks = async () => {
     try {
       const res = await api.get(
-        `/api/v1/project/department/${departmentId}/team/${teamId}/project/${projectId}/task`
+        `/api/v1/project/department/${deptId}/team/${teamId}/project/${projectId}/task`
       );
       setTasks(res.data.tasks || []);
-    } catch {
+    } catch (err) {
+      console.error("Task fetch error:", err);
       setTasks([]);
     }
   };
 
   const fetchBoards = async () => {
-    const res = await api.get(`/api/v1/board/project/${projectId}`);
-    if (res.data?.length > 0) {
-      setActiveBoardId(res.data[0].board_id);
+    try {
+      const res = await api.get(`/api/v1/board/project/${projectId}`);
+      if (res.data?.length > 0) {
+        setActiveBoardId(res.data[0].board_id);
+      }
+    } catch (err) {
+      console.error("Board fetch error:", err);
     }
   };
 
   useEffect(() => {
-    if (departmentId && teamId && projectId) {
+    if (deptId && teamId && projectId) {
       fetchTasks();
       fetchBoards();
     }
-  }, [departmentId, teamId, projectId]);
+  }, [deptId, teamId, projectId]);
 
   const goToTaskDetail = (taskId) => {
     navigate(
-      `/department/${departmentId}/team/${teamId}/project/${projectId}/task/${taskId}`
+      `/project/${projectId}/task/${taskId}`
     );
   };
 
@@ -87,7 +92,6 @@ const TaskList = () => {
           <TableBody>
             {tasks.map((task) => (
               <TableRow key={task.task_id} hover>
-                {/* ✅ CLICKABLE ID */}
                 <TableCell
                   sx={{ cursor: "pointer", color: "primary.main" }}
                   onClick={() => goToTaskDetail(task.task_id)}
@@ -95,7 +99,6 @@ const TaskList = () => {
                   {task.task_id}
                 </TableCell>
 
-                {/* ✅ CLICKABLE TITLE */}
                 <TableCell
                   sx={{ cursor: "pointer", fontWeight: 500 }}
                   onClick={() => goToTaskDetail(task.task_id)}
@@ -130,3 +133,4 @@ const TaskList = () => {
 };
 
 export default TaskList;
+

@@ -20,6 +20,7 @@ import { useThemeContext } from "../context/ThemeContext";
 const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const state = location.state || {};
   const theme = useTheme();
   const { mode, toggleTheme } = useThemeContext();
 
@@ -34,9 +35,16 @@ const Navbar = () => {
     "/" + pathnames.slice(0, index + 1).join("/");
 
   const formatLabel = (segment) => {
-    if (/^\d+$/.test(segment)) return null; // hide ids
-    return segment.replace(/-/g, " ").toUpperCase();
-  };
+  if (/^\d+$/.test(segment)) return null;
+
+  if (segment === "department") return state.departmentName || "DEPARTMENT";
+  if (segment === "team") return state.teamName || "TEAM";
+  if (segment === "project") return state.projectName || "PROJECT";
+  if (segment === "task") return "TASK";
+
+  return segment.toUpperCase();
+};
+
 
   return (
     <Box

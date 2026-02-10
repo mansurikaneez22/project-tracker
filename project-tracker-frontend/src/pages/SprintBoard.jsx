@@ -7,23 +7,59 @@ import KanbanColumn from "../components/KanbanColumn";
 
 const STATUSES = ["TODO", "IN_PROGRESS", "DONE"];
 
-const SprintBoard = () => {
-  const { boardId } = useParams();
-  const [tasks, setTasks] = useState([]);
+// 🔥 STRONG STATUS NORMALIZER
+const normalizeStatus = (status) => {
+  if (!status) return "TODO";
 
-  /* ---------- Fetch tasks ---------- */
+  return status
+    .toString()
+    .trim()
+    .replace(/[-\s]+/g, "_")
+    .toUpperCase();
+};
+
+const SprintBoard = () => {
+  const { deptId, teamId, projectId, boardId } = useParams();
+  
+  const [tasks, setTasks] = useState([]);
+  console.log("SPRINT PARAMS >>>", {
+  deptId,
+  teamId,
+  projectId,
+  boardId
+});
+
   useEffect(() => {
     if (!boardId) return;
 
-    api
-      .get(`/api/v1/board_task_mapping/board/${boardId}/task`)
-      .then((res) => {
-        setTasks(Array.isArray(res.data) ? res.data : []);
-      })
-      .catch(() => setTasks([]));
+    const fetchTasks = async () => {
+      try {
+        const res = await api.get(
+          `/api/v1/board_task_mapping/board/${boardId}/task`
+        );
+
+        const normalizedTasks = Array.isArray(res.data)
+          ? res.data.map((t) => ({
+              ...t,
+              status: normalizeStatus(t.status),
+            }))
+          : [];
+
+        console.log(
+          "NORMALIZED TASK STATUSES >>>",
+          normalizedTasks.map((t) => t.status)
+        );
+
+        setTasks(normalizedTasks);
+      } catch (err) {
+        console.error("Error fetching tasks", err);
+        setTasks([]);
+      }
+    };
+
+    fetchTasks();
   }, [boardId]);
 
-  /* ---------- Drag handler ---------- */
   const handleDragEnd = async (result) => {
     const { source, destination, draggableId } = result;
 
@@ -32,7 +68,6 @@ const SprintBoard = () => {
 
     const newStatus = destination.droppableId;
 
-    // 🔥 UI update
     setTasks((prev) =>
       prev.map((task) =>
         task.task_id.toString() === draggableId
@@ -41,10 +76,9 @@ const SprintBoard = () => {
       )
     );
 
-    // 🔥 Backend update
     try {
       await api.patch(`/api/v1/task/${draggableId}/status`, {
-        status: newStatus
+        status: newStatus,
       });
     } catch (err) {
       console.error("Failed to update task status", err);
@@ -59,19 +93,27 @@ const SprintBoard = () => {
 
       <DragDropContext onDragEnd={handleDragEnd}>
         <Box display="flex" gap={2}>
-          {STATUSES.map((status) => (
-            <Box key={status} flex={1}>
-              <Typography fontWeight={700} mb={1}>
-                {status.replace("_", " ")} (
-                {tasks.filter((t) => t.status === status).length})
-              </Typography>
+          {STATUSES.map((status) => {
+            const columnTasks = tasks.filter(
+              (t) => t.status === status
+            );
 
-              <KanbanColumn
-                status={status}
-                tasks={tasks.filter((t) => t.status === status)}
-              />
-            </Box>
-          ))}
+            return (
+              <Box key={status} flex={1}>
+                <Typography fontWeight={700} mb={1}>
+                  {status.replace("_", " ")} ({columnTasks.length})
+                </Typography>
+
+                <KanbanColumn
+                  status={status}
+                  tasks={columnTasks}
+                  deptId={deptId}
+                  teamId={teamId}
+                  projectId={projectId}
+                />
+              </Box>
+            );
+          })}
         </Box>
       </DragDropContext>
     </Box>

@@ -5,17 +5,17 @@ import {
 } from "@mui/material";
 import api from "../services/api";
 
-const TeamMembers = ({ departmentId, teamId, projectId }) => {
+const TeamMembers = ({ deptId, teamId, projectId }) => {
   const [members, setMembers] = useState([]);
 
   useEffect(() => {
-    if (!departmentId || !teamId || !projectId) return;
+    if (!deptId|| !teamId || !projectId) return;
 
     api
-      .get(`/api/v1/department/${departmentId}/team/${teamId}/project/${projectId}/members/`)
+      .get(`/api/v1/department/${deptId}/team/${teamId}/project/${projectId}/members/`)
       .then((res) => setMembers(res.data))
       .catch(err => console.error("Failed to fetch project members:", err));
-  }, [departmentId, teamId, projectId]);
+  }, [deptId, teamId, projectId]);
 
   return (
     <Paper sx={{ p: 2, mt: 2, boxShadow: 3 }}>

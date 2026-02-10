@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { Container, Typography, Button, Box } from "@mui/material";
-import { useParams, useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import CreateProjectModal from "../components/CreateProjectModal";
 
 const Projects = () => {
-  const { departmentId, teamId } = useParams();
   const navigate = useNavigate();
+  const { deptId, teamId } = useParams(); // ✅ THIS IS THE KEY
+
 
   const [open, setOpen] = useState(false);
   const [refresh, setRefresh] = useState(false);
@@ -22,11 +23,11 @@ const Projects = () => {
 
   /* ================= FETCH PROJECTS ================= */
   const fetchProjects = async () => {
-    if (!departmentId || !teamId) return;
+    if (!deptId|| !teamId) return;
 
     try {
       const res = await axios.get(
-        `http://127.0.0.1:8000/api/v1/project/department/${departmentId}/team/${teamId}/project`,
+        `http://127.0.0.1:8000/api/v1/project/department/${deptId}/team/${teamId}/project`,
         {
           headers: {
             Authorization: `Bearer ${token}`
@@ -34,7 +35,6 @@ const Projects = () => {
         }
       );
 
-      // ✅ backend list directly return kar raha hai
       setProjects(res.data);
     } catch (err) {
       console.error(
@@ -46,7 +46,7 @@ const Projects = () => {
 
   useEffect(() => {
     fetchProjects();
-  }, [departmentId, teamId, refresh]);
+  }, [deptId, teamId, refresh]);
 
   return (
     <Container>
@@ -65,7 +65,7 @@ const Projects = () => {
       <CreateProjectModal
         open={open}
         onClose={() => setOpen(false)}
-        deptId={departmentId}
+        deptId={deptId}
         teamId={teamId}
         onCreated={() => setRefresh((prev) => !prev)}
       />
@@ -86,7 +86,7 @@ const Projects = () => {
             }}
             onClick={() =>
               navigate(
-                `/department/${departmentId}/team/${teamId}/project/${proj.project_id}`
+                `/department/${deptId}/team/${teamId}/project/${proj.project_id}`
               )
             }
           >

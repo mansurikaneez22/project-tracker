@@ -51,9 +51,9 @@ const AdminDashboard = () => {
     setDepartments(res.data || []);
   };
 
-  const fetchTeams = async (departmentId) => {
-    if (!departmentId) return;
-    const res = await api.get(`/api/v1/department/${departmentId}/team`);
+  const fetchTeams = async (deptId) => {
+    if (!deptId) return;
+    const res = await api.get(`/api/v1/department/${deptId}/team`);
     setTeams(res.data || []);
   };
 

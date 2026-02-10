@@ -12,11 +12,11 @@ import { useParams } from "react-router-dom";
 import BoardList from "./BoardList";
 import CreateBoardModal from "./CreateBoardModal";
 import TaskList from "../pages/TaskList";
-import ProjectTimeline from "./ProjectTimeline";
 import ProjectMembers from "./ProjectMembers";
+import SprintTimeline from "./SprintTimeline";
 
 const ProjectDetail = () => {
-  const { departmentId, teamId, projectId } = useParams(); 
+  const { deptId, teamId, projectId } = useParams(); 
 
   const [tab, setTab] = useState(0);
   const [openBoardModal, setOpenBoardModal] = useState(false);
@@ -39,7 +39,7 @@ const ProjectDetail = () => {
       {tab === 0 && (
         <Box mt={3}>
           <TaskList
-            deptId={departmentId}
+            deptId={deptId}
             teamId={teamId}
             projectId={projectId}
           />
@@ -61,14 +61,14 @@ const ProjectDetail = () => {
           <CreateBoardModal
             open={openBoardModal}
             onClose={() => setOpenBoardModal(false)}
-            deptId={departmentId}
+            deptId={deptId}
             teamId={teamId}
             projectId={projectId}
             onCreated={() => setRefreshBoards(prev => !prev)}
           />
 
           <BoardList
-            deptId={departmentId}
+            deptId={deptId}
             teamId={teamId}
             projectId={projectId}
             refresh={refreshBoards}
@@ -80,7 +80,7 @@ const ProjectDetail = () => {
       {tab === 2 && (
         <Box mt={3}>
           <ProjectMembers
-            deptId={departmentId}
+            deptId={deptId}
             teamId={teamId}
             projectId={projectId}
           />
@@ -89,14 +89,14 @@ const ProjectDetail = () => {
 
       {/* TIMELINE */}
       {tab === 3 && (
-        <Box mt={3}>
-          <ProjectTimeline
-            deptId={departmentId}
-            teamId={teamId}
-            projectId={projectId}
-          />
-        </Box>
-      )}
+       <Box mt={3}>
+         <SprintTimeline
+           deptId={deptId}
+           teamId={teamId}
+           projectId={projectId}
+       />
+  </Box>
+)}
     </Container>
   );
 };

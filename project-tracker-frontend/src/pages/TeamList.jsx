@@ -11,18 +11,18 @@ import {
 import GroupsIcon from "@mui/icons-material/Groups";
 
 function TeamList() {
-  const { departmentId } = useParams();
+  const { deptId } = useParams();
   const navigate = useNavigate();
   const [teams, setTeams] = useState([]);
 
   useEffect(() => {
     api
-      .get(`/api/v1/department/${departmentId}/team`)
+      .get(`/api/v1/department/${deptId}/team`)
       .then((res) => setTeams(res.data))
       .catch((err) => {
         console.error("Error fetching teams", err);
       });
-  }, [departmentId]);
+  }, [deptId]);
 
   return (
     <>
@@ -36,7 +36,7 @@ function TeamList() {
             key={team.team_id}
             onClick={() =>
   navigate(
-    `/department/${departmentId}/team/${team.team_id}`
+    `/department/${deptId}/team/${team.team_id}`
   )
 }
 

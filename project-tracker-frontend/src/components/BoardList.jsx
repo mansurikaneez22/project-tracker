@@ -4,7 +4,7 @@ import { Box, Typography } from "@mui/material";
 import BoardCard from "./BoardCard";
 import api from "../services/api";
 
-const BoardList = ({ projectId, refresh }) => {
+const BoardList = ({ deptId, teamId, projectId, refresh }) => {
   const [boards, setBoards] = useState([]);
   const navigate = useNavigate();
 
@@ -51,8 +51,9 @@ const BoardList = ({ projectId, refresh }) => {
           }}
           onClick={() =>
             navigate(
-              `/project/${projectId}/board/${board.board_id}`
-            )
+  `/department/${deptId}/team/${teamId}/project/${projectId}/board/${board.board_id}`
+)
+
           }
         >
           <BoardCard board={board} />

@@ -19,12 +19,22 @@ import {
 import EditIcon from "@mui/icons-material/Edit";
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../services/api";
 
 const TaskDetail = () => {
-  const { id: taskId} = useParams();
+
+  const { deptId, teamId, projectId, taskId } = useParams();
   const navigate = useNavigate();
-  const loggedInUserId = 6; // TEMP (later auth se aayega)
+
+  console.log("PARAMS:", {
+    deptId,
+    teamId,
+    projectId,
+    taskId
+  });
+
+  const loggedInUserId = Number(localStorage.getItem("user_id")); // no dummy
+
 
   const [task, setTask] = useState(null);
   const [projectMembers, setProjectMembers] = useState([]);
@@ -43,22 +53,30 @@ const TaskDetail = () => {
   const [confirm, setConfirm] = useState({
     open: false,
     type: "",
-    id: null
+    id: null   
   });
 
   /* ================= TASK ================= */
-  const fetchTask = async () => {
-    const res = await axios.get(
-      `http://127.0.0.1:8000/api/v1/task/${taskId}`
+ const fetchTask = async () => {
+  if (!taskId) return;
+
+  try {
+    const res = await api.get(
+      `http://127.0.0.1:8000/api/v1/task/${Number(taskId)}`
     );
+
     setTask(res.data);
     setAssignee(res.data.assignee_id || "");
-  };
+  } catch (err) {
+    console.error("Task fetch error:", err.response?.data);
+  }
+};
+
 
   /* ================= PROJECT MEMBERS ================= */
  const fetchProjectMembers = async (projectId, teamId, deptId) => {
   try {
-    const res = await axios.get(
+    const res = await api.get(
       `http://127.0.0.1:8000/api/v1/department/${deptId}/team/${teamId}/project/${projectId}/members`
     );
     setProjectMembers(res.data);
@@ -72,7 +90,7 @@ const TaskDetail = () => {
     const newAssignee = e.target.value;
     setAssignee(newAssignee);
 
-    await axios.patch(
+    await api.patch(
       `http://127.0.0.1:8000/api/v1/task/${taskId}`,
       { assignee_id: newAssignee }
     );
@@ -80,16 +98,22 @@ const TaskDetail = () => {
 
   /* ================= COMMENTS ================= */
   const fetchComments = async () => {
-    const res = await axios.get(
-      `http://127.0.0.1:8000/api/v1/comment/task/${taskId}`
+  if (!taskId) return;
+
+  try {
+    const res = await api.get(
+      `http://127.0.0.1:8000/api/v1/comment/task/${Number(taskId)}`
     );
     setComments(res.data);
-  };
+  } catch (err) {
+    console.error("Comments error:", err.response?.data);
+  }
+};
 
   const addComment = async () => {
     if (!newComment.trim()) return;
 
-    await axios.post("http://127.0.0.1:8000/api/v1/comment", {
+    await api.post("http://127.0.0.1:8000/api/v1/comment", {
       task_id: Number(taskId),
       user_id: loggedInUserId,
       content: newComment
@@ -100,7 +124,7 @@ const TaskDetail = () => {
   };
 
   const saveEditedComment = async (commentId) => {
-    await axios.put(
+    await api.put(
       `http://127.0.0.1:8000/api/v1/comment/${commentId}`,
       { content: editedComment }
     );
@@ -110,11 +134,18 @@ const TaskDetail = () => {
 
   /* ================= ATTACHMENTS ================= */
   const fetchAttachments = async () => {
-    const res = await axios.get(
-      `http://127.0.0.1:8000/api/v1/attachment/task/${taskId}`
+  if (!taskId) return;
+
+  try {
+    const res = await api.get(
+      `http://127.0.0.1:8000/api/v1/attachment/task/${Number(taskId)}`
     );
     setAttachments(res.data);
-  };
+  } catch (err) {
+    console.error("Attachment error:", err.response?.data);
+  }
+};
+
 
   const uploadAttachment = async (e) => {
     const file = e.target.files[0];
@@ -124,7 +155,7 @@ const TaskDetail = () => {
     formData.append("task_id", Number(taskId));
     formData.append("file", file);
 
-    await axios.post(
+    await api.post(
       "http://127.0.0.1:8000/api/v1/attachment",
       formData
     );
@@ -134,21 +165,21 @@ const TaskDetail = () => {
   /* ================= DELETE ================= */
   const handleDelete = async () => {
     if (confirm.type === "task") {
-      await axios.delete(
+      await api.delete(
         `http://127.0.0.1:8000/api/v1/task/${taskId}`
       );
       navigate(-1);
     }
 
     if (confirm.type === "comment") {
-      await axios.delete(
+      await api.delete(
         `http://127.0.0.1:8000/api/v1/comment/${confirm.id}`
       );
       fetchComments();
     }
 
     if (confirm.type === "attachment") {
-      await axios.delete(
+      await api.delete(
         `http://127.0.0.1:8000/api/v1/attachment/${confirm.id}`
       );
       fetchAttachments();
@@ -158,11 +189,13 @@ const TaskDetail = () => {
   };
 
   /* ================= EFFECTS ================= */
-  useEffect(() => {
-    fetchTask();
-    fetchComments();
-    fetchAttachments();
-  }, [taskId]);
+ useEffect(() => {
+  if (!taskId) return;
+
+  fetchTask();
+  fetchComments();
+  fetchAttachments();
+}, [taskId]);
 
   useEffect(() => {
   if (task?.project_id && task?.team_id && task?.department_id) {

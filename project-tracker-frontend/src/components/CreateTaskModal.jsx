@@ -21,7 +21,7 @@ const CreateTaskModal = ({
   boardId,
   refreshTasks
 }) => {
-  const { departmentId, teamId } = useParams();
+  const { deptId, teamId } = useParams();
 
   const initialFormState = {
     task_title: "",
@@ -42,11 +42,11 @@ const CreateTaskModal = ({
   // FETCH TEAM MEMBERS (ASSIGNEES)
   // ================================
   const fetchProjectMembers = async () => {
-  if (!departmentId || !teamId || !projectId) return;
+  if (!deptId || !teamId || !projectId) return;
 
   try {
     const res = await api.get(
-      `/api/v1/department/${departmentId}/team/${teamId}/project/${projectId}/members`
+      `/api/v1/department/${deptId}/team/${teamId}/project/${projectId}/members`
     );
     setTeamMembers(res.data || []);
   } catch (err) {
@@ -65,7 +65,7 @@ const CreateTaskModal = ({
   } else {
     setTeamMembers([]);
   }
-}, [open, departmentId, teamId, projectId]);
+}, [open, deptId, teamId, projectId]);
 
 
   // ================================
