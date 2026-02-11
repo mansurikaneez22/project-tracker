@@ -2,12 +2,17 @@ import { Box, Typography } from "@mui/material";
 import { BarChart } from "@mui/x-charts/BarChart";
 
 const TeamWorkload = ({ data = [] }) => {
+  console.log("TeamWorkload Props:", data);
+
   if (!data || data.length === 0) {
     return (
       <Typography variant="body2" color="text.secondary">
         No workload data available
       </Typography>
+      
     );
+   
+
   }
 
   return (
@@ -26,34 +31,25 @@ const TeamWorkload = ({ data = [] }) => {
         Active tasks per team member
       </Typography>
 
-      <BarChart
-        height={Math.max(280, data.length * 45)}
-        series={[
-          {
-            data: data.map((d) => d.tasks ?? 0), // fixed field
-            label: "Tasks",
-            color: "#1e88e5",
-            valueFormatter: (v) => `${v}`,
-          },
-        ]}
-        xAxis={[
-          {
-            scaleType: "band",
-            data: data.map((d, i) => {
-              const name = d.name ?? `User ${i + 1}`; // default name if missing
-              return name.length > 10 ? name.slice(0, 10) + "…" : name;
-            }),
-            tickLabelStyle: {
-              fontSize: 12,
-              angle: -30,
-              textAnchor: "end",
-            },
-          },
-        ]}
-        yAxis={[{ tickMinStep: 1 }]}
-        margin={{ top: 20, bottom: 70, left: 40, right: 20 }}
-        slotProps={{ axisTooltip: { trigger: "none" } }}
-      />
+<BarChart
+  dataset={data}
+  xAxis={[
+    {
+      scaleType: "band",
+      dataKey: "name",
+    },
+  ]}
+  series={[
+    {
+      dataKey: "tasks",
+      label: "Tasks",
+    },
+  ]}
+  height={300}
+  margin={{ top: 20, bottom: 60, left: 40, right: 10 }}
+/>
+
+
     </Box>
   );
 };

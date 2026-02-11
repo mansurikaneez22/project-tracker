@@ -32,9 +32,13 @@ const PMDashboard = () => {
   api
     .get("/api/v1/pm/team/workload")
     .then((res) => {
-      const formatted = res.data.map((row) => ({
-        name: row.user_name,          // 👈 IMPORTANT
-        tasks: Number(row.task_count) // 👈 IMPORTANT
+      console.log("Workload Data:", res.data);
+      console.log("RAW:", res.data);
+
+
+      const formatted = (res.data || []).map((row) => ({
+        name: row.name,          // 👈 IMPORTANT
+        tasks: Number(row.tasks) || 0// 👈 IMPORTANT
       }));
       setTeamWorkload(formatted);
     })
@@ -54,12 +58,20 @@ const PMDashboard = () => {
 
   return (
     <Box
-      p={3}
-      sx={{
-        backgroundColor: "#f5f7fb",
-        minHeight: "100vh",
-      }}
-    >
+  sx={{
+    backgroundColor: "#f5f7fb",
+    minHeight: "100vh",
+    py: 4,
+  }}
+>
+  <Box
+    sx={{
+      maxWidth: "1500px",
+      margin: "0 auto",
+      px: 3,
+    }}
+  >
+
       {/* Header */}
       <Typography variant="h4" fontWeight={600}>
         Project Manager Dashboard
@@ -69,7 +81,7 @@ const PMDashboard = () => {
       </Typography>
 
       {/* Stat Cards */}
-<Grid container spacing={3} mb={3}>
+<Grid container spacing={3} alignItems={"stretch"}>
 
   <Grid item xs={12} sm={6} md={3}>
     <StatCard
@@ -112,7 +124,7 @@ const PMDashboard = () => {
       {/* Bottom Section */}
       <Grid container spacing={3}>
         {/* LEFT */}
-        <Grid item xs={12} md={4}>
+        <Grid item xs={12} md={3} display="flex">
           <TaskOverview
             todo={data.task_status?.TODO || 0}
             inProgress={data.task_status?.IN_PROGRESS || 0}
@@ -121,21 +133,22 @@ const PMDashboard = () => {
         </Grid>
 
         {/* MIDDLE */}
-        <Grid item xs={12} md={4}>
+        <Grid item xs={12} md={3} display="flex">
           <ProjectProgress
             projects={data.project_progress || []}
           />
         </Grid>
 
         {/* RIGHT */}
-        <Grid item xs={12} md={4}>
+        <Grid item xs={12} md={3} display="flex">
           <ActivityFeed />
         </Grid>
 
-        <Grid item xs={12} md={6}>
+        <Grid item xs={12} md={3} display="flex">
     <TeamWorkload data={teamWorkload} />
   </Grid> 
       </Grid>
+      </Box>
     </Box>
   );
 };

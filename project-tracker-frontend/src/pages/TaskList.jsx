@@ -31,6 +31,7 @@ const TaskList = () => {
       const res = await api.get(
         `/api/v1/project/department/${deptId}/team/${teamId}/project/${projectId}/task`
       );
+      console.log("TASK API RESPONSE:", res.data);
       setTasks(res.data.tasks || []);
     } catch (err) {
       console.error("Task fetch error:", err);

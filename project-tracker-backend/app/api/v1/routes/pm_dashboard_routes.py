@@ -142,7 +142,14 @@ def team_workload(
         ORDER BY task_count DESC
     """), {"pm_id": pm_id}).mappings().all()
 
-    return result
+    return [
+    {
+        "name": row["name"],
+        "tasks": int(row["task_count"])   
+    }
+    for row in result 
+]
+
 
 
 

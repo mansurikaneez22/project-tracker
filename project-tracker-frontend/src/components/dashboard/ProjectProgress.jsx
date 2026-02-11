@@ -28,7 +28,7 @@ const ProjectProgress = ({ projects }) => {
 
       <Stack spacing={2}>
         {projects.slice(0, 6).map((project) => (
-          <Box key={project.id}>
+          <Box key={project.project_id}>
             <Box
               display="flex"
               justifyContent="space-between"
