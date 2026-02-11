@@ -57,21 +57,21 @@ const Login = () => {
    setSuccess("Login Successful.");
    setError("");
     // ---------- ROLE BASED REDIRECT ----------
-    setTimeout(() => {
-      if (res.data.job_profile === "ADMIN") {
-      navigate("/admin-dashboard");
+   setTimeout(() => {
+  if (res.data.job_profile === "ADMIN") {
+    navigate("/admin-dashboard");
 
-    } else if (
-      res.data.job_profile === "PRODUCT MANAGER" ||
-      res.data.job_profile === "PROJECT MANAGER"
-    ){
-      navigate("/department");
-    }
-    else {
-      navigate("/project/");
-    }
-      
+  } else if (res.data.job_profile === "PROJECT MANAGER") {
+    navigate("/pm/dashboard");
+
+  } else if (res.data.job_profile === "PRODUCT MANAGER") {
+    navigate("/department");
+
+  } else {
+    navigate("/project");
+  }
 }, 1500);
+
 
   } catch (err) {
     setError("Invalid email or password");

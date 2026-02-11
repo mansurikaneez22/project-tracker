@@ -90,18 +90,22 @@ def pm_dashboard_summary(
     """), {"pm_id": pm_id}).mappings().first()
 
     project_progress = db.execute(text("""
-        SELECT
-            p.project_id,
-            p.project_title AS project_name,
-            ROUND(
-                (SUM(CASE WHEN t.status = 'DONE' THEN 1 ELSE 0 END)
-                 / NULLIF(COUNT(t.task_id), 0)) * 100
-            ) AS progress
-        FROM project p
-        LEFT JOIN task t ON t.project_id = p.project_id
-        WHERE p.project_manager = :pm_id
-        GROUP BY p.project_id, p.project_title
-    """), {"pm_id": pm_id}).mappings().all()
+    SELECT
+        p.project_id,
+        p.project_title AS project_name,
+        p.team_id,
+        t.department_id AS deptId,
+        ROUND(
+            (SUM(CASE WHEN ta.status = 'DONE' THEN 1 ELSE 0 END)
+             / NULLIF(COUNT(ta.task_id), 0)) * 100
+        ) AS progress
+    FROM project p
+    LEFT JOIN task ta ON ta.project_id = p.project_id
+    JOIN team t ON t.team_id = p.team_id
+    WHERE p.project_manager = :pm_id
+    GROUP BY p.project_id, p.project_title, p.team_id, t.department_id
+"""), {"pm_id": pm_id}).mappings().all()
+
 
     return {
         "projects": summary.total_projects or 0,

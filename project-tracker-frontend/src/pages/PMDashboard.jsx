@@ -1,52 +1,41 @@
-import { Box, Grid, Typography } from "@mui/material";
+import { Box, Grid, Typography, LinearProgress } from "@mui/material";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-import FolderIcon from "@mui/icons-material/Folder";
-import GroupsIcon from "@mui/icons-material/Groups";
-import AssignmentIcon from "@mui/icons-material/Assignment";
-import PendingActionsIcon from "@mui/icons-material/PendingActions";
-
-import StatCard from "../components/dashboard/StatCard";
 import TaskOverview from "../components/dashboard/TaskOverview";
-import ProjectProgress from "../components/dashboard/ProjectProgress";
 import ActivityFeed from "../components/dashboard/ActivityFeed";
 import TeamWorkload from "../components/dashboard/TeamWorkload";
-import api from "../services/api";
-
-
 import { getPMDashboard } from "../services/pmDashboardApi";
+import api from "../services/api";
 
 const PMDashboard = () => {
   const [data, setData] = useState(null);
   const [teamWorkload, setTeamWorkload] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
-  // PM dashboard summary
-  getPMDashboard()
-    .then(setData)
-    .catch((err) =>
-      console.error("Error fetching PM dashboard:", err)
-    );
+    // Fetch PM Dashboard
+    getPMDashboard()
+      .then((res) => {
+        console.log("Dashboard data:", res);
+        console.log("Project Progress Array:", res.project_progress);
+        setData(res);
+      })
+      .catch((err) => console.error("Error fetching PM dashboard:", err));
 
-  // Team workload
-  api
-    .get("/api/v1/pm/team/workload")
-    .then((res) => {
-      console.log("Workload Data:", res.data);
-      console.log("RAW:", res.data);
-
-
-      const formatted = (res.data || []).map((row) => ({
-        name: row.name,          // 👈 IMPORTANT
-        tasks: Number(row.tasks) || 0// 👈 IMPORTANT
-      }));
-      setTeamWorkload(formatted);
-    })
-    .catch((err) =>
-      console.error("Error fetching team workload:", err)
-    );
-}, []);
-
+    // Fetch Team Workload
+    api
+      .get("/api/v1/pm/team/workload")
+      .then((res) => {
+        const formatted = (res.data || []).map((row) => ({
+          name: row.name,
+          tasks: Number(row.tasks) || 0,
+        }));
+        console.log("TeamWorkload Props:", formatted);
+        setTeamWorkload(formatted);
+      })
+      .catch((err) => console.error("Error fetching team workload:", err));
+  }, []);
 
   if (!data) {
     return (
@@ -57,97 +46,94 @@ const PMDashboard = () => {
   }
 
   return (
-    <Box
-  sx={{
-    backgroundColor: "#f5f7fb",
-    minHeight: "100vh",
-    py: 4,
-  }}
->
-  <Box
-    sx={{
-      maxWidth: "1500px",
-      margin: "0 auto",
-      px: 3,
-    }}
-  >
+    <Box sx={{ backgroundColor: "#f5f7fb", minHeight: "100vh", py: 4 }}>
+      <Box sx={{ maxWidth: "1400px", margin: "0 auto", px: 3 }}>
+        {/* Header */}
+        <Typography variant="h4" fontWeight={600}>
+          Project Manager Dashboard
+        </Typography>
+        <Typography variant="body2" color="text.secondary" mb={4}>
+          Your assigned projects overview
+        </Typography>
 
-      {/* Header */}
-      <Typography variant="h4" fontWeight={600}>
-        Project Manager Dashboard
-      </Typography>
-      <Typography variant="body2" color="text.secondary" mb={3}>
-        Overview of projects, teams and task progress
-      </Typography>
+        {/* ================= PROJECT CARDS ================= */}
+        <Typography variant="h6" fontWeight={600} mb={3}>
+          Your Projects
+        </Typography>
 
-      {/* Stat Cards */}
-<Grid container spacing={3} alignItems={"stretch"}>
+        <Grid container spacing={3} mb={5}>
+          {(data.project_progress || []).slice(0, 6).map((project, index) => {
+            const progressValue = Number(project?.progress ?? 0);
+            const title = project?.project_name?.trim() || `Project ${index + 1}`;
 
-  <Grid item xs={12} sm={6} md={3}>
-    <StatCard
-      title="Projects"
-      value={data.projects || 0}
-      icon={<FolderIcon />}
-      color="#5b7cfa"
-    />
-  </Grid>
+            return (
+              <Grid item xs={12} sm={6} md={4} key={project?.project_id || index}>
+                <Box
+                  onClick={() =>
+                    navigate(
+                      `/department/${project.deptId}/team/${project.team_id}/project/${project.project_id}`
+                    )
+                  }
+                  sx={{
+                    backgroundColor: "#ffffff",
+                    borderRadius: 3,
+                    p: 3,
+                    boxShadow: "0 6px 20px rgba(0,0,0,0.06)",
+                    cursor: "pointer",
+                    transition: "0.2s",
+                    "&:hover": {
+                      boxShadow: "0 10px 25px rgba(0,0,0,0.12)",
+                      transform: "translateY(-3px)",
+                    },
+                  }}
+                >
+                  <Typography variant="subtitle1" fontWeight={600} mb={2}>
+                    {title}
+                  </Typography>
 
-  <Grid item xs={12} sm={6} md={3}>
-    <StatCard
-      title="Teams"
-      value={data.teams || 0}
-      icon={<GroupsIcon />}
-      color="#00b894"
-    />
-  </Grid>
+                  <Box display="flex" justifyContent="space-between" mb={1}>
+                    <Typography variant="body2" color="text.secondary">
+                      Completion
+                    </Typography>
+                    <Typography variant="body2" fontWeight={600}>
+                      {progressValue}%
+                    </Typography>
+                  </Box>
 
-  <Grid item xs={12} sm={6} md={3}>
-    <StatCard
-      title="Tasks"
-      value={data.tasks || 0}
-      icon={<AssignmentIcon />}
-      color="#f9a825"
-    />
-  </Grid>
-
-  <Grid item xs={12} sm={6} md={3}>
-    <StatCard
-      title="Pending"
-      value={data.pending_tasks || 0}
-      icon={<PendingActionsIcon />}
-      color="#e17055"
-    />
-  </Grid>
-
-</Grid>
-
-      {/* Bottom Section */}
-      <Grid container spacing={3}>
-        {/* LEFT */}
-        <Grid item xs={12} md={3} display="flex">
-          <TaskOverview
-            todo={data.task_status?.TODO || 0}
-            inProgress={data.task_status?.IN_PROGRESS || 0}
-            done={data.task_status?.DONE || 0}
-          />
+                  <LinearProgress
+                    variant="determinate"
+                    value={progressValue}
+                    sx={{
+                      height: 8,
+                      borderRadius: 10,
+                      backgroundColor: "#f1f3f6",
+                      "& .MuiLinearProgress-bar": { borderRadius: 10 },
+                    }}
+                  />
+                </Box>
+              </Grid>
+            );
+          })}
         </Grid>
 
-        {/* MIDDLE */}
-        <Grid item xs={12} md={3} display="flex">
-          <ProjectProgress
-            projects={data.project_progress || []}
-          />
-        </Grid>
+        {/* ================= LOWER DASHBOARD SECTION ================= */}
+        <Grid container spacing={3}>
+          <Grid item xs={12} md={3}>
+            <TaskOverview
+              todo={data.task_status?.TODO || 0}
+              inProgress={data.task_status?.IN_PROGRESS || 0}
+              done={data.task_status?.DONE || 0}
+            />
+          </Grid>
 
-        {/* RIGHT */}
-        <Grid item xs={12} md={3} display="flex">
-          <ActivityFeed />
-        </Grid>
+          <Grid item xs={12} md={3}>
+            <ActivityFeed />
+          </Grid>
 
-        <Grid item xs={12} md={3} display="flex">
-    <TeamWorkload data={teamWorkload} />
-  </Grid> 
-      </Grid>
+          <Grid item xs={12} md={3}>
+            <TeamWorkload data={teamWorkload} />
+          </Grid>
+        </Grid>
       </Box>
     </Box>
   );
