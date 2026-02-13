@@ -17,12 +17,20 @@ import AdminDashboard from "./pages/AdminDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminRoute from "./components/AdminRoute";
 import PMDashboard from "./pages/PMDashboard";
+import Account from "./pages/Account";
 import SetPassword from "./pages/SetPassword";
 import ForgotPassword from "./pages/ForgotPassword";
+import SprintPage from "./pages/SprintPage";
+
+
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
+
 
 function App() {
   return (
     <ThemeProvider>
+      <LocalizationProvider dateAdapter={AdapterDayjs}>
       <BrowserRouter>
         <Navbar />
 
@@ -35,39 +43,51 @@ function App() {
 
           {/* ================= PROTECTED ROUTES ================= */}
           <Route element={<ProtectedRoute />}>
+
             <Route path="/department" element={<DepartmentList />} />
-             
-            <Route path="/department/:deptId/team" element={<TeamList />} />
 
+            <Route
+              path="/department/:deptId/team"
+              element={<TeamList />}
+            />
+
+            <Route
+              path="/department/:deptId/team/:teamId"
+              element={<TeamDetail />}
+            />
+
+            <Route
+              path="/department/:deptId/team/:teamId/project"
+              element={<Projects />}
+            />
+
+            <Route
+              path="/department/:deptId/team/:teamId/project/:projectId"
+              element={<ProjectDetail />}
+            />
+
+           
 <Route
-  path="/department/:deptId/team/:teamId"
-  element={<TeamDetail />}
+  path="/department/:deptId/team/:teamId/project/:projectId/board/:sprintId"
+  element={<SprintPage />}
 />
 
-<Route
-  path="/department/:deptId/team/:teamId/project"
-  element={<Projects />}
-/>
 
-<Route
-  path="/department/:deptId/team/:teamId/project/:projectId"
-  element={<ProjectDetail />}
-/>
+            {/* TASK LIST */}
+            <Route
+              path="/department/:deptId/team/:teamId/project/:projectId/task"
+              element={<TaskList />}
+            />
 
-<Route
-  path="/department/:deptId/team/:teamId/project/:projectId/board/:boardId"
-  element={<SprintBoard />}
-/>
+            {/* TASK DETAIL */}
+            <Route
+              path="/project/:projectId/task/:taskId"
+              element={<TaskDetail />}
+            />
 
-<Route
-  path="/department/:deptId/team/:teamId/project/:projectId/task"
-  element={<TaskList />}
-/>
-
-<Route
-  path="/project/:projectId/task/:taskId"
-  element={<TaskDetail />}
-/>
+            {/* PM ROUTES */}
+            <Route path="/pm/dashboard" element={<PMDashboard />} />
+            <Route path="/account" element={<Account />} />
 
           </Route>
 
@@ -80,17 +100,15 @@ function App() {
               />
             </Route>
           </Route>
-           
-
-       <Route element={<ProtectedRoute />}>
-  <Route path="/pm/dashboard" element={<PMDashboard />} />
-</Route>
-
 
           {/* ================= FALLBACK ================= */}
-          <Route path="*" element={<Navigate to="/department" replace />} />
+          <Route
+            path="*"
+            element={<Navigate to="/department" replace />}
+          />
         </Routes>
       </BrowserRouter>
+      </LocalizationProvider>
     </ThemeProvider>
   );
 }

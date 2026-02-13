@@ -1,3 +1,5 @@
+// ✅ SprintBoard.jsx (KANBAN BOARD FOR ACTIVE SPRINT)
+
 import { Box, Typography } from "@mui/material";
 import { DragDropContext } from "@hello-pangea/dnd";
 import { useParams } from "react-router-dom";
@@ -5,9 +7,8 @@ import { useEffect, useState } from "react";
 import api from "../services/api";
 import KanbanColumn from "../components/KanbanColumn";
 
-const STATUSES = ["TODO", "IN_PROGRESS", "DONE"];
+const STATUSES = ["TODO", "IN_PROGRESS", "BLOCKED", "DONE"];
 
-// 🔥 STRONG STATUS NORMALIZER
 const normalizeStatus = (status) => {
   if (!status) return "TODO";
 
@@ -19,46 +20,60 @@ const normalizeStatus = (status) => {
 };
 
 const SprintBoard = () => {
-  const { deptId, teamId, projectId, boardId } = useParams();
-  
+  const { deptId, teamId, projectId } = useParams();
   const [tasks, setTasks] = useState([]);
-  console.log("SPRINT PARAMS >>>", {
-  deptId,
-  teamId,
-  projectId,
-  boardId
-});
+  const [activeSprint, setActiveSprint] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!boardId) return;
-
-    const fetchTasks = async () => {
+    const fetchBoardData = async () => {
       try {
-        const res = await api.get(
-          `/api/v1/board_task_mapping/board/${boardId}/task`
+        setLoading(true);
+
+        // 1️⃣ Fetch all sprints
+        // 1️⃣ Fetch all sprints
+const sprintRes = await api.get(
+  `/api/v1/project/${projectId}/sprints`
+);
+
+const active = sprintRes.data.find(
+  (s) =>
+    s.status?.trim().toUpperCase() === "ACTIVE"
+);
+
+if (!active) {
+  setActiveSprint(null);
+  setTasks([]);
+  setLoading(false);
+  return;
+}
+
+setActiveSprint(active);
+
+
+        // 2️⃣ Fetch tasks of active sprint
+        const taskRes = await api.get(
+          `/api/v1/project/${projectId}/sprints/${active.sprint_id}/tasks`
         );
 
-        const normalizedTasks = Array.isArray(res.data)
-          ? res.data.map((t) => ({
+        const normalizedTasks = Array.isArray(taskRes.data)
+          ? taskRes.data.map((t) => ({
               ...t,
               status: normalizeStatus(t.status),
             }))
           : [];
 
-        console.log(
-          "NORMALIZED TASK STATUSES >>>",
-          normalizedTasks.map((t) => t.status)
-        );
-
         setTasks(normalizedTasks);
       } catch (err) {
-        console.error("Error fetching tasks", err);
+        console.error("Error loading board", err);
         setTasks([]);
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchTasks();
-  }, [boardId]);
+    if (projectId) fetchBoardData();
+  }, [projectId]);
 
   const handleDragEnd = async (result) => {
     const { source, destination, draggableId } = result;
@@ -68,6 +83,7 @@ const SprintBoard = () => {
 
     const newStatus = destination.droppableId;
 
+    // Optimistic update
     setTasks((prev) =>
       prev.map((task) =>
         task.task_id.toString() === draggableId
@@ -85,10 +101,37 @@ const SprintBoard = () => {
     }
   };
 
+  // 🔹 Loading State
+  if (loading) {
+    return (
+      <Box p={3}>
+        <Typography>Loading board...</Typography>
+      </Box>
+    );
+  }
+
+  // 🔹 No Active Sprint
+  if (!activeSprint) {
+    return (
+      <Box p={3}>
+        <Typography variant="h6" fontWeight={600}>
+          No Active Sprint
+        </Typography>
+        <Typography color="text.secondary">
+          Please start a sprint from the Sprint tab.
+        </Typography>
+      </Box>
+    );
+  }
+
   return (
     <Box p={3}>
-      <Typography variant="h5" fontWeight={600} mb={3}>
-        Sprint Kanban Board
+      <Typography variant="h5" fontWeight={600} mb={1}>
+        {activeSprint.sprint_name}
+      </Typography>
+
+      <Typography color="text.secondary" mb={3}>
+        Active Sprint Board
       </Typography>
 
       <DragDropContext onDragEnd={handleDragEnd}>

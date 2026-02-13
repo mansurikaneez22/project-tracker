@@ -18,3 +18,12 @@ class ResetPasswordRequest(BaseModel):
         min_length=8,
         max_length=20
     )
+
+class UserResponse(BaseModel):
+    user_id: int
+    user_name: str
+    email: str
+    job_profile: str
+
+    class Config: 
+        orm_mode = True

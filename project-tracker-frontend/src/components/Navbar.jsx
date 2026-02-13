@@ -1,16 +1,18 @@
 // src/components/Navbar.jsx
-import React from "react";
+import React, { useState } from "react";
 import {
   Box,
   IconButton,
   Tooltip,
   Breadcrumbs,
   Link,
-  Typography
+  Typography,
+  Menu,
+  MenuItem
 } from "@mui/material";
 
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { Brightness4, Brightness7 } from "@mui/icons-material";
+import { Brightness4, Brightness7, AccountCircle } from "@mui/icons-material";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 
 import { useNavigate, useLocation } from "react-router-dom";
@@ -24,27 +26,30 @@ const Navbar = () => {
   const theme = useTheme();
   const { mode, toggleTheme } = useThemeContext();
 
-  // split path for breadcrumb
-  const pathnames = location.pathname.split("/").filter(Boolean);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
+  const handleProfileClick = (event) => setAnchorEl(event.currentTarget);
+  const handleClose = () => setAnchorEl(null);
 
-  // hide back on login
+  const pathnames = location.pathname.split("/").filter(Boolean);
   const hideBackOn = ["/", "/login"];
   const showBack = !hideBackOn.includes(location.pathname);
 
-  const buildPath = (index) =>
-    "/" + pathnames.slice(0, index + 1).join("/");
+  const buildPath = (index) => "/" + pathnames.slice(0, index + 1).join("/");
 
   const formatLabel = (segment) => {
-  if (/^\d+$/.test(segment)) return null;
+    if (/^\d+$/.test(segment)) return null;
+    if (segment === "department") return state.departmentName || "DEPARTMENT";
+    if (segment === "team") return state.teamName || "TEAM";
+    if (segment === "project") return state.projectName || "PROJECT";
+    if (segment === "task") return "TASK";
+    return segment.toUpperCase();
+  };
 
-  if (segment === "department") return state.departmentName || "DEPARTMENT";
-  if (segment === "team") return state.teamName || "TEAM";
-  if (segment === "project") return state.projectName || "PROJECT";
-  if (segment === "task") return "TASK";
-
-  return segment.toUpperCase();
-};
-
+  const handleMenuClick = (route) => {
+    handleClose();
+    navigate(route);
+  };
 
   return (
     <Box
@@ -61,7 +66,7 @@ const Navbar = () => {
         zIndex: 1000
       }}
     >
-      {/* BACK BUTTON (temporary) */}
+      {/* BACK BUTTON */}
       {showBack && (
         <Tooltip title="Go Back">
           <IconButton onClick={() => navigate(-1)}>
@@ -114,6 +119,25 @@ const Navbar = () => {
           {mode === "light" ? <Brightness4 /> : <Brightness7 />}
         </IconButton>
       </Tooltip>
+
+      {/* PROFILE ICON & DROPDOWN */}
+      <Tooltip title="Profile">
+        <IconButton onClick={handleProfileClick}>
+          <AccountCircle fontSize="large" />
+        </IconButton>
+      </Tooltip>
+
+      <Menu
+        anchorEl={anchorEl}
+        open={open}
+        onClose={handleClose}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+        transformOrigin={{ vertical: "top", horizontal: "right" }}
+      >
+        <MenuItem onClick={() => handleMenuClick("/account")}>Account</MenuItem>
+        <MenuItem onClick={() => handleMenuClick("/settings")}>Settings</MenuItem>
+        <MenuItem onClick={() => handleMenuClick("/dashboard")}>Dashboard</MenuItem>
+      </Menu>
     </Box>
   );
 };

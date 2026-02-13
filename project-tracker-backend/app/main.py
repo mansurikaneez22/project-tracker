@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+import os
 
 from app.database.database import engine, Base
 import app.models  #  REQUIRED – models register hote hain
@@ -24,6 +25,7 @@ from app.api.v1.routes.notification_routes import router as notification_router
 from app.api.v1.routes.team_member_routes import router as team_member_router 
 from app.api.v1.routes.admin_routes import router as admin_router
 from app.api.v1.routes.pm_dashboard_routes import router as pm_dashboard_router
+from app.api.v1.routes.sprint_routes import router as sprint_router
 
 app = FastAPI(title="Project Tracker API")
 
@@ -43,6 +45,9 @@ app.add_middleware(
 
 
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+
+os.makedirs("uploads/profile_pics", exist_ok=True)
+
 
 @app.get("/")
 def root():
@@ -68,3 +73,4 @@ app.include_router(notification_router)
 app.include_router(team_member_router)
 app.include_router(admin_router)
 app.include_router(pm_dashboard_router)
+app.include_router(sprint_router)

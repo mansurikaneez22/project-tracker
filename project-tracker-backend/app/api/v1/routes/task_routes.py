@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from sqlalchemy import text
 
 from app.database.database import get_db
 from app.models.task import Task
@@ -143,3 +144,36 @@ def update_task_status(
         "task_id": task.task_id,
         "status": task.status
     }
+
+
+@router.put("/{task_id}/assign-sprint")
+def assign_task_to_sprint(
+    task_id: int,
+    sprint_id: int,
+    db: Session = Depends(get_db),
+):
+    # Check task exists
+    task = db.execute(
+        text("SELECT task_id FROM task WHERE task_id = :task_id"),
+        {"task_id": task_id},
+    ).fetchone()
+
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+
+    # Update sprint_id
+    db.execute(
+        text("""
+            UPDATE task
+            SET sprint_id = :sprint_id
+            WHERE task_id = :task_id
+        """),
+        {
+            "task_id": task_id,
+            "sprint_id": sprint_id,
+        },
+    )
+
+    db.commit()
+
+    return {"message": "Task assigned to sprint successfully"}

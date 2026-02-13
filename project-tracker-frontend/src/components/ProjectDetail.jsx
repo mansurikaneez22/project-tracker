@@ -2,35 +2,37 @@ import React, { useState } from "react";
 import {
   Container,
   Typography,
-  Button,
   Box,
   Tabs,
   Tab
 } from "@mui/material";
 import { useParams } from "react-router-dom";
 
-import BoardList from "./BoardList";
-import CreateBoardModal from "./CreateBoardModal";
 import TaskList from "../pages/TaskList";
 import ProjectMembers from "./ProjectMembers";
 import SprintTimeline from "./SprintTimeline";
+import SprintPage from "../pages/SprintPage"; // ✅ renamed
+import SprintBoard from "../pages/SprintBoard";
+
 
 const ProjectDetail = () => {
-  const { deptId, teamId, projectId } = useParams(); 
-
+  const { deptId, teamId, projectId } = useParams();
   const [tab, setTab] = useState(0);
-  const [openBoardModal, setOpenBoardModal] = useState(false);
-  const [refreshBoards, setRefreshBoards] = useState(false);
 
   return (
-    <Container>
-      <Typography variant="h4" sx={{ mt: 3 }}>
-        Project
+    <Container maxWidth="lg">
+      <Typography variant="h4" sx={{ mt: 3, fontWeight: 600 }}>
+        Project Details
       </Typography>
 
-      <Tabs value={tab} onChange={(e, v) => setTab(v)} sx={{ mt: 2 }}>
+      <Tabs
+        value={tab}
+        onChange={(e, v) => setTab(v)}
+        sx={{ mt: 3 }}
+      >
         <Tab label="All Tasks" />
-        <Tab label="Sprint Boards" />
+        <Tab label="Sprints" />
+        <Tab label="Board"/>
         <Tab label="Members" />
         <Tab label="Timeline" />
       </Tabs>
@@ -46,38 +48,29 @@ const ProjectDetail = () => {
         </Box>
       )}
 
-      {/* SPRINT BOARDS */}
+      {/* SPRINT PAGE */}
       {tab === 1 && (
         <Box mt={3}>
-          <Box mb={2}>
-            <Button
-              variant="contained"
-              onClick={() => setOpenBoardModal(true)}
-            >
-              + Add Sprint
-            </Button>
-          </Box>
-
-          <CreateBoardModal
-            open={openBoardModal}
-            onClose={() => setOpenBoardModal(false)}
+          <SprintPage
             deptId={deptId}
             teamId={teamId}
             projectId={projectId}
-            onCreated={() => setRefreshBoards(prev => !prev)}
-          />
-
-          <BoardList
-            deptId={deptId}
-            teamId={teamId}
-            projectId={projectId}
-            refresh={refreshBoards}
           />
         </Box>
       )}
 
-      {/* MEMBERS */}
       {tab === 2 && (
+  <Box mt={3}>
+    <SprintBoard
+      deptId={deptId}
+      teamId={teamId}
+      projectId={projectId}
+    />
+  </Box>
+)}
+
+      {/* MEMBERS */}
+      {tab === 3 && (
         <Box mt={3}>
           <ProjectMembers
             deptId={deptId}
@@ -88,18 +81,17 @@ const ProjectDetail = () => {
       )}
 
       {/* TIMELINE */}
-      {tab === 3 && (
-       <Box mt={3}>
-         <SprintTimeline
-           deptId={deptId}
-           teamId={teamId}
-           projectId={projectId}
-       />
-  </Box>
-)}
+      {tab === 4 && (
+        <Box mt={3}>
+          <SprintTimeline
+            deptId={deptId}
+            teamId={teamId}
+            projectId={projectId}
+          />
+        </Box>
+      )}
     </Container>
   );
 };
 
 export default ProjectDetail;
-

@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from sqlalchemy import text
 
 from app.database.database import get_db
 from app.models.board import Board
@@ -112,5 +113,52 @@ def get_boards_by_project(
         "count": len(boards),
         "boards": boards
     }
+
+@router.put("/start/{board_id}")
+def start_sprint(board_id: int, db: Session = Depends(get_db)):
+
+    board = db.query(Board).filter(Board.board_id == board_id).first()
+
+    if not board:
+        raise HTTPException(status_code=404, detail="Board not found")
+
+    # find project of this board
+    mapping = db.query(BoardProjectMapping).filter(
+        BoardProjectMapping.board_id == board_id
+    ).first()
+
+    if not mapping:
+        raise HTTPException(status_code=404, detail="Mapping not found")
+
+    # deactivate only boards of this project
+    project_boards = db.query(BoardProjectMapping).filter(
+        BoardProjectMapping.project_id == mapping.project_id
+    ).all()
+
+    board_ids = [b.board_id for b in project_boards]
+
+    db.query(Board).filter(Board.board_id.in_(board_ids)).update(
+        {Board.is_active: False},
+        synchronize_session=False
+    )
+
+    board.is_active = True
+
+    db.commit()
+
+    return {"message": "Sprint started successfully"}
+
+
+# ---------------- GET ACTIVE SPRINT ----------------
+@router.get("/active")
+def get_active_sprint(db: Session = Depends(get_db)):
+
+    active_board = db.query(Board).filter(Board.is_active == True).first()
+
+    if not active_board:
+        return {"message": "No active sprint"}
+
+    return active_board
+
 
 

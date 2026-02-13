@@ -217,21 +217,25 @@ def get_tasks_by_project_scoped(
     # scope + permission check
     validate_project_scope(db, dept_id, team_id, project_id)
 
+   
     query = text("""
-        SELECT
-            t.task_id,
-            t.task_title,
-            t.start_date,
-            t.due_date,
-            t.priority,
-            u.user_name AS assignee_name,
-            b.board_title AS board_title
-        FROM task t
-        LEFT JOIN `user` u ON t.assignee_id = u.user_id
-        LEFT JOIN board_task_mapping btm ON btm.task_id = t.task_id
-        LEFT JOIN board b ON b.board_id = btm.board_id
-        WHERE t.project_id = :project_id
-    """)
+    SELECT DISTINCT
+        t.task_id,
+        t.task_title,
+        t.start_date,
+        t.due_date,
+        t.priority,
+        t.status,
+        t.sprint_id,
+        u.user_name AS assignee_name,
+        b.board_title AS board_title
+    FROM task t
+    LEFT JOIN `user` u ON t.assignee_id = u.user_id
+    LEFT JOIN board_task_mapping btm ON btm.task_id = t.task_id
+    LEFT JOIN board b ON b.board_id = btm.board_id
+    WHERE t.project_id = :project_id
+""")
+
 
     result = db.execute(
         query,
