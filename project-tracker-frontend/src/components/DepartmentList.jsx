@@ -4,7 +4,10 @@ import api from "../services/api";
 import {
   Card,
   CardContent,
-  Typography
+  Typography,
+  Grid,
+  Box,
+  Chip
 } from "@mui/material";
 
 function DepartmentList() {
@@ -28,43 +31,64 @@ function DepartmentList() {
   }, []);
 
   return (
-  <>
-    <Typography
-      variant="h4"
-      sx={{ mb: 3, fontWeight: "bold" }}
-    >
-      Departments
-    </Typography>
-
+  <Grid container spacing={3}>
     {departments.map((dept) => (
-      <Card
-        key={dept.department_id}
-        sx={{ 
-          backgroundColor:"#F5EDED",
-          mb: 2,
-          cursor: "pointer",
-          "&:hover": {
-            boxShadow: 6,
-            backgroundColor: "#7FA1C3"
+      <Grid item xs={12} sm={6} md={4} key={dept.department_id}>
+        <Card
+          onClick={() =>
+            navigate(`/department/${dept.department_id}/team`)
           }
-        }}
-        onClick={() =>
-          navigate(`/department/${dept.department_id}/team`)
-        }
-      >
-        <CardContent>
-          <Typography variant="h6">
-            {dept.department_name}
-          </Typography>
+          sx={{
+            cursor: "pointer",
+            height: 150,
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between",
+            p: 2.5,
+            transition: "all 0.25s ease",
+            border: "1px solid",
+            borderColor: "divider",
 
-          <Typography color="#1c1d1dff">
-            Type: {dept.department_type}
-          </Typography>
-        </CardContent>
-      </Card>
+            "&:hover": {
+              transform: "translateY(-6px)",
+              boxShadow: 6,
+              borderColor: "primary.main",
+            },
+          }}
+        >
+          <Box>
+            <Typography
+              variant="h6"
+              fontWeight={600}
+              sx={{ mb: 1 }}
+            >
+              {dept.department_name}
+            </Typography>
+
+            <Typography
+              variant="body2"
+              color="text.secondary"
+            >
+              Department Overview
+            </Typography>
+          </Box>
+
+          <Chip
+            label={dept.department_type}
+            size="small"
+            color={
+              dept.department_type === "Technical"
+                ? "primary"
+                : "secondary"
+            }
+            sx={{ alignSelf: "flex-start" }}
+          />
+        </Card>
+      </Grid>
     ))}
-  </>
+  </Grid>
 );
+
 }
 
 export default DepartmentList;

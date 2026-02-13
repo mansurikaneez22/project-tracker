@@ -1,18 +1,27 @@
 import React from "react";
 import DepartmentList from "../components/DepartmentList";
-import { Typography, Container } from "@mui/material";
+import { Typography, Container, Box } from "@mui/material";
 
 const Departments = () => {
-    return (
-        <Container>
-            <Typography color="#6482AD"
-             variant="h4" sx={{ mt: 3, mb: 2}}>
-                Departments
-            </Typography>
+  return (
+    <Container maxWidth="lg">
+      <Box sx={{ mt: 5, mb: 4 }}>
+        <Typography variant="h5" fontWeight={600}>
+          Departments
+        </Typography>
 
-            <DepartmentList/>
-        </Container>
-    );
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          sx={{ mt: 0.5 }}
+        >
+          Manage and explore all departments
+        </Typography>
+      </Box>
+
+      <DepartmentList />
+    </Container>
+  );
 };
 
 export default Departments;

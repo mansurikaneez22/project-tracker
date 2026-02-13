@@ -3,7 +3,6 @@ import { useParams, useNavigate } from "react-router-dom";
 import api from "../services/api";
 import {
   Card,
-  CardContent,
   Typography,
   Stack,
   Box
@@ -24,66 +23,84 @@ function TeamList() {
       });
   }, [deptId]);
 
-  return (
-    <>
-      <Typography variant="h5" sx={{ mb: 3 }}>
-        Teams
-      </Typography>
+ return (
+  <>
+    <Typography variant="h5" fontWeight={600} sx={{ mb: 4 }}>
+      Teams
+    </Typography>
 
-      <Stack spacing={2}>
-        {teams.map((team) => (
-          <Card
-            key={team.team_id}
-            onClick={() =>
-  navigate(
-    `/department/${deptId}/team/${team.team_id}`
-  )
-}
+    <Stack spacing={2.5}>
+      {teams.map((team) => (
+        <Card
+          key={team.team_id}
+          onClick={() =>
+            navigate(`/department/${deptId}/team/${team.team_id}`)
+          }
+          sx={{
+            cursor: "pointer",
+            px: 3,
+            py: 2.5,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            border: "1px solid",
+            borderColor: "divider",
+            transition: "all 0.25s ease",
 
-            sx={{
-              borderRadius: 2,
-              cursor: "pointer",
-              transition: "0.3s",
-              "&:hover": {
-                boxShadow: 6,
-                backgroundColor: "#F8FAFC"
-              }
-            }}
+            "&:hover": {
+              transform: "translateX(6px)",
+              borderColor: "primary.main",
+              boxShadow: 4,
+            },
+          }}
+        >
+          <Stack direction="row" spacing={2.5} alignItems="center">
+            <Box
+              sx={{
+                bgcolor: "primary.main",
+                borderRadius: "50%",
+                width: 48,
+                height: 48,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <GroupsIcon sx={{ color: "#0F1115" }} />
+            </Box>
+
+            <Box>
+              <Typography variant="h6" fontWeight={600}>
+                {team.team_name}
+              </Typography>
+
+              <Typography
+                variant="body2"
+                color="text.secondary"
+              >
+                Team ID: {team.team_id}
+              </Typography>
+            </Box>
+          </Stack>
+
+          <Typography
+            variant="body2"
+            color="text.secondary"
           >
-            <CardContent>
-              <Stack direction="row" spacing={2} alignItems="center">
-                <Box
-                  sx={{
-                    backgroundColor: "#E3F2FD",
-                    borderRadius: "50%",
-                    p: 1
-                  }}
-                >
-                  <GroupsIcon color="primary" />
-                </Box>
-
-                <Box>
-                  <Typography variant="h6">
-                    {team.team_name}
-                  </Typography>
-
-                  <Typography variant="body2" color="text.secondary">
-                    Team ID: {team.team_id}
-                  </Typography>
-                </Box>
-              </Stack>
-            </CardContent>
-          </Card>
-        ))}
-
-        {teams.length === 0 && (
-          <Typography color="text.secondary">
-            No teams found for this department
+            View →
           </Typography>
-        )}
-      </Stack>
-    </>
-  );
+        </Card>
+      ))}
+
+      {teams.length === 0 && (
+        <Typography color="text.secondary">
+          No teams found for this department
+        </Typography>
+      )}
+    </Stack>
+  </>
+);
+
 }
 
 export default TeamList;
