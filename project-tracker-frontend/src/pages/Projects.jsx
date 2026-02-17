@@ -75,28 +75,60 @@ const Projects = () => {
       ) : (
         projects.map((proj) => (
           <Box
-            key={proj.project_id}
-            p={2}
-            mb={1}
-            border="1px solid #ddd"
-            borderRadius={1}
-            sx={{
-              cursor: "pointer",
-              "&:hover": { backgroundColor: "#f5f5f5" }
-            }}
-            onClick={() =>
-              navigate(
-                `/department/${deptId}/team/${teamId}/project/${proj.project_id}`
-              )
-            }
-          >
-            <Typography fontWeight={600}>
-              {proj.project_title}
-            </Typography>
-            <Typography variant="body2">
-              {proj.project_description}
-            </Typography>
-          </Box>
+  key={proj.project_id}
+  p={3}
+  mb={2}
+  sx={{
+    cursor: "pointer",
+    borderRadius: 3,
+    border: "1px solid",
+    borderColor: "divider",
+    backgroundColor: "background.paper",
+    transition: "all 0.25s ease",
+
+    "&:hover": {
+      transform: "translateY(-4px)",
+      borderColor: "primary.main",
+      backgroundColor: (theme) =>
+        theme.palette.mode === "dark"
+          ? "#1E293B"   // dark hover
+          : "#F8FAFC",  // light hover
+      boxShadow: (theme) =>
+        theme.palette.mode === "dark"
+          ? "0 8px 25px rgba(59,130,246,0.25)"
+          : "0 8px 20px rgba(0,0,0,0.08)",
+    },
+  }}
+  onClick={() =>
+    navigate(
+      `/department/${deptId}/team/${teamId}/project/${proj.project_id}`
+    )
+  }
+>
+  <Typography
+    variant="h6"
+    sx={{
+      fontWeight: 600,
+      color: "text.primary",
+      mb: 0.5,
+    }}
+  >
+    {proj.project_title}
+  </Typography>
+
+  <Typography
+    variant="body2"
+    sx={{
+      color: (theme) =>
+        theme.palette.mode === "dark"
+          ? "rgba(255,255,255,0.75)"
+          : "text.secondary",
+    }}
+  >
+    {proj.project_description}
+  </Typography>
+</Box>
+
         ))
       )}
     </Container>

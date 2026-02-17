@@ -28,40 +28,39 @@ const TeamDetail = () => {
   const projectId = team.projects?.[0]?.project_id;
 
  return (
-  <Box sx={{ px: 4, py: 4 }}>
+  <Box sx={{ px: 4, py: 5 }}>
 
+  
     {/* ===== HERO HEADER ===== */}
-    <Box
-      sx={{
-        p: 4,
-        borderRadius: 4,
-        mb: 4,
-        background: "linear-gradient(135deg, #6366F1, #4F46E5)",
-        color: "white",
-        position: "relative",
-        overflow: "hidden"
-      }}
-    >
-      <Typography variant="h4" fontWeight={700}>
+<Box
+  sx={{
+    p: 4,
+    borderRadius: 4,
+    mb: 5,
+    background: (theme) =>
+      theme.palette.mode === "dark"
+        ? `linear-gradient(
+            135deg,
+            ${theme.palette.primary.main}25,
+            #0F172A
+          )`
+        : `linear-gradient(
+            135deg,
+            ${theme.palette.primary.main}15,
+            #ffffff
+          )`,
+    border: "1px solid",
+    borderColor: "divider",
+  }}
+>
+
+      <Typography variant="h4" sx={{ mb: 1 }}>
         {team.team_name}
       </Typography>
 
-      <Typography variant="body2" sx={{ opacity: 0.85, mt: 1 }}>
-        Team Management Dashboard
+      <Typography variant="body2" color="text.secondary">
+        Teams Dashboard
       </Typography>
-
-      {/* Decorative circle */}
-      <Box
-        sx={{
-          position: "absolute",
-          right: -40,
-          top: -40,
-          width: 160,
-          height: 160,
-          borderRadius: "50%",
-          background: "rgba(255,255,255,0.08)"
-        }}
-      />
     </Box>
 
 
@@ -71,44 +70,79 @@ const TeamDetail = () => {
         display: "grid",
         gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
         gap: 3,
-        mb: 4,
+        mb: 5,
       }}
     >
+      {/* TEAM ID */}
       <Box
-        sx={{
-          p: 3,
-          borderRadius: 4,
-          backgroundColor: "#111827",
-          color: "white",
-          transition: "0.3s",
-          "&:hover": {
-            transform: "translateY(-4px)",
-          },
-        }}
-      >
-        <Typography variant="caption" sx={{ opacity: 0.7 }}>
+  sx={{
+    p: 3,
+    borderRadius: 4,
+    backgroundColor: "background.paper",
+    border: "1px solid",
+    borderColor: "divider",
+    transition: "all 0.25s ease",
+"&:hover": {
+  transform: "translateY(-3px)",
+  borderColor: "primary.main",
+
+  backgroundColor: (theme) =>
+    theme.palette.mode === "dark"
+      ? "#1F2A3D"   // solid deeper tone (not white tint)
+      : "rgba(0,0,0,0.02)",
+
+  boxShadow: (theme) =>
+    theme.palette.mode === "dark"
+      ? "0 8px 25px rgba(96,165,250,0.15)"
+      : "0 8px 25px rgba(0,0,0,0.08)",
+},
+
+  }}
+>
+
+        <Typography variant="caption" color="text.secondary">
           TEAM ID
         </Typography>
-        <Typography variant="h4" fontWeight={700}>
+        <Typography variant="h4" sx={{ mt: 1 }}>
           {team.team_id}
         </Typography>
       </Box>
 
+      {/* STATUS */}
       <Box
-        sx={{
-          p: 3,
-          borderRadius: 4,
-          backgroundColor: "#F3F4F6",
-          transition: "0.3s",
-          "&:hover": {
-            transform: "translateY(-4px)",
-          },
-        }}
-      >
+  sx={{
+    p: 3,
+    borderRadius: 4,
+    backgroundColor: "background.paper",
+    border: "1px solid",
+    borderColor: "divider",
+    transition: "all 0.25s ease",
+
+    "&:hover": {
+  transform: "translateY(-3px)",
+  borderColor: "primary.main",
+
+  backgroundColor: (theme) =>
+    theme.palette.mode === "dark"
+      ? "#1F2A3D"   // solid deeper tone (not white tint)
+      : "rgba(0,0,0,0.02)",
+
+  boxShadow: (theme) =>
+    theme.palette.mode === "dark"
+      ? "0 8px 25px rgba(96,165,250,0.15)"
+      : "0 8px 25px rgba(0,0,0,0.08)",
+},
+
+  }}
+>
+
         <Typography variant="caption" color="text.secondary">
           STATUS
         </Typography>
-        <Typography variant="h5" fontWeight={600} color="success.main">
+        <Typography
+          variant="h6"
+          sx={{ mt: 1, color: "success.main" }}
+        >
           Active
         </Typography>
       </Box>
@@ -120,8 +154,9 @@ const TeamDetail = () => {
       sx={{
         borderRadius: 4,
         backgroundColor: "background.paper",
-        boxShadow: "0 8px 30px rgba(0,0,0,0.05)",
-        overflow: "hidden"
+        border: "1px solid",
+        borderColor: "divider",
+        overflow: "hidden",
       }}
     >
       <Tabs
@@ -130,15 +165,24 @@ const TeamDetail = () => {
         sx={{
           px: 3,
           pt: 2,
+          borderBottom: "1px solid",
+          borderColor: "divider",
+
           "& .MuiTabs-indicator": {
-            height: 4,
-            borderRadius: 4,
-            backgroundColor: "#6366F1"
+            height: 3,
+            borderRadius: 3,
+            backgroundColor: "primary.main",
           },
+
           "& .MuiTab-root": {
             textTransform: "none",
             fontWeight: 600,
-          }
+            color: "text.secondary",
+          },
+
+          "& .Mui-selected": {
+            color: "text.primary",
+          },
         }}
       >
         <Tab label="Projects" />
@@ -168,6 +212,7 @@ const TeamDetail = () => {
 
   </Box>
 );
+
 
 
 };

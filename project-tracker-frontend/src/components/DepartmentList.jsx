@@ -31,7 +31,7 @@ function DepartmentList() {
   }, []);
 
   return (
-  <Grid container spacing={3}>
+  <Grid container spacing={4}>
     {departments.map((dept) => (
       <Grid item xs={12} sm={6} md={4} key={dept.department_id}>
         <Card
@@ -40,26 +40,26 @@ function DepartmentList() {
           }
           sx={{
             cursor: "pointer",
-            height: 150,
+            height: 180,
             display: "flex",
             flexDirection: "column",
             justifyContent: "space-between",
-            p: 2.5,
-            transition: "all 0.25s ease",
+            p: 3,
+            transition: "all 0.3s ease",
             border: "1px solid",
             borderColor: "divider",
 
             "&:hover": {
-              transform: "translateY(-6px)",
-              boxShadow: 6,
+              transform: "translateY(-8px)",
+              boxShadow: 8,
               borderColor: "primary.main",
             },
           }}
         >
+          {/* Top Section */}
           <Box>
             <Typography
               variant="h6"
-              fontWeight={600}
               sx={{ mb: 1 }}
             >
               {dept.department_name}
@@ -73,15 +73,16 @@ function DepartmentList() {
             </Typography>
           </Box>
 
+          {/* Bottom Section */}
           <Chip
             label={dept.department_type}
             size="small"
-            color={
-              dept.department_type === "Technical"
-                ? "primary"
-                : "secondary"
-            }
-            sx={{ alignSelf: "flex-start" }}
+            sx={{
+              alignSelf: "flex-start",
+              fontWeight: 600,
+              backgroundColor: "primary.main",
+              color: "background.default",
+            }}
           />
         </Card>
       </Grid>

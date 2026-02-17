@@ -79,94 +79,178 @@ const Login = () => {
   }
 };
 
+return (
+  <Box
+    sx={{
+      minHeight: "100vh",
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      px: 2,
 
-  return (
-    <Box
+      background: (theme) =>
+        theme.palette.mode === "dark"
+          ? `radial-gradient(circle at 20% 20%, ${theme.palette.primary.main}15, #0F172A 60%)`
+          : `linear-gradient(180deg, #F8FAFC 0%, #EEF2F7 100%)`,
+    }}
+  >
+    <Paper
+      elevation={0}
       sx={{
-        height: "100vh",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: "#F5EDED"
+        width: 400,
+        p: 5,
+        borderRadius: 3,
+        backgroundColor: "background.paper",
+        border: "1px solid",
+        borderColor: "divider",
+
+        boxShadow: (theme) =>
+          theme.palette.mode === "dark"
+            ? "0 20px 60px rgba(0,0,0,0.55)"
+            : "0 20px 40px rgba(0,0,0,0.06)",
       }}
     >
-      <Paper sx={{ padding: 4, width: 350 }}>
-        <Typography 
-        variant="h5" 
-        align="center" 
-        mb={2}
+      {/* Title */}
+      <Typography
+        variant="h5"
+        align="center"
         sx={{
-          color:"#6482AD",
-          fontWeight: "bold"
+          fontWeight: 600,
+          mb: 1,
+          color: "text.primary",
+          letterSpacing: "-0.5px",
         }}
-        >
-          Login
-        </Typography>
+      >
+        Welcome Back
+      </Typography>
 
-        <TextField
-          label="Email"
-          fullWidth
-          margin="normal"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
+      <Typography
+        align="center"
+        variant="body2"
+        sx={{ color: "text.secondary", mb: 4 }}
+      >
+        Sign in to continue to your dashboard
+      </Typography>
 
-        <TextField
-          label="Password"
-          type={showPassword ? "text" : "password"}
-          fullWidth
-          margin="normal"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          InputProps={{
-            endAdornment: (
-               <InputAdornment position="end">
-                  <IconButton
-                    onClick={() => setShowPassword(!showPassword)}
-                    edge="end"
-                  >
-                    {showPassword ? <VisibilityOff /> : <Visibility />}
-                  </IconButton>
-              </InputAdornment>
-    ),
-  }}
-/>
+      {/* Email */}
+      <TextField
+        label="Email"
+        fullWidth
+        margin="normal"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        sx={{
+          "& .MuiOutlinedInput-root": {
+            borderRadius: 2,
+            backgroundColor: (theme) =>
+              theme.palette.mode === "dark"
+                ? "#1E293B"
+                : "#ffffff",
 
-        {success && (
-         <Alert severity="success" sx={{ mt: 2 }}>
+            "& fieldset": {
+              borderColor: "divider",
+            },
+            "&:hover fieldset": {
+              borderColor: "primary.main",
+            },
+            "&.Mui-focused fieldset": {
+              borderColor: "primary.main",
+              borderWidth: 2,
+            },
+          },
+        }}
+      />
+
+      {/* Password */}
+      <TextField
+        label="Password"
+        type={showPassword ? "text" : "password"}
+        fullWidth
+        margin="normal"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        sx={{
+          "& .MuiOutlinedInput-root": {
+            borderRadius: 2,
+            backgroundColor: (theme) =>
+              theme.palette.mode === "dark"
+                ? "#1E293B"
+                : "#ffffff",
+
+            "& fieldset": {
+              borderColor: "divider",
+            },
+            "&:hover fieldset": {
+              borderColor: "primary.main",
+            },
+            "&.Mui-focused fieldset": {
+              borderColor: "primary.main",
+              borderWidth: 2,
+            },
+          },
+        }}
+        InputProps={{
+          endAdornment: (
+            <InputAdornment position="end">
+              <IconButton
+                onClick={() => setShowPassword(!showPassword)}
+                edge="end"
+              >
+                {showPassword ? <VisibilityOff /> : <Visibility />}
+              </IconButton>
+            </InputAdornment>
+          ),
+        }}
+      />
+
+      {success && (
+        <Alert severity="success" sx={{ mt: 2 }}>
           {success}
-         </Alert>
-       )}
-
-        {error && (
-         <Alert severity="error" sx={{ mt: 2 }}>
-          {error}
-         </Alert>
+        </Alert>
       )}
 
-        <Button
-          variant="contained"
-          fullWidth
-          sx={{
-            backgroundColor: "#7FA1C3",
-            "&:hover": {
-              backgroundColor: "#E2DAD6"
-  }
-}}
-          onClick={handleLogin}
+      {error && (
+        <Alert severity="error" sx={{ mt: 2 }}>
+          {error}
+        </Alert>
+      )}
+
+      {/* Button */}
+      <Button
+        variant="contained"
+        fullWidth
+        onClick={handleLogin}
+        sx={{
+          mt: 3,
+          py: 1.2,
+          borderRadius: 2,
+          fontWeight: 600,
+          textTransform: "none",
+
+          boxShadow: (theme) =>
+            theme.palette.mode === "dark"
+              ? `0 6px 20px ${theme.palette.primary.main}40`
+              : "0 4px 14px rgba(0,0,0,0.08)",
+        }}
+      >
+        Sign In
+      </Button>
+
+      {/* Forgot */}
+      <Typography align="right" variant="body2" sx={{ mt: 2 }}>
+        <Link
+          component={RouterLink}
+          to="/forgot-password"
+          underline="hover"
         >
-          Login
-        </Button>
+          Forgot Password?
+        </Link>
+      </Typography>
+    </Paper>
+  </Box>
+);
 
-        <Typography align="right" variant="body2" sx={{ mt: 1 }}>
-  <Link component={RouterLink} to="/forgot-password">
-    Forgot Password?
-  </Link>
-</Typography>
 
-      </Paper>
-    </Box>
-  );
 };
 
 export default Login;

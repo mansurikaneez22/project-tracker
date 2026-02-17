@@ -24,13 +24,16 @@ function TeamList() {
   }, [deptId]);
 
  return (
-  <>
-    <Typography variant="h5" fontWeight={600} sx={{ mb: 4 }}>
+  <Box sx={{ mt: 5 }}>
+    <Typography
+      variant="h4"
+      sx={{ mb: 4 }}
+    >
       Teams
     </Typography>
 
-    <Stack spacing={2.5}>
-      {teams.map((team) => (
+    <Stack spacing={3}>
+      {teams.map((team, index) => (
         <Card
           key={team.team_id}
           onClick={() =>
@@ -39,66 +42,89 @@ function TeamList() {
           sx={{
             cursor: "pointer",
             px: 3,
-            py: 2.5,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
+            py: 3,
+            position: "relative",
+            overflow: "hidden",
             border: "1px solid",
             borderColor: "divider",
-            transition: "all 0.25s ease",
+            transition: "all 0.3s ease",
 
             "&:hover": {
-              transform: "translateX(6px)",
-              borderColor: "primary.main",
-              boxShadow: 4,
+              transform: "translateY(-4px)",
+              boxShadow: 8,
+            },
+
+            /* LEFT ACCENT STRIP */
+            "&::before": {
+              content: '""',
+              position: "absolute",
+              left: 0,
+              top: 0,
+              height: "100%",
+              width: "6px",
+              backgroundColor: "primary.main",
+              opacity: 0.7,
             },
           }}
         >
-          <Stack direction="row" spacing={2.5} alignItems="center">
-            <Box
+          <Stack
+            direction="row"
+            alignItems="center"
+            justifyContent="space-between"
+          >
+            {/* LEFT CONTENT */}
+            <Stack direction="row" spacing={3} alignItems="center">
+              <Box
+                sx={{
+                  width: 50,
+                  height: 50,
+                  borderRadius: 3,
+                  backgroundColor: "background.default",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  border: "1px solid",
+                  borderColor: "divider",
+                }}
+              >
+                <GroupsIcon color="primary" />
+              </Box>
+
+              <Box>
+                <Typography variant="h6">
+                  {team.team_name}
+                </Typography>
+
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                >
+                  Team ID: {team.team_id}
+                </Typography>
+              </Box>
+            </Stack>
+
+            {/* RIGHT SIDE */}
+            <Typography
+              variant="body2"
               sx={{
-                bgcolor: "primary.main",
-                borderRadius: "50%",
-                width: 48,
-                height: 48,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
+                color: "text.secondary",
+                fontWeight: 500,
               }}
             >
-              <GroupsIcon sx={{ color: "#0F1115" }} />
-            </Box>
-
-            <Box>
-              <Typography variant="h6" fontWeight={600}>
-                {team.team_name}
-              </Typography>
-
-              <Typography
-                variant="body2"
-                color="text.secondary"
-              >
-                Team ID: {team.team_id}
-              </Typography>
-            </Box>
+              Open →
+            </Typography>
           </Stack>
-
-          <Typography
-            variant="body2"
-            color="text.secondary"
-          >
-            View →
-          </Typography>
         </Card>
       ))}
 
       {teams.length === 0 && (
         <Typography color="text.secondary">
-          No teams found for this department
+          No teams found for this department.
         </Typography>
       )}
     </Stack>
-  </>
+  </Box>
 );
 
 }

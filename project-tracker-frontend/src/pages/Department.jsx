@@ -4,23 +4,27 @@ import { Typography, Container, Box } from "@mui/material";
 
 const Departments = () => {
   return (
-    <Container maxWidth="lg">
-      <Box sx={{ mt: 5, mb: 4 }}>
-        <Typography variant="h5" fontWeight={600}>
-          Departments
-        </Typography>
+    <Box
+      sx={{
+        minHeight: "100vh",
+        backgroundColor: "background.default",
+        py: 6,
+      }}
+    >
+      <Container maxWidth="lg">
+        <Box sx={{ mb: 5 }}>
+          <Typography variant="h4" gutterBottom>
+            Departments
+          </Typography>
 
-        <Typography
-          variant="body2"
-          color="text.secondary"
-          sx={{ mt: 0.5 }}
-        >
-          Manage and explore all departments
-        </Typography>
-      </Box>
+          <Typography variant="body1" color="text.secondary">
+            Manage and explore all departments across your organization.
+          </Typography>
+        </Box>
 
-      <DepartmentList />
-    </Container>
+        <DepartmentList />
+      </Container>
+    </Box>
   );
 };
 

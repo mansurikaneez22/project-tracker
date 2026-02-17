@@ -3,7 +3,7 @@ import { ThemeProvider } from "./context/ThemeContext";
 import Navbar from "./components/Navbar";
 
 import Login from "./pages/Login";
-import DepartmentList from "./components/DepartmentList";
+import Departments from "./pages/Department";
 import TeamList from "./pages/TeamList";
 import TeamDetail from "./components/Teamdetail";
 import Projects from "./pages/Projects";
@@ -44,7 +44,7 @@ function App() {
           {/* ================= PROTECTED ROUTES ================= */}
           <Route element={<ProtectedRoute />}>
 
-            <Route path="/department" element={<DepartmentList />} />
+            <Route path="/department" element={<Departments />} />
 
             <Route
               path="/department/:deptId/team"
