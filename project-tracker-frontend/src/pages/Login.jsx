@@ -67,9 +67,16 @@ const Login = () => {
   } else if (res.data.job_profile === "PRODUCT MANAGER") {
     navigate("/department");
 
-  } else {
-    navigate("/project");
+  } else if(res.data.job_profile === "TEAM LEADER") {
+    navigate("/tl/dashboard");
+
+  } else if(res.data.job_profile === "CONTRIBUTOR") {
+    navigate("/contributor/dashboard");
+
+  } else{
+    navigate("/department")
   }
+
 }, 1500);
 
 

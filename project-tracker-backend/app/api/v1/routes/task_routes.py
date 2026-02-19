@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import text
+from datetime import date
 
 from app.database.database import get_db
 from app.models.task import Task
@@ -177,3 +178,43 @@ def assign_task_to_sprint(
     db.commit()
 
     return {"message": "Task assigned to sprint successfully"}
+
+from app.dependencies.auth_dependency import get_current_user  # your JWT dependency
+
+@router.get("/my-tasks")
+def get_my_tasks(
+    current_user = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    tasks = db.query(Task).filter(
+        Task.assignee_id == current_user.user_id
+    ).all()
+
+    return tasks
+
+@router.get("/my-summary")
+def get_my_task_summary(
+    current_user = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    tasks = db.query(Task).filter(
+        Task.assignee_id == current_user.user_id
+    ).all()
+
+    total = len(tasks)
+    pending = len([t for t in tasks if t.status == "TODO"])
+    in_progress = len([t for t in tasks if t.status == "IN PROGRESS"])
+    completed = len([t for t in tasks if t.status == "DONE"])
+    overdue = len([
+    t for t in tasks
+    if t.due_date and t.due_date < date.today() and t.status != "DONE"
+])
+
+
+    return {
+        "total_tasks": total,
+        "pending": pending,
+        "in_progress": in_progress,
+        "completed": completed,
+        "overdue": overdue
+    }

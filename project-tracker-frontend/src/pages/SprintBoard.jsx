@@ -125,7 +125,14 @@ setActiveSprint(active);
   }
 
   return (
-    <Box p={3}>
+    <Box
+  sx={{
+    p: 3,
+    minHeight: "calc(100vh - 64px)", // adjust if header height different
+    backgroundColor: "background.default",
+  }}
+>
+
       <Typography variant="h5" fontWeight={600} mb={1}>
         {activeSprint.sprint_name}
       </Typography>
@@ -135,14 +142,29 @@ setActiveSprint(active);
       </Typography>
 
       <DragDropContext onDragEnd={handleDragEnd}>
-        <Box display="flex" gap={2}>
+        <Box
+          sx={{
+              display: "flex",
+              gap: 2,
+              alignItems: "flex-start",
+              overflowX: "auto",
+              pb: 1,
+            }}
+        >
+
           {STATUSES.map((status) => {
             const columnTasks = tasks.filter(
               (t) => t.status === status
             );
 
             return (
-              <Box key={status} flex={1}>
+              <Box
+               key={status} 
+               sx={{
+                flex: 1,
+                minWidth: 200,
+               }}
+              >
                 <Typography fontWeight={700} mb={1}>
                   {status.replace("_", " ")} ({columnTasks.length})
                 </Typography>

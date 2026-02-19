@@ -5,28 +5,67 @@ import TaskCard from "./Taskcard";
 const KanbanColumn = ({ status, tasks }) => {
   return (
     <Droppable droppableId={status}>
-      {(provided) => (
-        <Box
-          ref={provided.innerRef}
-          {...provided.droppableProps}
-          sx={{
-            minHeight: "70vh",
-            backgroundColor: "#f4f5f7",
-            p: 1,
-            borderRadius: 2
-          }}
-        >
-          {tasks.map((task, index) => (
-            <TaskCard
-              key={task.task_id}
-              task={task}
-              index={index}
-              draggable
-            />
-          ))}
-          {provided.placeholder}
-        </Box>
-      )}
+      {(provided, snapshot) => (
+  <Box
+    ref={provided.innerRef}
+    {...provided.droppableProps}
+    sx={(theme) => ({
+      minHeight: "70vh",
+      p: 2,
+      borderRadius: 3,
+      display: "flex",
+      flexDirection: "column",
+      gap: 1.5,
+
+      // 🎨 Smart Theme Background
+      backgroundColor:
+        theme.palette.mode === "dark"
+          ? "#0F172A"          // premium dark slate
+          : "#F8FAFC",         // soft light surface
+
+      // 🧱 Soft Border
+      border: "1px solid",
+      borderColor: theme.palette.divider,
+
+      // ✨ Subtle Depth
+      boxShadow:
+        theme.palette.mode === "dark"
+          ? "0 4px 12px rgba(0,0,0,0.25)"
+          : "0 4px 12px rgba(0,0,0,0.05)",
+
+      transition: "all 0.25s ease",
+
+      // 🖱 Hover Effect
+      "&:hover": {
+        backgroundColor:
+          theme.palette.mode === "dark"
+            ? "rgba(255,255,255,0.05)"
+            : "#E2E8F0",
+      },
+
+      // 🎯 Drag Highlight Effect
+      ...(snapshot.isDraggingOver && {
+        backgroundColor:
+          theme.palette.mode === "dark"
+            ? "rgba(25,118,210,0.12)"
+            : "rgba(25,118,210,0.08)",
+        borderColor: theme.palette.primary.main,
+      }),
+    })}
+  >
+    {tasks.map((task, index) => (
+      <TaskCard
+        key={task.task_id}
+        task={task}
+        index={index}
+        draggable
+      />
+    ))}
+
+    {provided.placeholder}
+  </Box>
+)}
+
     </Droppable>
   );
 };

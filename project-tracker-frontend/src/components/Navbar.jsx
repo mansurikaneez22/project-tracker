@@ -134,9 +134,23 @@ const Navbar = () => {
         anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
         transformOrigin={{ vertical: "top", horizontal: "right" }}
       >
-        <MenuItem onClick={() => handleMenuClick("/account")}>Account</MenuItem>
-        <MenuItem onClick={() => handleMenuClick("/settings")}>Settings</MenuItem>
-        <MenuItem onClick={() => handleMenuClick("/dashboard")}>Dashboard</MenuItem>
+        <MenuItem onClick={() => handleMenuClick("/account")}>
+  Profile
+</MenuItem>
+
+<MenuItem onClick={() => handleMenuClick("/settings")}>
+  Settings
+</MenuItem>
+
+<MenuItem
+  onClick={() => {
+    localStorage.clear();
+    handleMenuClick("/login");
+  }}
+>
+  Logout
+</MenuItem>
+
       </Menu>
     </Box>
   );
