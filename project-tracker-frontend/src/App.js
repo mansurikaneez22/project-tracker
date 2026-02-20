@@ -22,6 +22,9 @@ import Account from "./pages/Account";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 import MainLayout from "./layouts/MainLayout";
+import MyTasks from "./pages/MyTasks";
+import PMTasks from "./pages/PMTasks";
+import LandingPage from "./pages/LandingPage";
 
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -34,13 +37,13 @@ function App() {
           <Routes>
 
             {/* ================= PUBLIC ROUTES ================= */}
-            <Route path="/" element={<Login />} />
+            <Route path="/" element={<LandingPage/>} />
             <Route path="/login" element={<Login />} />
             <Route path="/set-password" element={<SetPassword />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
 
             {/* ================= PROTECTED LAYOUT ================= */}
-            <Route element={<ProtectedRoute allowedRoles={["PM","TEAM LEADER","CONTRIBUTOR","ADMIN"]} />}>
+            <Route element={<ProtectedRoute allowedRoles={["PROJECT MANAGER","TEAM LEADER","CONTRIBUTOR","ADMIN"]} />}>
               <Route element={<MainLayout />}>
 
                 {/* Common Routes */}
@@ -52,6 +55,8 @@ function App() {
                 <Route path="/department/:deptId/team/:teamId/project/:projectId/board/:sprintId" element={<SprintPage />} />
                 <Route path="/department/:deptId/team/:teamId/project/:projectId/task" element={<TaskList />} />
                 <Route path="/project/:projectId/task/:taskId" element={<TaskDetail />} />
+                <Route path="/my-tasks" element={<MyTasks />} />
+                <Route path="/pm/tasks" element={<PMTasks/>}/>
                 <Route path="/account" element={<Account />} />
 
                 {/* Role Dashboards */}

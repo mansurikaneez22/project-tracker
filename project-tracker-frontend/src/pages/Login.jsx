@@ -25,66 +25,63 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = async () => {
-    console.log("LOGIN BUTTON CLICKED");
   try {
     const res = await axios.post(
       "http://127.0.0.1:8000/api/v1/auth/login",
       {
-        email: email,
-        password: password
+        email,
+        password
       }
     );
 
-    console.log("AFTER API call");
-    console.log("RESPONSE:", res.data);
-    // SAVE JWT
-    localStorage.setItem("token", res.data.access_token);
+    const { access_token, job_profile, user_id, user_name } = res.data;
 
-    // SAVE ROLE (FOR PROTECTED ROUTES)
-    localStorage.setItem("role", res.data.job_profile);
+    // ✅ Save everything properly
+    localStorage.setItem("token", access_token);
+    localStorage.setItem("role", job_profile);
 
-
-    // ---------- SAVE CONTEXT CORRECT ----------
     localStorage.setItem(
-  "user",
-  JSON.stringify({
-    user_id: res.data.user_id,
-    job_profile: res.data.job_profile,
-    user_name: res.data.user_name
-  })
-);
+      "user",
+      JSON.stringify({
+        user_id,
+        job_profile,
+        user_name
+      })
+    );
 
-   setSuccess("Login Successful.");
-   setError("");
-    // ---------- ROLE BASED REDIRECT ----------
-   setTimeout(() => {
-  if (res.data.job_profile === "ADMIN") {
-    navigate("/admin-dashboard");
+    setSuccess("Login Successful");
+    setError("");
 
-  } else if (res.data.job_profile === "PROJECT MANAGER") {
-    navigate("/pm/dashboard");
+    // ✅ Direct redirect (NO setTimeout)
+    if (job_profile === "ADMIN") {
+      navigate("/admin-dashboard");
 
-  } else if (res.data.job_profile === "PRODUCT MANAGER") {
-    navigate("/department");
+    } else if (job_profile === "PROJECT MANAGER") {
+      navigate("/pm/dashboard");
 
-  } else if(res.data.job_profile === "TEAM LEADER") {
-    navigate("/tl/dashboard");
+    } else if (job_profile === "PRODUCT MANAGER") {
+      navigate("/department");
 
-  } else if(res.data.job_profile === "CONTRIBUTOR") {
-    navigate("/contributor/dashboard");
+    } else if (job_profile === "TEAM LEADER") {
+      navigate("/tl/dashboard");
 
-  } else{
-    navigate("/department")
-  }
+    } else if (job_profile === "CONTRIBUTOR") {
+      navigate("/contributor/dashboard");
 
-}, 1500);
-
+    } else {
+      navigate("/department");
+    }
 
   } catch (err) {
     setError("Invalid email or password");
     console.log(err);
   }
 };
+  console.log("TOKEN:", localStorage.getItem("token"));
+console.log("ROLE:", localStorage.getItem("role"));
+
+
+
 
 return (
   <Box

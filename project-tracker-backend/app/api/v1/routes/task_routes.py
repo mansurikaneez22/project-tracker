@@ -70,18 +70,6 @@ def get_all_tasks(
     tasks = db.query(Task).all()
     return tasks
 
-# get_single_task
-@router.get("/{task_id}")
-def get_task(
-    task_id: int,
-    db: Session = Depends(get_db)
-):
-    task = db.query(Task).filter(Task.task_id == task_id).first()
-
-    if not task:
-        raise HTTPException(status_code=404, detail="Task not found")
-
-    return task
 
 #edit_task
 @router.post("/{task_id}")
@@ -218,3 +206,17 @@ def get_my_task_summary(
         "completed": completed,
         "overdue": overdue
     }
+
+
+# get_single_task
+@router.get("/{task_id}")
+def get_task(
+    task_id: int,
+    db: Session = Depends(get_db)
+):
+    task = db.query(Task).filter(Task.task_id == task_id).first()
+
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+
+    return task

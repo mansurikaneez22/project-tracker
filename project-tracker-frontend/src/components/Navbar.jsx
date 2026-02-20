@@ -12,6 +12,8 @@ import {
 } from "@mui/material";
 
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import TrackChangesIcon from "@mui/icons-material/TrackChanges";
+
 import { Brightness4, Brightness7, AccountCircle } from "@mui/icons-material";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 
@@ -22,6 +24,7 @@ import { useThemeContext } from "../context/ThemeContext";
 const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const isLandingPage = location.pathname === "/";
   const state = location.state || {};
   const theme = useTheme();
   const { mode, toggleTheme } = useThemeContext();
@@ -80,14 +83,35 @@ const Navbar = () => {
         separator={<NavigateNextIcon fontSize="small" />}
         sx={{ flexGrow: 1 }}
       >
-        <Link
-          underline="hover"
-          color="inherit"
-          sx={{ cursor: "pointer" }}
-          onClick={() => navigate("/department")}
-        >
-          HOME
-        </Link>
+        {isLandingPage && (
+        <Box
+  sx={{
+    display: "flex",
+    alignItems: "center",
+    gap: 1,
+    cursor: "pointer"
+  }}
+  onClick={() => navigate("/")}
+>
+  <TrackChangesIcon
+    sx={{
+      fontSize: 26,
+      color: theme.palette.primary.main
+    }}
+  />
+
+  <Typography
+    variant="h6"
+    sx={{
+      fontWeight: 700,
+      letterSpacing: 0.5,
+      color: theme.palette.text.primary
+    }}
+  >
+    TaskOrbit
+  </Typography>
+</Box>
+        )}
 
         {pathnames.map((segment, index) => {
           const label = formatLabel(segment);

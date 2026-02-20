@@ -180,3 +180,44 @@ def active_sprints(
     """)).mappings().all()
 
     return result
+
+
+# ---------------- PM Tasks ----------------
+@router.get("/tasks")
+def get_pm_tasks(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    if current_user.job_profile != "PROJECT MANAGER":
+        raise HTTPException(status_code=403, detail="Access denied")
+
+    pm_id = current_user.user_id
+
+    result = db.execute(text("""
+        SELECT
+            t.task_id,
+            t.task_title,
+            t.status,
+            t.priority,
+            t.due_date,
+            p.project_title AS project_name,
+            u.user_name AS assignee_name
+        FROM task t
+        JOIN project p ON p.project_id = t.project_id
+        LEFT JOIN user u ON u.user_id = t.assignee_id
+        WHERE p.project_manager = :pm_id
+        ORDER BY t.due_date ASC
+    """), {"pm_id": pm_id}).mappings().all()
+
+    return [
+        {
+            "task_id": row["task_id"],
+            "title": row["task_title"],
+            "status": row["status"],
+            "priority": row["priority"],
+            "due_date": row["due_date"],
+            "project": row["project_name"],
+            "assignee": row["assignee_name"]
+        }
+        for row in result
+    ]
