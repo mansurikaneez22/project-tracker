@@ -53,18 +53,52 @@ const PMTasks = () => {
   }, [tasks, statusFilter, search]);
 
   return (
-    <Box p={4}>
-      <Typography variant="h4" fontWeight="bold" mb={3}>
+  <Box
+    sx={{
+      px: { xs: 2, md: 6 },
+      py: 4,
+      width: "100%",
+    }}
+  >
+    {/* Header */}
+    <Box mb={4}>
+      <Typography
+        variant="h4"
+        fontWeight={700}
+        sx={{ letterSpacing: 0.5 }}
+      >
         PM Tasks
       </Typography>
+      <Typography variant="body2" color="text.secondary">
+        Manage and track all assigned project tasks
+      </Typography>
+    </Box>
 
-      {/* Filters */}
-      <Stack direction={{ xs: "column", sm: "row" }} spacing={2} mb={4}>
+    {/* Filters Card */}
+    <Box
+      sx={{
+        p: 3,
+        mb: 4,
+        borderRadius: "16px",
+        background: "rgba(255,255,255,0.04)",
+        backdropFilter: "blur(8px)",
+        border: "1px solid rgba(255,255,255,0.08)",
+      }}
+    >
+      <Stack
+        direction={{ xs: "column", sm: "row" }}
+        spacing={3}
+        alignItems={{ sm: "center" }}
+      >
         <TextField
-          label="Search Task"
+          label="Search task..."
           size="small"
+          fullWidth
           value={search}
           onChange={(e) => setSearch(e.target.value)}
+          sx={{
+            maxWidth: 350,
+          }}
         />
 
         <TextField
@@ -73,6 +107,7 @@ const PMTasks = () => {
           size="small"
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
+          sx={{ width: 200 }}
         >
           <MenuItem value="ALL">All</MenuItem>
           <MenuItem value="TODO">TODO</MenuItem>
@@ -81,11 +116,22 @@ const PMTasks = () => {
           <MenuItem value="BLOCKED">BLOCKED</MenuItem>
         </TextField>
       </Stack>
+    </Box>
 
-      {/* Calendar */}
+    {/* Calendar Section */}
+    <Box
+      sx={{
+        borderRadius: "20px",
+        p: { xs: 1, md: 3 },
+        background: "rgba(255,255,255,0.02)",
+        border: "1px solid rgba(255,255,255,0.05)",
+      }}
+    >
       <MyTasksCalendar tasks={filteredTasks} />
     </Box>
-  );
+  </Box>
+);
+
 };
 
 export default PMTasks;

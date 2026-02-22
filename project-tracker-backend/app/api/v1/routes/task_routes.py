@@ -38,29 +38,9 @@ def create_task(
     db.commit()
     db.refresh(new_task)
 
-    board = db.query(Board).filter(
-        Board.board_id == task.board_id
-    ).first()
-
-    if not board:
-        raise HTTPException(
-            status_code=404,
-            detail="Board not found"
-        )
-
-    db.add(
-        BoardTaskMapping(
-            board_id=task.board_id,
-            task_id=new_task.task_id
-        )
-    )
-
-    db.commit()
-
     return {
         "message": "Task created successfully",
-        "task_id": new_task.task_id,
-        "board_id": task.board_id
+        "task_id": new_task.task_id
     }
 #get_all_tasks
 @router.get("/list")

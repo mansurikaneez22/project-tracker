@@ -86,6 +86,27 @@ const SprintPage = () => {
       setSnackbarOpen(true);
     }
   };
+  // ================= COMPLETE SPRINT =================
+const handleComplete = async (sprintId) => {
+  try {
+    await api.put(
+      `/api/v1/project/${projectId}/sprints/${sprintId}/complete`
+    );
+
+    setSnackbarMsg("Sprint completed successfully");
+    setSnackbarSeverity("success");
+    setSnackbarOpen(true);
+
+    await fetchSprints();
+    await fetchTasks();
+  } catch (err) {
+    const message =
+      err.response?.data?.detail || "Error completing sprint";
+    setSnackbarMsg(message);
+    setSnackbarSeverity("error");
+    setSnackbarOpen(true);
+  }
+};
 
   // ================= CREATE SPRINT =================
   const handleSprintCreated = async () => {
@@ -146,26 +167,62 @@ const SprintPage = () => {
       <DragDropContext onDragEnd={onDragEnd}>
         <Stack spacing={4}>
           {sprints.map((sprint) => {
-            const sprintTasks = tasks.filter(t => t.sprint_id === sprint.sprint_id);
-            return (
+  const sprintTasks = tasks.filter(
+    (t) => t.sprint_id === sprint.sprint_id
+  );
+
+  const isExpired =
+    sprint.status === "ACTIVE" &&
+    sprint.end_date &&
+    new Date() > new Date(sprint.end_date);
+
+  return (
               <Card key={sprint.sprint_id}>
                 <CardContent>
                   <Box display="flex" justifyContent="space-between">
                     <Typography fontWeight={600}>{sprint.sprint_name}</Typography>
                     <Chip
-                      label={sprint.status}
-                      color={
-                        sprint.status === "ACTIVE" ? "success" :
-                        sprint.status === "COMPLETED" ? "default" : "primary"
-                      }
-                    />
+  label={isExpired ? "OVERDUE" : sprint.status}
+  color={
+    sprint.status === "ACTIVE"
+      ? isExpired
+        ? "warning"
+        : "success"
+      : sprint.status === "COMPLETED"
+      ? "default"
+      : "primary"
+  }
+/>
                   </Box>
 
                   {sprint.status === "ACTIVE" && (
-                    <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                      {`Start: ${sprint.start_date || "-"}  |  End: ${sprint.end_date || "-"}`}
-                    </Typography>
-                  )}
+  <>
+    <Typography
+      variant="body2"
+      color="text.secondary"
+      sx={{ mt: 1 }}
+    >
+      {`Start: ${sprint.start_date || "-"}  |  End: ${
+        sprint.end_date || "-"
+      }`}
+    </Typography>
+    
+    {isExpired && (
+      <Alert severity="warning" sx={{ mt: 2 }}>
+        Sprint end date passed. Please complete sprint.
+      </Alert>
+    )}
+    <Button
+      size="small"
+      color="error"
+      variant="contained"
+      sx={{ mt: 2 }}
+      onClick={() => handleComplete(sprint.sprint_id)}
+    >
+      Complete Sprint
+    </Button>
+  </>
+)}
 
                   {sprint.status === "PLANNED" && (
                     <Button

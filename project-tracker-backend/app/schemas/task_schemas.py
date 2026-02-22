@@ -21,7 +21,7 @@ class TaskCreate(BaseModel):
 
     project_id: int
     
-    board_id: int 
+    board_id: Optional[int] = None
 #updateTask schema
 class TaskUpdate(BaseModel):
     task_title: Optional[str] = None

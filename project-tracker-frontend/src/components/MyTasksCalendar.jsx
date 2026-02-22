@@ -58,7 +58,7 @@ const MyTasksCalendar = ({ tasks = [] }) => {
   const days = [];
   let day = startOfMonth;
 
-  while (day.isBefore(endOfMonth)) {
+  while (day.isSame(endOfMonth) || day.isBefore(endOfMonth)) {
     days.push(day);
     day = day.add(1, "day");
   }
@@ -88,7 +88,7 @@ const MyTasksCalendar = ({ tasks = [] }) => {
             sx={{
               display: "grid",
               gridTemplateColumns: "repeat(7, 1fr)",
-              mb: 1.5,
+              mb: 2,
             }}
           >
             {weekDays.map((day) => (
@@ -111,7 +111,7 @@ const MyTasksCalendar = ({ tasks = [] }) => {
             sx={{
               display: "grid",
               gridTemplateColumns: "repeat(7, 1fr)",
-              gap: 1.5,
+              gap: 2,
             }}
           >
             {days.map((date) => {
@@ -122,95 +122,62 @@ const MyTasksCalendar = ({ tasks = [] }) => {
               const isCurrentMonth = date.month() === currentMonth.month();
 
               return (
-                   <Box
-  key={key}
-  onClick={() => setSelectedDate(date)}
-  sx={{
-    aspectRatio: "1 / 1",   // 🔥 makes perfect square
-    p: 1.2,
-    borderRadius: 2,        // small radius, not pill
-    cursor: "pointer",
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "flex-start",
-    background: isSelected
-      ? theme.palette.primary.main + "15"
-      : theme.palette.background.paper,
-    border: isToday
-      ? `1px solid ${theme.palette.primary.main}`
-      : `1px solid ${theme.palette.divider}`,
-    opacity: isCurrentMonth ? 1 : 0.35,
-    transition: "0.2s ease",
-    "&:hover": {
-      background: theme.palette.action.hover,
-    },
-  }}
->
-
+                <Box
+                  key={key}
+                  onClick={() => setSelectedDate(date)}
+                  sx={{
+                    aspectRatio: "1 / 1",
+                    p: 1,
+                    borderRadius: 3,
+                    cursor: "pointer",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "space-between",
+                    background: isSelected
+                      ? theme.palette.primary.main + "15"
+                      : theme.palette.background.paper,
+                    border: isToday
+                      ? `2px solid ${theme.palette.primary.main}`
+                      : `1px solid ${theme.palette.divider}`,
+                    opacity: isCurrentMonth ? 1 : 0.35,
+                    transition: "0.2s ease",
+                    "&:hover": {
+                      background: theme.palette.action.hover,
+                    },
+                  }}
+                >
+                  {/* Date Number */}
                   <Typography
                     variant="body2"
-                    fontWeight={700}
-                    color={
-                      isToday
-                        ? "primary.main"
-                        : theme.palette.text.primary
-                    }
+                    fontWeight={600}
+                    align="right"
+                    color={isToday ? "primary.main" : "text.primary"}
                   >
                     {date.date()}
                   </Typography>
 
-                  {/* Tasks */}
-                  <Box mt={1}>
-                    {dayTasks.slice(0, 2).map((task) => {
+                  {/* Task Dots */}
+                  <Box
+                    sx={{
+                      display: "flex",
+                      gap: 0.5,
+                      flexWrap: "wrap",
+                    }}
+                  >
+                    {dayTasks.slice(0, 3).map((task) => {
                       const status = getStatusStyles(task.status);
                       return (
                         <Box
                           key={task.id}
                           sx={{
-                            mt: 0.7,
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 0.8,
-                            px: 1,
-                            py: 0.5,
-                            borderRadius: 2,
-                            background: theme.palette.grey[100],
-                            fontSize: 11,
-                            overflow: "hidden",
+                            width: 6,
+                            height: 6,
+                            borderRadius: "50%",
+                            background: status.accent,
                           }}
-                        >
-                          <Box
-                            sx={{
-                              width: 6,
-                              height: 6,
-                              borderRadius: "50%",
-                              background: status.accent,
-                              flexShrink: 0,
-                            }}
-                          />
-
-                          <Typography
-                            variant="caption"
-                            sx={{
-                              whiteSpace: "nowrap",
-                              overflow: "hidden",
-                              textOverflow: "ellipsis",
-                            }}
-                          >
-                            {task.title}
-                          </Typography>
-                        </Box>
+                        />
                       );
                     })}
-
-                    {dayTasks.length > 2 && (
-                      <Typography
-                        variant="caption"
-                        color="text.secondary"
-                      >
-                        +{dayTasks.length - 2} more
-                      </Typography>
-                    )}
                   </Box>
                 </Box>
               );
@@ -237,7 +204,6 @@ const MyTasksCalendar = ({ tasks = [] }) => {
                       p: 2,
                       mb: 2,
                       borderRadius: 3,
-                      boxShadow: "0 4px 20px rgba(0,0,0,0.04)",
                       borderLeft: `4px solid ${status.accent}`,
                     }}
                   >
@@ -261,9 +227,7 @@ const MyTasksCalendar = ({ tasks = [] }) => {
                       <Chip
                         label={task.status}
                         size="small"
-                        sx={{
-                          fontWeight: 600,
-                        }}
+                        sx={{ fontWeight: 600 }}
                       />
                     </Stack>
                   </Card>
@@ -304,10 +268,6 @@ const MyTasksCalendar = ({ tasks = [] }) => {
                     p: 2,
                     borderRadius: 3,
                     background: theme.palette.background.default,
-                    transition: "0.2s",
-                    "&:hover": {
-                      boxShadow: "0 6px 18px rgba(0,0,0,0.05)",
-                    },
                   }}
                 >
                   <Typography fontWeight={600}>

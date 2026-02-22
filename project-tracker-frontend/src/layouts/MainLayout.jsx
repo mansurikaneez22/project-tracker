@@ -14,8 +14,16 @@ const MainLayout = () => {
       <Box sx={{ flexGrow: 1 }}>
         <Navbar />
 
-        <Box sx={{ p: 3 }}>
-          <Outlet />
+        <Box
+          sx={{
+            p: 3,
+            display: "flex",
+            justifyContent: "center",
+          }}
+        >
+          <Box sx={{ width: "100%", maxWidth: "1400px" }}>
+            <Outlet />
+          </Box>
         </Box>
       </Box>
     </Box>
