@@ -26,6 +26,8 @@ from app.api.v1.routes.team_member_routes import router as team_member_router
 from app.api.v1.routes.admin_routes import router as admin_router
 from app.api.v1.routes.pm_dashboard_routes import router as pm_dashboard_router
 from app.api.v1.routes.sprint_routes import router as sprint_router
+from app.api.v1.routes.activity_routes import router as activity_router
+
 
 app = FastAPI(title="Project Tracker API")
 
@@ -74,3 +76,4 @@ app.include_router(team_member_router)
 app.include_router(admin_router)
 app.include_router(pm_dashboard_router)
 app.include_router(sprint_router)
+app.include_router(activity_router)

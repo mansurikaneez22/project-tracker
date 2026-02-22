@@ -8,6 +8,8 @@ from app.models.task import Task
 from app.models.board_task_mapping import BoardTaskMapping
 from app.schemas.task_schemas import TaskCreate, TaskUpdate, TaskStatusUpdate
 from app.models.board import Board
+from app.crud.activity_crud import create_activity
+from app.dependencies.auth_dependency import get_current_user
 
 router = APIRouter(
     prefix="/api/v1/task",
@@ -18,7 +20,8 @@ router = APIRouter(
 @router.post("/")
 def create_task(
     task: TaskCreate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
 ):
     new_task = Task(
         task_title=task.task_title,
@@ -38,6 +41,14 @@ def create_task(
     db.commit()
     db.refresh(new_task)
 
+    create_activity(
+        db=db,
+        project_id=new_task.project_id,
+        user_id=current_user.user_id,
+        action_type="TASK CREATED",
+        message=f"Task '{new_task.task_title}' created"
+    )
+
     return {
         "message": "Task created successfully",
         "task_id": new_task.task_id
@@ -56,7 +67,8 @@ def get_all_tasks(
 def edit_task(
     task_id: int,
     task_data: TaskUpdate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
 ):
     task = db.query(Task).filter(Task.task_id == task_id).first()
 
@@ -69,6 +81,14 @@ def edit_task(
     db.commit()
     db.refresh(task)
 
+    create_activity(
+        db=db,
+        project_id=task.project_id,
+        user_id=current_user.user_id,
+        action_type="TASK UPDATED",
+        message=f"Task '{task.task_title}' updated"
+    )
+
     return {
         "message": "Task updated successfully",
         "task_id": task.task_id
@@ -78,15 +98,28 @@ def edit_task(
 @router.delete("/{task_id}")
 def delete_task(
     task_id: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
 ):
     task = db.query(Task).filter(Task.task_id == task_id).first()
 
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
 
+    # Store before delete
+    project_id = task.project_id
+    title = task.task_title
+
     db.delete(task)
     db.commit()
+
+    create_activity(
+        db=db,
+        project_id=project_id,
+        user_id=current_user.user_id,
+        action_type="TASK_DELETED",
+        message=f"Task '{title}' deleted"
+    )
 
     return {
         "message": "Task deleted successfully",
@@ -97,7 +130,8 @@ def delete_task(
 def update_task_status(
     task_id: int,
     payload: TaskStatusUpdate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
 ):
     task = db.query(Task).filter(Task.task_id == task_id).first()
 
@@ -108,12 +142,19 @@ def update_task_status(
     db.commit()
     db.refresh(task)
 
+    create_activity(
+        db=db,
+        project_id=task.project_id,
+        user_id=current_user.user_id,
+        action_type="TASK_STATUS_CHANGED",
+        message=f"Task '{task.task_title}' moved to {task.status}"
+    )
+
     return {
         "message": "Task status updated successfully",
         "task_id": task.task_id,
         "status": task.status
     }
-
 
 @router.put("/{task_id}/assign-sprint")
 def assign_task_to_sprint(
