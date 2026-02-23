@@ -36,10 +36,21 @@ export const NotificationProvider = ({ children, currentUser }) => {
     });
 
     socket.on("new_notification", (data) => {
-      console.log("REAL TIME:", data);
-      setNotifications(prev => [data, ...prev]);
-      setUnreadCount(prev => prev + 1);
-    });
+  console.log("REAL TIME:", data);
+
+  // 🔥 Short message for toast (future use)
+  const shortMessage =
+    data.message && data.message.length > 40
+      ? data.message.slice(0, 40) + "..."
+      : data.message;
+
+  // Keep full message for dropdown (important)
+  setNotifications(prev => [data, ...prev]);
+  setUnreadCount(prev => prev + 1);
+
+  // (Optional console to verify)
+  console.log("SHORT:", shortMessage);
+});
 
     fetchNotifications();
 
