@@ -69,9 +69,9 @@ const MyTasksCalendar = ({ tasks = [] }) => {
   const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
   return (
-    <Grid container spacing={3}>
+    <Grid container spacing={4}>
       {/* ================= CALENDAR ================= */}
-      <Grid item xs={12} md={8}>
+      <Grid item xs={12} xl={9}>
         <Card
           sx={{
             p: 3,
@@ -239,78 +239,97 @@ const MyTasksCalendar = ({ tasks = [] }) => {
       </Grid>
 
       {/* ================= UPCOMING ================= */}
-      <Grid item xs={12} md={4}>
-        <Card
-          sx={{
-            p: 3,
-            borderRadius: 4,
-            boxShadow: "0 10px 30px rgba(0,0,0,0.05)",
-          }}
-        >
-          <Typography variant="h6" fontWeight={700} mb={2}>
-            Upcoming
-          </Typography>
+    
+<Grid item xs={12} xl={3} >
+  <Card
+    sx={{
+      p: 3,
+      borderRadius: 4,
+      height: "100%",
+      background:
+  theme.palette.mode === "light"
+    ? "#ffffff"
+    : "rgba(255,255,255,0.03)",
+boxShadow: "0 10px 30px rgba(0,0,0,0.05)",
+      border: `1px solid ${theme.palette.divider}`,
+    }}
+  >
+    <Typography variant="h6" fontWeight={700} mb={2}>
+      Upcoming
+    </Typography>
 
-          <Divider sx={{ mb: 2 }} />
+    <Divider sx={{ mb: 2, opacity: 0.2 }} />
 
-          {upcomingTasks.length === 0 ? (
-            <Typography color="text.secondary">
-              No upcoming tasks
-            </Typography>
-          ) : (
-            upcomingTasks.map((task) => {
-              const status = getStatusStyles(task.status);
-              return (
+    {upcomingTasks.length === 0 ? (
+      <Typography color="text.secondary">
+        No upcoming tasks
+      </Typography>
+    ) : (
+      <Stack spacing={2}>
+        {upcomingTasks.map((task) => {
+          const status = getStatusStyles(task.status);
+
+          return (
+            <Box
+              key={task.id}
+              sx={{
+                p: 2,
+                borderRadius: 3,
+                border: `1px solid ${theme.palette.divider}`,
+                background:
+  theme.palette.mode === "light"
+    ? "#f9fafb"
+    : "rgba(255,255,255,0.02)",
+                transition: "0.2s ease",
+                "&:hover": {
+                  transform: "translateY(-2px)",
+                  borderColor: status.accent,
+                },
+              }}
+            >
+              <Typography fontWeight={600}>
+                {task.title}
+              </Typography>
+
+              <Typography
+                variant="caption"
+                color="text.secondary"
+              >
+                Due • {dayjs(task.due_date).format("MMM DD")}
+              </Typography>
+
+              <Box
+                sx={{
+                  mt: 1.2,
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 1,
+                  px: 1.5,
+                  py: 0.5,
+                  borderRadius: 20,
+                  fontSize: 12,
+                  fontWeight: 600,
+                  background: status.accent + "20",
+                  color: status.accent,
+                }}
+              >
                 <Box
-                  key={task.id}
                   sx={{
-                    mb: 2,
-                    p: 2,
-                    borderRadius: 3,
-                    background: theme.palette.background.default,
+                    width: 6,
+                    height: 6,
+                    borderRadius: "50%",
+                    background: status.accent,
                   }}
-                >
-                  <Typography fontWeight={600}>
-                    {task.title}
-                  </Typography>
-
-                  <Typography
-                    variant="caption"
-                    color="text.secondary"
-                  >
-                    {dayjs(task.due_date).format("MMM DD")}
-                  </Typography>
-
-                  <Box
-                    sx={{
-                      mt: 1,
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: 0.8,
-                      px: 1.2,
-                      py: 0.4,
-                      borderRadius: 20,
-                      background: theme.palette.grey[100],
-                      fontSize: 12,
-                      fontWeight: 600,
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        width: 6,
-                        height: 6,
-                        borderRadius: "50%",
-                        background: status.accent,
-                      }}
-                    />
-                    {task.status}
-                  </Box>
-                </Box>
-              );
-            })
-          )}
-        </Card>
-      </Grid>
+                />
+                {task.status}
+              </Box>
+            </Box>
+          );
+        })}
+      </Stack>
+    )}
+  </Card>
+</Grid>
     </Grid>
   );
 };

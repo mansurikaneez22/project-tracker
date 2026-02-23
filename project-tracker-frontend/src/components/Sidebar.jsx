@@ -24,7 +24,7 @@ const Sidebar = () => {
       { label: "Dashboard", path: "/pm/dashboard" },
       { label: "My Tasks", path: "/pm/tasks" },   // PMTasks.jsx route
       { label: "Members", path: "/pm/members" },
-      { label: "Settings", path: "/settings" }
+      
     ],
     "TEAM LEADER": [
       { label: "Dashboard", path: "/tl/dashboard" },
@@ -34,7 +34,7 @@ const Sidebar = () => {
     "CONTRIBUTOR": [
       { label: "Dashboard", path: "/contributor/dashboard" },
       { label: "My Tasks", path: "/my-tasks" },   // Contributor page
-      { label: "Settings", path: "/settings" }
+    
     ],
     "ADMIN": [
       { label: "Dashboard", path: "/admin-dashboard" }

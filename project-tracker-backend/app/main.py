@@ -1,4 +1,6 @@
-from fastapi import FastAPI
+import socketio
+from fastapi import FastAPI, WebSocket
+from app.websocket_manager import manager
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 import os
@@ -29,27 +31,48 @@ from app.api.v1.routes.sprint_routes import router as sprint_router
 from app.api.v1.routes.activity_routes import router as activity_router
 
 
-app = FastAPI(title="Project Tracker API")
 
 #  create tables
 Base.metadata.create_all(bind=engine)
+sio = socketio.AsyncServer(
+    async_mode="asgi",
+    cors_allowed_origins="*"
+)
 
-#CORS fix for frontend error
+app = FastAPI(title="Project Tracker API")
+
+socket_app = socketio.ASGIApp(sio, other_asgi_app=app)
+
+ # This wraps FastAPI + Socket.IO
+
+# ---------- CORS ----------
+origins = ["http://localhost:3000"]
 app.add_middleware(
     CORSMiddleware,
-     allow_origins=[
-        "http://localhost:3000"
-    ],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-
+# ---------- Static files ----------
+os.makedirs("uploads/profile_pics", exist_ok=True)
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
-os.makedirs("uploads/profile_pics", exist_ok=True)
+# ---------- Socket.IO events ----------
+@sio.event
+async def connect(sid, environ):
+    print("Client connected:", sid)
 
+@sio.event
+async def join(sid, user_id):
+    await sio.save_session(sid, {"user_id": user_id})
+    await sio.enter_room(sid, str(user_id))
+    print(f"User {user_id} joined room")
+
+@sio.event
+async def disconnect(sid):
+    print("Client disconnected:", sid)
 
 @app.get("/")
 def root():

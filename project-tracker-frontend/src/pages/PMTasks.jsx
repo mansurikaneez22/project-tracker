@@ -55,9 +55,11 @@ const PMTasks = () => {
   return (
   <Box
     sx={{
-      px: { xs: 2, md: 6 },
+      px: { xs: 2, md: 4 },
       py: 4,
       width: "100%",
+      maxWidth: "1800px",
+      mx: "auto",
     }}
   >
     {/* Header */}
@@ -67,7 +69,7 @@ const PMTasks = () => {
         fontWeight={700}
         sx={{ letterSpacing: 0.5 }}
       >
-        PM Tasks
+        My Tasks
       </Typography>
       <Typography variant="body2" color="text.secondary">
         Manage and track all assigned project tasks
@@ -75,16 +77,27 @@ const PMTasks = () => {
     </Box>
 
     {/* Filters Card */}
-    <Box
-      sx={{
-        p: 3,
-        mb: 4,
-        borderRadius: "16px",
-        background: "rgba(255,255,255,0.04)",
-        backdropFilter: "blur(8px)",
-        border: "1px solid rgba(255,255,255,0.08)",
-      }}
-    >
+    {/* Filters Card */}
+<Box
+  sx={(theme) => ({
+    p: 3,
+    mb: 4,
+    borderRadius: "18px",
+    background:
+      theme.palette.mode === "light"
+        ? "#ffffff"
+        : "rgba(255,255,255,0.04)",
+    boxShadow:
+      theme.palette.mode === "light"
+        ? "0 8px 30px rgba(0,0,0,0.06)"
+        : "none",
+    border:
+      theme.palette.mode === "light"
+        ? "1px solid #eaeaea"
+        : "1px solid rgba(255,255,255,0.08)",
+    backdropFilter: "blur(10px)",
+  })}
+>
       <Stack
         direction={{ xs: "column", sm: "row" }}
         spacing={3}
@@ -117,16 +130,25 @@ const PMTasks = () => {
         </TextField>
       </Stack>
     </Box>
-
-    {/* Calendar Section */}
-    <Box
-      sx={{
-        borderRadius: "20px",
-        p: { xs: 1, md: 3 },
-        background: "rgba(255,255,255,0.02)",
-        border: "1px solid rgba(255,255,255,0.05)",
-      }}
-    >
+   {/* Calendar Section */}
+<Box
+  sx={(theme) => ({
+    borderRadius: "22px",
+    p: { xs: 2, md: 4 },
+    background:
+      theme.palette.mode === "light"
+        ? "#ffffff"
+        : "rgba(255,255,255,0.02)",
+    border:
+      theme.palette.mode === "light"
+        ? "1px solid #eaeaea"
+        : "1px solid rgba(255,255,255,0.05)",
+    boxShadow:
+      theme.palette.mode === "light"
+        ? "0 10px 40px rgba(0,0,0,0.06)"
+        : "none",
+  })}
+>
       <MyTasksCalendar tasks={filteredTasks} />
     </Box>
   </Box>

@@ -106,18 +106,35 @@ const Account = () => {
           </Avatar>
 
           <IconButton
-            sx={{
-              position: "absolute",
-              bottom: 0,
-              right: 0,
-              bgcolor: "white",
-              border: "1px solid #ccc",
-              "&:hover": { bgcolor: "#f0f0f0" },
-            }}
-            onClick={handleProfilePicClick}
-          >
-            <PhotoCamera />
-          </IconButton>
+  sx={(theme) => ({
+    position: "absolute",
+    bottom: 0,
+    right: 0,
+    width: 38,
+    height: 38,
+    bgcolor:
+      theme.palette.mode === "dark"
+        ? "rgba(255,255,255,0.12)"
+        : "#ffffff",
+    border: `1px solid ${theme.palette.divider}`,
+    color:
+      theme.palette.mode === "dark"
+        ? "#ffffff"
+        : theme.palette.primary.main,
+    boxShadow:
+      theme.palette.mode === "dark"
+        ? "0 4px 12px rgba(0,0,0,0.4)"
+        : "0 4px 12px rgba(0,0,0,0.1)",
+    "&:hover": {
+      bgcolor:
+        theme.palette.mode === "dark"
+          ? "rgba(255,255,255,0.2)"
+          : "#f5f5f5",
+    },
+  })}
+>
+  <PhotoCamera fontSize="small" />
+</IconButton>
 
           <input
             type="file"
@@ -136,20 +153,24 @@ const Account = () => {
           {user?.email}
         </Typography>
         <Typography
-          variant="body2"
-          sx={{
-            mt: 1,
-            px: 2,
-            py: 0.5,
-            borderRadius: 2,
-            bgcolor: "#f0f0f0",
-            display: "inline-block",
-            fontWeight: 500,
-          }}
-        >
-          {user?.job_profile}
-        </Typography>
-
+  variant="body2"
+  sx={(theme) => ({
+    mt: 1,
+    px: 2,
+    py: 0.5,
+    borderRadius: 2,
+    display: "inline-block",
+    fontWeight: 500,
+    bgcolor:
+      theme.palette.mode === "dark"
+        ? "rgba(255,255,255,0.08)"
+        : "rgba(0,0,0,0.06)",
+    color: theme.palette.text.primary,
+    border: `1px solid ${theme.palette.divider}`,
+  })}
+>
+  {user?.job_profile}
+</Typography>
         <Divider sx={{ my: 3 }} />
 
         {/* Action Buttons */}
