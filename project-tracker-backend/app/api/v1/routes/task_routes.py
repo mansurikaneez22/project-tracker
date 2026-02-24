@@ -196,6 +196,17 @@ def get_all_tasks(db: Session = Depends(get_db)):
     return db.query(Task).all()
 
 
+@router.get("/my-tasks")
+def get_my_tasks(
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    tasks = db.query(Task).filter(
+        Task.assignee_id == current_user.user_id
+    ).all()
+    
+    return tasks
+
 # ------------------ GET SINGLE TASK ------------------
 @router.get("/{task_id}")
 def get_task(task_id: int, db: Session = Depends(get_db)):

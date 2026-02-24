@@ -55,7 +55,7 @@ def is_pm_or_tl(
 
 
 # ADD PROJECT MEMBER
-
+# ADD PROJECT MEMBER
 @router.post("/", response_model=ProjectMemberResponse)
 def add_project_member(
     dept_id: int,
@@ -69,19 +69,19 @@ def add_project_member(
     # Permission
     is_pm_or_tl(db, project_id, team_id, current_user.user_id)
 
+    # Check project belongs to correct team & department
     project_check = db.execute(text("""
-    SELECT 1
-    FROM project p
-    JOIN team t ON p.team_id = t.team_id
-    WHERE p.project_id = :project_id
-      AND p.team_id = :team_id
-      AND t.department_id = :dept_id
-"""), {
-    "project_id": project_id,
-    "team_id": team_id,
-    "dept_id": dept_id
-}).first()
-
+        SELECT 1
+        FROM project p
+        JOIN team t ON p.team_id = t.team_id
+        WHERE p.project_id = :project_id
+          AND p.team_id = :team_id
+          AND t.department_id = :dept_id
+    """), {
+        "project_id": project_id,
+        "team_id": team_id,
+        "dept_id": dept_id
+    }).first()
 
     if not project_check:
         raise HTTPException(
@@ -89,7 +89,7 @@ def add_project_member(
             detail="Project not found under given team/department"
         )
 
-    #  User must be part of team
+    # 🔹 Check if user is part of team
     team_check = db.execute(text("""
         SELECT 1
         FROM team_member
@@ -100,12 +100,18 @@ def add_project_member(
         "user_id": data.user_id
     }).first()
 
+    # 🔹 If user NOT in team → auto add to team_member
     if not team_check:
-        raise HTTPException(
-            status_code=400,
-            detail="User is not part of the team"
-        )
+        db.execute(text("""
+            INSERT INTO team_member (team_id, user_id)
+            VALUES (:team_id, :user_id)
+        """), {
+            "team_id": team_id,
+            "user_id": data.user_id
+        })
+        db.commit()
 
+    # 🔹 Add to project_member table
     try:
         member = ProjectMember(
             project_id=project_id,
@@ -123,7 +129,6 @@ def add_project_member(
             status_code=400,
             detail="User already added to this project"
         )
-
 
 # GET PROJECT MEMBERS
 
