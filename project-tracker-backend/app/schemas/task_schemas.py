@@ -41,3 +41,15 @@ class TaskUpdate(BaseModel):
 
 class TaskStatusUpdate(BaseModel):
     status: Literal["TODO", "IN_PROGRESS", "DONE"]
+
+
+
+class TaskResponse(BaseModel):
+    task_id: int
+    task_title: str
+    task_description: Optional[str]
+    assignee_id: Optional[int]
+    assignee_name: Optional[str]
+
+    class Config:
+        orm_mode = True

@@ -22,98 +22,93 @@ import { useParams, useNavigate } from "react-router-dom";
 import api from "../services/api";
 
 const TaskDetail = () => {
-
   const { deptId, teamId, projectId, taskId } = useParams();
   const navigate = useNavigate();
 
-  console.log("PARAMS:", {
-    deptId,
-    teamId,
-    projectId,
-    taskId
-  });
+  const role = localStorage.getItem("role");
+  const isProjectManager = role === "PROJECT MANAGER";
+  const isContributor = role === "CONTRIBUTOR";
 
-  const loggedInUserId = Number(localStorage.getItem("user_id")); // no dummy
-
+  const loggedInUserId = Number(localStorage.getItem("user_id"));
 
   const [task, setTask] = useState(null);
   const [projectMembers, setProjectMembers] = useState([]);
   const [assignee, setAssignee] = useState("");
 
-  /* ===== COMMENTS ===== */
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
   const [editingCommentId, setEditingCommentId] = useState(null);
   const [editedComment, setEditedComment] = useState("");
 
-  /* ===== ATTACHMENTS ===== */
   const [attachments, setAttachments] = useState([]);
 
-  /* ===== CONFIRM DELETE ===== */
   const [confirm, setConfirm] = useState({
     open: false,
     type: "",
-    id: null   
+    id: null
   });
 
-  /* ================= TASK ================= */
- const fetchTask = async () => {
-  if (!taskId) return;
+  /* ================= FETCH TASK ================= */
+  const fetchTask = async () => {
+    if (!taskId) return;
 
-  try {
-    const res = await api.get(
-      `http://127.0.0.1:8000/api/v1/task/${Number(taskId)}`
-    );
+    try {
+      const res = await api.get(`/api/v1/task/${Number(taskId)}`);
+      setTask(res.data);
+      setAssignee(res.data.assignee_id || "");
+    } catch (err) {
+      console.error("Task fetch error:", err.response?.data);
+    }
+  };
 
-    setTask(res.data);
-    setAssignee(res.data.assignee_id || "");
-  } catch (err) {
-    console.error("Task fetch error:", err.response?.data);
-  }
-};
+  /* ================= FETCH MEMBERS ================= */
+  const fetchProjectMembers = async () => {
+  console.log("Task:", task);
+console.log("Members:", projectMembers);
+console.log(assignee)
+    if (!task?.project_id || !task?.team_id || !task?.department_id) return;
 
-
-  /* ================= PROJECT MEMBERS ================= */
- const fetchProjectMembers = async (projectId, teamId, deptId) => {
-  try {
-    const res = await api.get(
-      `http://127.0.0.1:8000/api/v1/department/${deptId}/team/${teamId}/project/${projectId}/members`
-    );
-    setProjectMembers(res.data);
-  } catch (err) {
-    console.error("Error fetching members", err);
-  }
-};
+    try {
+      const res = await api.get(
+        `/api/v1/department/${task.department_id}/team/${task.team_id}/project/${task.project_id}/members`
+      );
+      setProjectMembers(res.data);
+    } catch (err) {
+      console.error("Members error:", err);
+    }
+  };
 
   /* ================= ASSIGNEE ================= */
   const handleAssigneeChange = async (e) => {
-    const newAssignee = e.target.value;
-    setAssignee(newAssignee);
+  let newAssignee = e.target.value;
 
-    await api.patch(
-      `http://127.0.0.1:8000/api/v1/task/${taskId}`,
-      { assignee_id: newAssignee }
-    );
-  };
+  // Convert empty string to null
+  if (newAssignee === "") {
+    newAssignee = null;
+  } else {
+    newAssignee = Number(newAssignee);
+  }
 
+  setAssignee(newAssignee ?? "");
+
+  await api.put(`/api/v1/task/${taskId}`, {
+    assignee_id: newAssignee
+  });
+};
   /* ================= COMMENTS ================= */
   const fetchComments = async () => {
-  if (!taskId) return;
-
-  try {
-    const res = await api.get(
-      `http://127.0.0.1:8000/api/v1/comment/task/${Number(taskId)}`
-    );
-    setComments(res.data);
-  } catch (err) {
-    console.error("Comments error:", err.response?.data);
-  }
-};
+    try {
+      const res = await api.get(`/api/v1/comment/task/${Number(taskId)}`);
+      setComments(res.data);
+    } catch (err) {
+      console.error("Comments error:", err.response?.data);
+    }
+  };
 
   const addComment = async () => {
     if (!newComment.trim()) return;
 
-    await api.post("http://127.0.0.1:8000/api/v1/comment", {
+    await api.post(`/api/v1/comment`, {
       task_id: Number(taskId),
       user_id: loggedInUserId,
       content: newComment
@@ -124,28 +119,23 @@ const TaskDetail = () => {
   };
 
   const saveEditedComment = async (commentId) => {
-    await api.put(
-      `http://127.0.0.1:8000/api/v1/comment/${commentId}`,
-      { content: editedComment }
-    );
+    await api.put(`/api/v1/comment/${commentId}`, {
+      content: editedComment
+    });
+
     setEditingCommentId(null);
     fetchComments();
   };
 
   /* ================= ATTACHMENTS ================= */
   const fetchAttachments = async () => {
-  if (!taskId) return;
-
-  try {
-    const res = await api.get(
-      `http://127.0.0.1:8000/api/v1/attachment/task/${Number(taskId)}`
-    );
-    setAttachments(res.data);
-  } catch (err) {
-    console.error("Attachment error:", err.response?.data);
-  }
-};
-
+    try {
+      const res = await api.get(`/api/v1/attachment/task/${Number(taskId)}`);
+      setAttachments(res.data);
+    } catch (err) {
+      console.error("Attachment error:", err.response?.data);
+    }
+  };
 
   const uploadAttachment = async (e) => {
     const file = e.target.files[0];
@@ -155,33 +145,24 @@ const TaskDetail = () => {
     formData.append("task_id", Number(taskId));
     formData.append("file", file);
 
-    await api.post(
-      "http://127.0.0.1:8000/api/v1/attachment",
-      formData
-    );
+    await api.post(`/api/v1/attachment`, formData);
     fetchAttachments();
   };
 
   /* ================= DELETE ================= */
   const handleDelete = async () => {
-    if (confirm.type === "task") {
-      await api.delete(
-        `http://127.0.0.1:8000/api/v1/task/${taskId}`
-      );
+    if (confirm.type === "task" && isProjectManager) {
+      await api.delete(`/api/v1/task/${taskId}`);
       navigate(-1);
     }
 
     if (confirm.type === "comment") {
-      await api.delete(
-        `http://127.0.0.1:8000/api/v1/comment/${confirm.id}`
-      );
+      await api.delete(`/api/v1/comment/${confirm.id}`);
       fetchComments();
     }
 
-    if (confirm.type === "attachment") {
-      await api.delete(
-        `http://127.0.0.1:8000/api/v1/attachment/${confirm.id}`
-      );
+    if (confirm.type === "attachment" && isProjectManager) {
+      await api.delete(`/api/v1/attachment/${confirm.id}`);
       fetchAttachments();
     }
 
@@ -189,24 +170,15 @@ const TaskDetail = () => {
   };
 
   /* ================= EFFECTS ================= */
- useEffect(() => {
-  if (!taskId) return;
-
-  fetchTask();
-  fetchComments();
-  fetchAttachments();
-}, [taskId]);
+  useEffect(() => {
+    fetchTask();
+    fetchComments();
+    fetchAttachments();
+  }, [taskId]);
 
   useEffect(() => {
-  if (task?.project_id && task?.team_id && task?.department_id) {
-    fetchProjectMembers(
-      task.project_id,
-      task.team_id,
-      task.department_id
-    );
-  }
-}, [task]);
-
+    fetchProjectMembers();
+  }, [task]);
 
   if (!task) return <Typography>Loading...</Typography>;
 
@@ -214,28 +186,33 @@ const TaskDetail = () => {
     <Card>
       <CardContent>
         <Box display="flex" gap={3}>
-          {/* ================= LEFT ================= */}
+          {/* LEFT SIDE */}
           <Box flex={7}>
             <Stack direction="row" justifyContent="space-between">
               <Typography variant="h4">{task.task_title}</Typography>
-              <Button
-                color="error"
-                onClick={() =>
-                  setConfirm({ open: true, type: "task" })
-                }
-              >
-                Delete
-              </Button>
+
+              {isProjectManager && (
+                <Button
+                  color="error"
+                  onClick={() =>
+                    setConfirm({ open: true, type: "task" })
+                  }
+                >
+                  Delete
+                </Button>
+              )}
             </Stack>
 
             <Divider sx={{ my: 3 }} />
 
             <Typography variant="h6">Description</Typography>
-            <Typography>{task.task_description || "No description"}</Typography>
+            <Typography>
+              {task.task_description || "No description"}
+            </Typography>
 
             <Divider sx={{ my: 3 }} />
 
-            {/* ===== COMMENTS ===== */}
+            {/* COMMENTS */}
             <Typography variant="h6">Comments</Typography>
 
             {comments.map((c) => (
@@ -250,36 +227,47 @@ const TaskDetail = () => {
                       }
                     />
                     <Button
-                      onClick={() => saveEditedComment(c.comment_id)}
+                      onClick={() =>
+                        saveEditedComment(c.comment_id)
+                      }
                     >
                       Save
                     </Button>
                   </>
                 ) : (
-                  <Stack direction="row" justifyContent="space-between">
+                  <Stack
+                    direction="row"
+                    justifyContent="space-between"
+                  >
                     <Typography>{c.content}</Typography>
-                    <Stack direction="row">
-                      <IconButton
-                        onClick={() => {
-                          setEditingCommentId(c.comment_id);
-                          setEditedComment(c.content);
-                        }}
-                      >
-                        <EditIcon fontSize="small" />
-                      </IconButton>
-                      <IconButton
-                        color="error"
-                        onClick={() =>
-                          setConfirm({
-                            open: true,
-                            type: "comment",
-                            id: c.comment_id
-                          })
-                        }
-                      >
-                        🗑️
-                      </IconButton>
-                    </Stack>
+
+                    {c.user_id === loggedInUserId && (
+                      <Stack direction="row">
+                        <IconButton
+                          onClick={() => {
+                            setEditingCommentId(
+                              c.comment_id
+                            );
+                            setEditedComment(c.content);
+                          }}
+                        >
+                          <EditIcon fontSize="small" />
+                        </IconButton>
+
+                        <IconButton
+                          color="error"
+                          onClick={() =>
+                            setConfirm({
+                              open: true,
+                              type: "comment",
+                              id: c.comment_id
+                            })
+                          }
+                        >
+                          🗑️
+                        </IconButton>
+                      </Stack>
+                    )}
                   </Stack>
                 )}
               </Paper>
@@ -289,7 +277,9 @@ const TaskDetail = () => {
               fullWidth
               placeholder="Add comment..."
               value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
+              onChange={(e) =>
+                setNewComment(e.target.value)
+              }
               sx={{ mt: 1 }}
             />
             <Button onClick={addComment} sx={{ mt: 1 }}>
@@ -298,7 +288,7 @@ const TaskDetail = () => {
 
             <Divider sx={{ my: 3 }} />
 
-            {/* ===== ATTACHMENTS ===== */}
+            {/* ATTACHMENTS */}
             <Typography variant="h6">Attachments</Typography>
 
             {attachments.map((a) => (
@@ -311,70 +301,103 @@ const TaskDetail = () => {
                   justifyContent: "space-between"
                 }}
               >
-                <a href={a.file_url} target="_blank" rel="noreferrer">
+                <a
+                  href={a.file_url}
+                  target="_blank"
+                  rel="noreferrer"
+                >
                   {a.file_name}
                 </a>
-                <Button
-                  color="error"
-                  onClick={() =>
-                    setConfirm({
-                      open: true,
-                      type: "attachment",
-                      id: a.attachment_id
-                    })
-                  }
-                >
-                  Delete
-                </Button>
+
+                {isProjectManager && (
+                  <Button
+                    color="error"
+                    onClick={() =>
+                      setConfirm({
+                        open: true,
+                        type: "attachment",
+                        id: a.attachment_id
+                      })
+                    }
+                  >
+                    Delete
+                  </Button>
+                )}
               </Paper>
             ))}
 
             <Button component="label" variant="outlined">
               Upload File
-              <input hidden type="file" onChange={uploadAttachment} />
+              <input
+                hidden
+                type="file"
+                onChange={uploadAttachment}
+              />
             </Button>
           </Box>
 
-          {/* ================= RIGHT ================= */}
+          {/* RIGHT SIDE */}
           <Box flex={3}>
             <Card variant="outlined">
               <CardContent>
                 <Typography variant="h6">Details</Typography>
                 <Divider sx={{ my: 2 }} />
 
-                <Typography variant="body2">Assignee</Typography>
-                <Select
-                  fullWidth
-                  size="small"
-                  value={assignee}
-                  onChange={handleAssigneeChange}
-                >
-                  <MenuItem value="">
-                    <em>Unassigned</em>
-                  </MenuItem>
-                  {projectMembers.map((m) => (
-                    <MenuItem key={m.user_id} value={m.user_id}>
-                      {m.user_name}
+                <Typography variant="body2">
+                  Assignee
+                </Typography>
+
+                {isProjectManager ? (
+                  <Select
+                    fullWidth
+                    size="small"
+                    value={assignee}
+                    onChange={handleAssigneeChange}
+                  >
+                    <MenuItem value="">
+                      <em>Unassigned</em>
                     </MenuItem>
-                  ))}
-                </Select>
+                    {projectMembers.map((m) => (
+                      <MenuItem
+                        key={m.user_id}
+                        value={m.user_id}
+                      >
+                        {m.user_name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                ) : (
+                  <Typography sx={{ mt: 1 }}>
+ {task.assignee_name || "Unassigned"}
+</Typography>
+                )}
               </CardContent>
             </Card>
           </Box>
         </Box>
       </CardContent>
 
-      {/* ===== CONFIRM DIALOG ===== */}
       <Dialog
         open={confirm.open}
-        onClose={() => setConfirm({ open: false })}
+        onClose={() =>
+          setConfirm({ open: false, type: "", id: null })
+        }
       >
         <DialogTitle>Confirm Delete</DialogTitle>
         <DialogContent>
-          Are you sure you want to delete this {confirm.type}?
+          Are you sure you want to delete this{" "}
+          {confirm.type}?
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setConfirm({ open: false })}>
+          <Button
+            onClick={() =>
+              setConfirm({
+                open: false,
+                type: "",
+                id: null
+              })
+            }
+          >
             Cancel
           </Button>
           <Button color="error" onClick={handleDelete}>

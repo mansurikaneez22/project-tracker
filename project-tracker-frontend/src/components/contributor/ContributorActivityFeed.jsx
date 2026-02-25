@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -11,28 +11,51 @@ import {
   Stack,
   Box,
 } from "@mui/material";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import AssignmentIcon from "@mui/icons-material/Assignment";
-
-const activities = [
-  {
-    text: "You moved 'Login UI' to In Progress",
-    time: "2 min ago",
-    type: "update",
-  },
-  {
-    text: "You were assigned 'Dashboard API'",
-    time: "10 min ago",
-    type: "assigned",
-  },
-  {
-    text: "You completed 'API Integration'",
-    time: "1 hr ago",
-    type: "completed",
-  },
-];
+import api from "../../services/api";
+import { formatDistanceToNow } from "date-fns";
 
 const ContributorActivityFeed = () => {
+  const [activities, setActivities] = useState([]);
+
+  useEffect(() => {
+    fetchActivities();
+  }, []);
+
+  const fetchActivities = async () => {
+    try {
+      const res = await api.get("/api/v1/activity/all", {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+
+      const mapped = res.data.map((act) => {
+  // Determine type for avatar
+  let type = "update";
+  if (act.action_type === "COMPLETED") type = "completed";
+  else if (act.action_type === "ASSIGNED") type = "assigned";
+
+  // Safely get initials from user_name
+  const name = act.user_name || "NA"; // fallback
+  const nameParts = name.split(" ");
+  const initials =
+    nameParts.length === 1
+      ? nameParts[0][0]
+      : nameParts[0][0] + nameParts[1][0];
+
+  return {
+    activity_id: act.id,
+    action: type,
+    text: `${name} ${act.message}`, // combine name + message
+    created_at: act.created_at,
+    initials: initials.toUpperCase(),
+  };
+});
+
+      setActivities(mapped);
+    } catch (err) {
+      console.log("Activity fetch error:", err.response?.data || err);
+    }
+  };
+
   return (
     <Card
       sx={{
@@ -55,60 +78,60 @@ const ContributorActivityFeed = () => {
         </Typography>
 
         <List disablePadding>
-          {activities.map((activity, index) => (
-            <Box key={index}>
-              <ListItem disableGutters sx={{ py: 1.2 }}>
-                <Stack direction="row" spacing={1.5} alignItems="center">
-                  
-                  <Avatar
-                    sx={{
-                      bgcolor:
-                        activity.type === "completed"
-                          ? "success.main"
-                          : "primary.main",
-                      width: 28,
-                      height: 28,
-                    }}
-                  >
-                    {activity.type === "completed" ? (
-                      <CheckCircleIcon sx={{ fontSize: 16 }} />
-                    ) : (
-                      <AssignmentIcon sx={{ fontSize: 16 }} />
-                    )}
-                  </Avatar>
+          {activities.length === 0 ? (
+            <Typography variant="body2" color="text.secondary" sx={{ px: 1 }}>
+              No activity yet.
+            </Typography>
+          ) : (
+            activities.map((activity, index) => (
+              <Box key={activity.activity_id}>
+                <ListItem disableGutters sx={{ py: 1.2 }}>
+                  <Stack direction="row" spacing={1.5} alignItems="center">
+                    <Avatar
+                      sx={{
+                        bgcolor:
+                          activity.action === "completed"
+                            ? "success.main"
+                            : "primary.main",
+                        width: 28,
+                        height: 28,
+                        fontSize: 12,
+                      }}
+                    >
+                      {activity.initials.toUpperCase()}
+                    </Avatar>
 
-                  <ListItemText
-                    primary={
-                      <Typography
-                        variant="body2"
-                        sx={{ fontSize: 13 }}
-                        color="text.primary"
-                      >
-                        {activity.text}
-                      </Typography>
-                    }
-                    secondary={
-                      <Typography
-                        variant="caption"
-                        color="text.secondary"
-                      >
-                        {activity.time}
-                      </Typography>
-                    }
-                  />
-                </Stack>
-              </ListItem>
+                    <ListItemText
+                      primary={
+                        <Typography
+                          variant="body2"
+                          sx={{ fontSize: 13 }}
+                          color="text.primary"
+                        >
+                          {activity.text}
+                        </Typography>
+                      }
+                      secondary={
+                        <Typography variant="caption" color="text.secondary">
+                          {formatDistanceToNow(new Date(activity.created_at), {
+                            addSuffix: true,
+                          })}
+                        </Typography>
+                      }
+                    />
+                  </Stack>
+                </ListItem>
 
-              {index !== activities.length - 1 && (
-                <Divider sx={{ borderColor: "divider" }} />
-              )}
-            </Box>
-          ))}
+                {index !== activities.length - 1 && (
+                  <Divider sx={{ borderColor: "divider" }} />
+                )}
+              </Box>
+            ))
+          )}
         </List>
       </CardContent>
     </Card>
   );
 };
-
 
 export default ContributorActivityFeed;

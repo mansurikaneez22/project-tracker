@@ -27,3 +27,5 @@ class Task(Base):
     comments = relationship("Comment", back_populates="task", cascade="all, delete")
     notifications = relationship("Notification", back_populates="task", cascade="all, delete")
     sprint = relationship("Sprint", back_populates="task")
+    assignee = relationship("User", foreign_keys=[assignee_id])
+    reporter = relationship("User", foreign_keys=[reporter_id])

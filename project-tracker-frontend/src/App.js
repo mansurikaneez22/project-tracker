@@ -27,6 +27,7 @@ import MyTasks from "./pages/MyTasks";
 import PMTasks from "./pages/PMTasks";
 import SetPassword from "./pages/SetPassword";
 import ForgotPassword from "./pages/ForgotPassword";
+import ContributorProjects from "./pages/ContributorProjects";
 
 function App() {
   const currentUser = JSON.parse(localStorage.getItem("user")) || null;
@@ -60,6 +61,7 @@ function App() {
                   <Route path="/pm/dashboard" element={<PMDashboard />} />
                   <Route path="/tl/dashboard" element={<TLDashboard />} />
                   <Route path="/contributor/dashboard" element={<ContributorDashboard />} />
+                  <Route path="/contributor/projects" element={<ContributorProjects/>}/>
                   <Route path="/admin-dashboard" element={<AdminDashboard />} />
                 </Route>
               </Route>

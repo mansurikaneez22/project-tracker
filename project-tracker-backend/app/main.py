@@ -4,6 +4,7 @@ from app.websocket_manager import manager
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 import os
+from app.socket_instance import sio
 
 from app.database.database import engine, Base
 import app.models  #  REQUIRED – models register hote hain
@@ -29,15 +30,12 @@ from app.api.v1.routes.admin_routes import router as admin_router
 from app.api.v1.routes.pm_dashboard_routes import router as pm_dashboard_router
 from app.api.v1.routes.sprint_routes import router as sprint_router
 from app.api.v1.routes.activity_routes import router as activity_router
+from app.api.v1.routes.contributor_routes import router as contributor_router
 
 
 
 #  create tables
 Base.metadata.create_all(bind=engine)
-sio = socketio.AsyncServer(
-    async_mode="asgi",
-    cors_allowed_origins="*"
-)
 
 app = FastAPI(title="Project Tracker API")
 
@@ -49,7 +47,7 @@ socket_app = socketio.ASGIApp(sio, other_asgi_app=app)
 origins = ["http://localhost:3000"]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -100,3 +98,4 @@ app.include_router(admin_router)
 app.include_router(pm_dashboard_router)
 app.include_router(sprint_router)
 app.include_router(activity_router)
+app.include_router(contributor_router)

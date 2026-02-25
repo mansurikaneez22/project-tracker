@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from datetime import date
+from pydantic import BaseModel
 
 from app.database.database import get_db
 from app.models.task import Task
@@ -213,4 +214,27 @@ def get_task(task_id: int, db: Session = Depends(get_db)):
     task = db.query(Task).filter(Task.task_id == task_id).first()
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
+    
+    return {
+        "task_id": task.task_id,
+        "task_title": task.task_title,
+        "task_description": task.task_description,
+        "assignee_id": task.assignee_id,
+        "assignee_name": task.assignee.user_name if task.assignee else None
+    }
+
+
+@router.put("/{task_id}")
+def update_task(task_id: int, task_data: TaskUpdate, db: Session = Depends(get_db)):
+    task = db.query(Task).filter(Task.task_id == task_id).first()
+
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+
+    if task_data.assignee_id is not None:
+        task.assignee_id = task_data.assignee_id
+
+    db.commit()
+    db.refresh(task)
+
     return task

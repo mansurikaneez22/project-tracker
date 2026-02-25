@@ -33,7 +33,8 @@ const Sidebar = () => {
     ],
     "CONTRIBUTOR": [
       { label: "Dashboard", path: "/contributor/dashboard" },
-      { label: "My Tasks", path: "/my-tasks" },   // Contributor page
+      { label: "My Tasks", path: "/my-tasks" },  
+      {label:  "My Projects", path: "/contributor/projects"} // Contributor page
     
     ],
     "ADMIN": [
