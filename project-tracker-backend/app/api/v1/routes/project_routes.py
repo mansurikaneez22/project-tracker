@@ -204,7 +204,7 @@ def delete_project_scoped(
 
 
 # ======================================================
-# GET TASKS OF PROJECT
+# GET TASKS OF PROJECT (PM)
 # ======================================================
 @router.get("/department/{dept_id}/team/{team_id}/project/{project_id}/task")
 def get_tasks_by_project_scoped(
@@ -247,6 +247,65 @@ def get_tasks_by_project_scoped(
         "tasks": result
     }
 
+# ======================================================
+# GET TASKS OF PROJECT (PROJECT LEVEL - CONTRIBUTOR)
+# ======================================================
+@router.get("/{project_id}/task")
+def get_tasks_by_project(
+    project_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+
+    # 🔐 Permission check for contributor
+    if current_user.job_profile == "CONTRIBUTOR":
+
+        check = db.execute(
+            text("""
+                SELECT 1 FROM project_member
+                WHERE project_id = :project_id
+                AND user_id = :user_id
+            """),
+            {
+                "project_id": project_id,
+                "user_id": current_user.user_id
+            }
+        ).fetchone()
+
+        if not check:
+            raise HTTPException(
+                status_code=403,
+                detail="Not assigned to this project"
+            )
+
+    # 👇 SAME QUERY AS PM
+    query = text("""
+        SELECT DISTINCT
+            t.task_id,
+            t.task_title,
+            t.start_date,
+            t.due_date,
+            t.priority,
+            t.status,
+            t.sprint_id,
+            u.user_name AS assignee_name,
+            b.board_title AS board_title
+        FROM task t
+        LEFT JOIN `user` u ON t.assignee_id = u.user_id
+        LEFT JOIN board_task_mapping btm ON btm.task_id = t.task_id
+        LEFT JOIN board b ON b.board_id = btm.board_id
+        WHERE t.project_id = :project_id
+    """)
+
+    result = db.execute(
+        query,
+        {"project_id": project_id}
+    ).mappings().all()
+
+    return {
+        "count": len(result),
+        "tasks": result
+    }
 # ==================================================
 # PROJECT TIMELINE
 # ======================================================

@@ -13,24 +13,34 @@ import {
   Button
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-import { useParams, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 import CreateTaskModal from "../components/CreateTaskModal";
 
-const TaskList = () => {
-  // ✅ FIRST get params
-  const { deptId, teamId, projectId } = useParams();
+const TaskList = ({ deptId, teamId, projectId }) => {
   const navigate = useNavigate();
 
   const [tasks, setTasks] = useState([]);
   const [activeBoardId, setActiveBoardId] = useState(null);
   const [openCreateTask, setOpenCreateTask] = useState(false);
 
+  // ==============================
+  // FETCH TASKS (PM + CONTRIBUTOR)
+  // ==============================
   const fetchTasks = async () => {
     try {
-      const res = await api.get(
-        `/api/v1/project/department/${deptId}/team/${teamId}/project/${projectId}/task`
-      );
+      let url;
+
+      if (deptId && teamId) {
+        // PM endpoint
+        url = `/api/v1/project/department/${deptId}/team/${teamId}/project/${projectId}/task`;
+      } else {
+        // Contributor endpoint
+        url = `/api/v1/project/${projectId}/task`;
+      }
+
+      const res = await api.get(url);
+
       console.log("TASK API RESPONSE:", res.data);
       setTasks(res.data.tasks || []);
     } catch (err) {
@@ -39,6 +49,9 @@ const TaskList = () => {
     }
   };
 
+  // ==============================
+  // FETCH BOARDS (by project only)
+  // ==============================
   const fetchBoards = async () => {
     try {
       const res = await api.get(`/api/v1/board/project/${projectId}`);
@@ -50,17 +63,21 @@ const TaskList = () => {
     }
   };
 
+  // ==============================
+  // USE EFFECT
+  // ==============================
   useEffect(() => {
-    if (deptId && teamId && projectId) {
+    if (projectId) {
       fetchTasks();
       fetchBoards();
     }
   }, [deptId, teamId, projectId]);
 
+  // ==============================
+  // NAVIGATION
+  // ==============================
   const goToTaskDetail = (taskId) => {
-    navigate(
-      `/project/${projectId}/task/${taskId}`
-    );
+    navigate(`/project/${projectId}/task/${taskId}`);
   };
 
   return (
@@ -134,4 +151,3 @@ const TaskList = () => {
 };
 
 export default TaskList;
-

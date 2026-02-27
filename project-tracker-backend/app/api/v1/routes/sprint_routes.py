@@ -8,7 +8,7 @@ from app.models.task import Task
 from app.schemas.sprint_schemas import SprintCreate, SprintResponse
 from app.dependencies.auth_dependency import get_current_user
 from app.models.user import User
-
+from app.utils.project_access import validate_project_access
 
 router = APIRouter(
     prefix="/api/v1/project/{project_id}/sprints",
@@ -73,6 +73,8 @@ def get_sprints(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+
+    validate_project_access(db, project_id, current_user)
 
     return db.query(Sprint).filter(
         Sprint.project_id == project_id
@@ -176,6 +178,8 @@ def get_sprint_tasks(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+
+    validate_project_access(db, project_id, current_user)
 
     sprint = db.query(Sprint).filter(
         Sprint.sprint_id == sprint_id,

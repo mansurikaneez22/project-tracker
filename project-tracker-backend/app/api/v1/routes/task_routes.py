@@ -6,6 +6,7 @@ from pydantic import BaseModel
 
 from app.database.database import get_db
 from app.models.task import Task
+from app.models.user import User
 from app.schemas.task_schemas import TaskCreate, TaskUpdate, TaskStatusUpdate
 from app.crud.activity_crud import create_activity
 from app.dependencies.auth_dependency import get_current_user
@@ -238,3 +239,19 @@ def update_task(task_id: int, task_data: TaskUpdate, db: Session = Depends(get_d
     db.refresh(task)
 
     return task
+
+@router.put("/{task_id}/assign-sprint")
+def assign_task_to_sprint(
+    task_id: int,
+    sprint_id: int | None = None,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    task = db.query(Task).filter(Task.task_id == task_id).first()
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+
+    task.sprint_id = sprint_id
+    db.commit()
+
+    return {"message": "Task assigned successfully"}

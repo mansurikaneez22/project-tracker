@@ -42,8 +42,8 @@ const CreateSprintDialog = ({
       setName("");
       setStartDate(null);
       setEndDate(null);
-    } catch (err) {
-      console.error("Create sprint error", err);
+    } catch (error) {
+      console.log("ERROR RESPONSE:", error.response?.data);
     }
   };
 

@@ -16,8 +16,12 @@ import SprintBoard from "../pages/SprintBoard";
 
 
 const ProjectDetail = () => {
-  const { deptId, teamId, projectId } = useParams();
-  const [tab, setTab] = useState(0);
+  const params = useParams();
+
+const projectId = params.projectId;
+const deptId = params.deptId || null;
+const teamId = params.teamId || null;
+const [tab, setTab] = useState(0);
 
   return (
     <Container maxWidth="lg">

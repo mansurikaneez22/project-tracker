@@ -52,6 +52,7 @@ function App() {
                   <Route path="/department/:deptId/team/:teamId" element={<TeamDetail />} />
                   <Route path="/department/:deptId/team/:teamId/project" element={<Projects />} />
                   <Route path="/department/:deptId/team/:teamId/project/:projectId" element={<ProjectDetail />} />
+                  <Route path="/project/:projectId" element={<ProjectDetail />} />
                   <Route path="/department/:deptId/team/:teamId/project/:projectId/board/:sprintId" element={<SprintPage />} />
                   <Route path="/department/:deptId/team/:teamId/project/:projectId/task" element={<TaskList />} />
                   <Route path="/project/:projectId/task/:taskId" element={<TaskDetail />} />
