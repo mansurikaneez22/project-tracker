@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import {
   Box,
   Typography,
@@ -16,14 +16,17 @@ import AddIcon from "@mui/icons-material/Add";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 import CreateTaskModal from "../components/CreateTaskModal";
+import { NotificationContext } from "../context/NotificationContext";
+
 
 const TaskList = ({ deptId, teamId, projectId }) => {
+  const { currentUser } = useContext(NotificationContext);
   const navigate = useNavigate();
 
   const [tasks, setTasks] = useState([]);
   const [activeBoardId, setActiveBoardId] = useState(null);
   const [openCreateTask, setOpenCreateTask] = useState(false);
-
+  console.log("TaskList currentUser:", currentUser);
   // ==============================
   // FETCH TASKS (PM + CONTRIBUTOR)
   // ==============================
@@ -84,13 +87,17 @@ const TaskList = ({ deptId, teamId, projectId }) => {
     <Box p={3}>
       <Box display="flex" justifyContent="space-between" mb={2}>
         <Typography variant="h4">All Tasks</Typography>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={() => setOpenCreateTask(true)}
-        >
-          Create Task
-        </Button>
+
+        {/* Show Create Task button only for Project Manager */}
+        {currentUser?.job_profile?.toUpperCase() === "PROJECT MANAGER" && (
+  <Button
+    variant="contained"
+    startIcon={<AddIcon />}
+    onClick={() => setOpenCreateTask(true)}
+  >
+    Create Task
+  </Button>
+)}
       </Box>
 
       <TableContainer component={Paper}>
@@ -103,7 +110,6 @@ const TaskList = ({ deptId, teamId, projectId }) => {
               <TableCell>Start</TableCell>
               <TableCell>Due</TableCell>
               <TableCell>Priority</TableCell>
-              <TableCell>Sprint</TableCell>
             </TableRow>
           </TableHead>
 
@@ -149,5 +155,4 @@ const TaskList = ({ deptId, teamId, projectId }) => {
     </Box>
   );
 };
-
 export default TaskList;

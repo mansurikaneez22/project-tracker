@@ -324,35 +324,87 @@ const ContributorDashboard = () => {
         </Grid>
 
         {/* ================= RIGHT SIDE (Priority + Activity) ================= */}
-        <Grid item xs={12} md={4}>
-          <Stack spacing={3} position="sticky" top={24}>
-            {/* PRIORITY CHART */}
-            <Paper sx={{ p: 2, bgcolor: "background.paper", border: 1, borderColor: "divider", height: 350 }}>
-              <Typography variant="subtitle2" color="text.primary" mb={2}>
-                Task Priority
-              </Typography>
-              {priorityData.reduce((acc, item) => acc + item.value, 0) === 0 ? (
-                <Box sx={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", color: "text.secondary", fontSize: 14 }}>
-                  No priority data
-                </Box>
-              ) : (
-                <Box sx={{ width: "100%", height: 250, display: "flex", justifyContent: "center" }}>
-                  <PieChart width={260} height={260}>
-                    <Pie data={priorityData} dataKey="value" cx="50%" cy="50%" innerRadius={60} outerRadius={95}>
-                      {priorityData.map((entry, index) => (
-                        <Cell key={index} fill={COLORS[index]} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                  </PieChart>
-                </Box>
-              )}
-            </Paper>
+        <Grid item xs={12}>
+  <Grid container spacing={3}>
+    
+    {/* PRIORITY CHART */}
+    <Grid item xs={12} md={6}>
+      <Paper
+        sx={{
+          p: 2,
+          bgcolor: "background.paper",
+          border: 1,
+          borderColor: "divider",
+          height: 350
+        }}
+      >
+        <Typography variant="subtitle2" mb={2}>
+          Task Priority
+        </Typography>
 
-            {/* RECENT ACTIVITY */}
-            <ContributorActivityFeed />
-          </Stack>
-        </Grid>
+        {priorityData.reduce((acc, item) => acc + item.value, 0) === 0 ? (
+          <Box
+            sx={{
+              height: "100%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "text.secondary"
+            }}
+          >
+            No priority data
+          </Box>
+        ) : (
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "100%"
+            }}
+          >
+            <PieChart width={260} height={260}>
+              <Pie
+                data={priorityData}
+                dataKey="value"
+                cx="50%"
+                cy="50%"
+                innerRadius={60}
+                outerRadius={95}
+              >
+                {priorityData.map((entry, index) => (
+                  <Cell key={index} fill={COLORS[index]} />
+                ))}
+              </Pie>
+              <Tooltip />
+            </PieChart>
+          </Box>
+        )}
+      </Paper>
+    </Grid>
+
+    {/* RECENT ACTIVITY */}
+    <Grid item xs={12} md={6}>
+      <Paper
+        sx={{
+          p: 2,
+          bgcolor: "background.paper",
+          border: 1,
+          borderColor: "divider",
+          height: 350,
+          
+        }}
+      >
+        <Typography variant="subtitle2" mb={2}>
+          Recent Activity
+        </Typography>
+
+        <ContributorActivityFeed />
+      </Paper>
+    </Grid>
+
+  </Grid>
+</Grid>
       </Grid>
     </Box>
   );

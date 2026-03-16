@@ -190,7 +190,7 @@ const AdminDashboard = () => {
                 </MenuItem>
                 <MenuItem value="PROJECT_MANAGER">Project Manager</MenuItem>
                 <MenuItem value="TEAM_LEADER">Team Leader</MenuItem>
-                <MenuItem value="DEVELOPER">Developer</MenuItem>
+                <MenuItem value="CONTRIBUTOR">Contributor</MenuItem>
                 <MenuItem value="DESIGNER">Designer</MenuItem>
                 <MenuItem value="QA">QA</MenuItem>
                 <MenuItem value="TESTER">Tester</MenuItem>
@@ -267,30 +267,27 @@ const AdminDashboard = () => {
           </CardContent>
         </Card>
 
-        {/* RIGHT : ADMIN INFO */}
-        <Card sx={{ borderRadius: 3 }}>
-          <CardContent>
-            <Typography variant="h6" mb={2}>
-              Admin Capabilities
-            </Typography>
+        {/* RIGHT : QUICK INFO */}
+<Card sx={{ borderRadius: 3 }}>
+  <CardContent>
 
-            <Typography variant="body2" color="text.secondary">
-              • Invite users securely via email  
-              • Assign roles, teams & departments  
-              • Manage multi-company structure  
-              • Control onboarding lifecycle  
-            </Typography>
+    <Typography variant="h6" mb={2}>
+      Admin Info
+    </Typography>
 
-            <Divider sx={{ my: 2 }} />
+    <Typography variant="body2" color="text.secondary">
+      From this dashboard you can invite users and assign them to
+      companies, departments and teams.
+    </Typography>
 
-            <Typography variant="body2">
-              Coming next:
-              <br />– User list & status  
-              <br />– Resend / revoke invites  
-              <br />– Role-based permissions  
-            </Typography>
-          </CardContent>
-        </Card>
+    <Divider sx={{ my: 2 }} />
+
+    <Typography variant="body2">
+      Make sure the organization structure is created before inviting users.
+    </Typography>
+
+  </CardContent>
+</Card>
       </Box>
 
       <Snackbar

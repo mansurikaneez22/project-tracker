@@ -132,7 +132,6 @@ const Navbar = ({ currentUser }) => {
         transformOrigin={{ vertical: "top", horizontal: "right" }}
       >
         <MenuItem onClick={() => handleMenuClick("/account")}>Profile</MenuItem>
-        <MenuItem onClick={() => handleMenuClick("/settings")}>Settings</MenuItem>
         <MenuItem
           onClick={() => {
             localStorage.clear();

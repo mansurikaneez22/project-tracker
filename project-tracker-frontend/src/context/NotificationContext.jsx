@@ -1,21 +1,21 @@
-import React, { createContext, useState, useEffect } from "react";
+import React, { createContext, useState, useEffect, useRef } from "react";
 import { io } from "socket.io-client";
 import api from "../services/api";
 
 export const NotificationContext = createContext();
 
-const socket = io("http://localhost:8000", {
-  autoConnect: false,
-  transports: ["websocket"]  // 🔥 important
-});
+// Socket ko ref me store karo taaki re-renders se recreate na ho
+const socketRef = { current: null };
 
 export const NotificationProvider = ({ children, currentUser }) => {
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
 
+  // Fetch notifications from API
   const fetchNotifications = async () => {
     try {
       const res = await api.get("/api/v1/notification/");
+      console.log("FETCH NOTIFICATIONS RESPONSE:", res.data);  // ✅ Check yaha
       setNotifications(res.data);
       setUnreadCount(res.data.filter(n => !n.is_read).length);
     } catch (err) {
@@ -24,46 +24,41 @@ export const NotificationProvider = ({ children, currentUser }) => {
   };
 
   useEffect(() => {
-    if (!currentUser?.user_id) return;
+  if (!currentUser?.user_id) return;  // token optional
+  if (!socketRef.current) {
+    socketRef.current = io("http://localhost:8000", { transports: ["websocket"] });
+  }
+  const socket = socketRef.current;
 
-    console.log("CURRENT USER:", currentUser);
+  // ✅ Token optional check
+  if(currentUser?.token) socket.io.opts.auth = { token: currentUser.token };
 
-    socket.connect();
+  socket.connect();
 
-    socket.on("connect", () => {
-      console.log("Connected:", socket.id);
-      socket.emit("join", String(currentUser.user_id));
-    });
+  socket.on("connect", () => {
+    console.log("SOCKET CONNECTED", socket.id);
+    socket.emit("join", String(currentUser.user_id));
+  });
 
-    socket.on("new_notification", (data) => {
-  console.log("REAL TIME:", data);
+  socket.on("new_notification", (data) => {
+    console.log("NEW NOTIFICATION RECEIVED", data);
+    setNotifications(prev => [data, ...prev]);
+    setUnreadCount(prev => prev + 1);
+  });
 
-  // 🔥 Short message for toast (future use)
-  const shortMessage =
-    data.message && data.message.length > 40
-      ? data.message.slice(0, 40) + "..."
-      : data.message;
+  fetchNotifications();
 
-  // Keep full message for dropdown (important)
-  setNotifications(prev => [data, ...prev]);
-  setUnreadCount(prev => prev + 1);
-
-  // (Optional console to verify)
-  console.log("SHORT:", shortMessage);
-});
-
-    fetchNotifications();
-
-    return () => {
-      socket.off("connect");
-      socket.off("new_notification");
-      socket.disconnect();
-    };
-  }, [currentUser?.user_id]);
+  return () => {
+    socket.off("connect");
+    socket.off("new_notification");
+    // socket.disconnect(); // optional
+  };
+}, [currentUser?.user_id, currentUser?.token]);
 
   return (
     <NotificationContext.Provider
       value={{
+        currentUser,
         notifications,
         unreadCount,
         setUnreadCount,
