@@ -38,7 +38,7 @@ const ProjectMembers = ({ deptId, teamId, projectId }) => {
     }
   };
 
-  /* ================= FETCH PROJECT MEMBERS ================= */
+  /*FETCH PROJECT MEMBERS */
   const fetchProjectMembers = async () => {
     try {
       if (!deptId || !teamId || !projectId) {
@@ -68,7 +68,7 @@ const ProjectMembers = ({ deptId, teamId, projectId }) => {
     }
   };
 
-  /* ================= FETCH TEAM USERS ================= */
+  /*  FETCH TEAM USERS*/
   const fetchTeamUsers = async () => {
     try {
       if (!deptId || !teamId) return;
@@ -94,18 +94,18 @@ const ProjectMembers = ({ deptId, teamId, projectId }) => {
     }
   }, [deptId, teamId, projectId]);
 
-  /* ================= PERMISSION ================= */
+  /* PERMISSION*/
   const canManageMembers =
     myProjectRole === "PROJECT MANAGER" ||
     myProjectRole === "PRODUCT MANAGER" ||
     myProjectRole === "TEAM LEADER";
 
-  /* ================= SORT ================= */
+  /*  SORT  */
   const sortedMembers = [...members].sort(
     (a, b) => rolePriority[a.role_type] - rolePriority[b.role_type]
   );
 
-  /* ================= ADD MEMBER ================= */
+  /* ADD MEMBER  */
   const handleAddMember = async () => {
     if (!userId) return;
 
@@ -136,7 +136,7 @@ const ProjectMembers = ({ deptId, teamId, projectId }) => {
         Project Members
       </Typography>
 
-      {/* ===== ADD MEMBER ===== */}
+      {/* ADD MEMBER */}
       {canManageMembers && (
         <Paper sx={{ p: 2, mb: 3 }}>
           <Box display="flex" gap={2}>
@@ -176,7 +176,7 @@ const ProjectMembers = ({ deptId, teamId, projectId }) => {
         </Paper>
       )}
 
-      {/* ===== MEMBERS TABLE ===== */}
+      {/* MEMBERS TABLE*/}
       <Paper>
         <Table>
           <TableHead>

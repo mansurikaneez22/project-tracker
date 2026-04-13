@@ -1,7 +1,7 @@
 // pmDashboardApi.js
-import api from "./api"; // use your configured axios instance
+import api from "./api"; 
 
-const API_BASE = "/api/v1/pm"; // baseURL already handled in api.js
+const API_BASE = "/api/v1/pm"; 
 
 export const getPMDashboard = async () => {
   const response = await api.get(`${API_BASE}/dashboard/summary`);

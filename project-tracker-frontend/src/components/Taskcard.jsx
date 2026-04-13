@@ -10,7 +10,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { Draggable } from "@hello-pangea/dnd";
 
-/* ---------- Status Color ---------- */
+/* Status Color */
 const statusColor = (status) => {
   switch (status) {
     case "TODO":
@@ -24,7 +24,7 @@ const statusColor = (status) => {
   }
 };
 
-/* ---------- Priority Color ---------- */
+/*  Priority Color*/
 const priorityColor = (priority) => {
   switch (priority) {
     case "High":
@@ -38,9 +38,7 @@ const priorityColor = (priority) => {
   }
 };
 
-/* ===================================================== */
-/* ================= TaskCardContent =================== */
-/* ===================================================== */
+/*  TaskCardContent */
 
 const TaskCardContent = ({ task, assignees, navigate }) => {
 
@@ -52,8 +50,6 @@ const TaskCardContent = ({ task, assignees, navigate }) => {
   const handleClick = (e) => {
     e.stopPropagation();
     e.preventDefault();
-
-    // ✅ Correct nested route
     navigate(
   `/project/${task.project_id}/task/${task.task_id}`,
    {
@@ -125,9 +121,9 @@ const TaskCardContent = ({ task, assignees, navigate }) => {
   );
 };
 
-/* ===================================================== */
-/* ===================== TaskCard ====================== */
-/* ===================================================== */
+
+/*  TaskCard */
+
 
 const TaskCard = ({ task, index, assignees = [], draggable = false }) => {
   const navigate = useNavigate();

@@ -10,6 +10,6 @@ class BoardTaskMapping(Base):
     board_id = Column(Integer, ForeignKey("board.board_id", ondelete="CASCADE"))
     task_id = Column(Integer, ForeignKey("task.task_id", ondelete="CASCADE"))
 
-    # Relationships (must be indented inside class)
+    # Relationships
     board = relationship("Board", back_populates="tasks_mapping")
     task = relationship("Task", back_populates="boards_mapping")

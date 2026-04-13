@@ -19,11 +19,11 @@ const TaskForm = ({ onTaskCreated, projectId = 1, boardId = null }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // 1️⃣ Create Task
+      //  Create Task
       const res = await api.post("/api/v1/task/", form);
       const taskId = res.data.task_id;
 
-      // 2️⃣ Assign task to board if boardId is provided
+      // Assign task to board if boardId is provided
       if (boardId) {
         await api.post(`/api/v1/board_task_mapping/`, null, {
           params: { board_id: boardId, task_id: taskId },

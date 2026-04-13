@@ -59,7 +59,7 @@ def add_user_to_team(
     db: Session = Depends(get_db),
     _: User = Depends(get_current_user)
 ):
-    # ✅ validate team belongs to department
+    #  validate team belongs to department
     valid = db.execute(text("""
         SELECT 1 FROM team
         WHERE team_id = :team_id

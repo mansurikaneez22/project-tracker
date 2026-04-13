@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from datetime import date
 
-from app.database.database import get_db   # ✅ USE SHARED DEPENDENCY
+from app.database.database import get_db   
 from app.models.sprint import Sprint
 from app.models.task import Task
 from app.schemas.sprint_schemas import SprintCreate, SprintResponse
@@ -25,18 +25,18 @@ def create_sprint(
     current_user: User = Depends(get_current_user)
 ):
 
-    # 🔐 Only Project Manager allowed
+    # Only Project Manager allowed
     if current_user.job_profile != "PROJECT MANAGER":
         raise HTTPException(status_code=403, detail="Access denied")
 
-    # 📅 Date validation
+    # Date validation
     if sprint.start_date >= sprint.end_date:
         raise HTTPException(
             status_code=400,
             detail="End date must be after start date"
         )
 
-    # 🚫 Prevent overlapping with ACTIVE or PLANNED sprints
+    # Prevent overlapping with ACTIVE or PLANNED sprints
     overlapping = db.query(Sprint).filter(
         Sprint.project_id == project_id,
         Sprint.status != "COMPLETED",
@@ -66,7 +66,7 @@ def create_sprint(
 
 
 
-# ================= GET ALL SPRINTS =================
+#  GET ALL SPRINTS
 @router.get("/", response_model=list[SprintResponse])
 def get_sprints(
     project_id: int,
@@ -81,7 +81,7 @@ def get_sprints(
     ).all()
 
 
-# ================= START SPRINT =================
+# START SPRINT
 @router.put("/{sprint_id}/start")
 def start_sprint(
     project_id: int,
@@ -107,7 +107,7 @@ def start_sprint(
             detail="Completed sprint cannot be started"
         )
 
-    # 🚫 Only one ACTIVE sprint allowed
+    # Only one ACTIVE sprint allowed
     active_sprint = db.query(Sprint).filter(
         Sprint.project_id == project_id,
         Sprint.status == "ACTIVE"
@@ -126,7 +126,7 @@ def start_sprint(
 
 
 
-# ================= COMPLETE SPRINT =================
+# COMPLETE SPRINT
 @router.put("/{sprint_id}/complete")
 def complete_sprint(
     project_id: int,
@@ -154,7 +154,7 @@ def complete_sprint(
 
     sprint.status = "COMPLETED"
 
-    # 🔄 Move unfinished tasks to backlog
+    # Move unfinished tasks to backlog
     unfinished_tasks = db.query(Task).filter(
         Task.project_id == project_id,
         Task.sprint_id == sprint_id,
@@ -170,7 +170,7 @@ def complete_sprint(
 
 
 
-# ================= GET TASKS OF A SPRINT =================
+#GET TASKS OF A SPRINT
 @router.get("/{sprint_id}/tasks")
 def get_sprint_tasks(
     project_id: int,

@@ -1,5 +1,3 @@
-# project-tracker-backend\app\utils\password_utils.py
-
 from passlib.context import CryptContext
 
 # Initialize CryptContext with Argon2

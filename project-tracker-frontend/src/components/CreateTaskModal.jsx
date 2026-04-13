@@ -38,9 +38,9 @@ const CreateTaskModal = ({
   const [teamMembers, setTeamMembers] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // ================================
+ 
   // FETCH TEAM MEMBERS (ASSIGNEES)
-  // ================================
+
   const fetchProjectMembers = async () => {
   if (!deptId || !teamId || !projectId) return;
 
@@ -55,9 +55,9 @@ const CreateTaskModal = ({
   }
 };
 
-  // ================================
+  
   // EFFECT
-  // ================================
+
   useEffect(() => {
   if (open) {
     setForm(initialFormState);
@@ -68,9 +68,9 @@ const CreateTaskModal = ({
 }, [open, deptId, teamId, projectId]);
 
 
-  // ================================
+
   // HANDLERS
-  // ================================
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -119,9 +119,7 @@ const CreateTaskModal = ({
     }
   };
 
-  // ================================
   // UI
-  // ================================
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
       <DialogTitle>Create Task</DialogTitle>

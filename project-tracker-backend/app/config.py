@@ -3,14 +3,14 @@ from pydantic import Field
 
 
 class Settings(BaseSettings):
-    # ===== DATABASE =====
+    #DATABASE
     DB_USER: str
     DB_PASSWORD: str
     DB_HOST: str
     DB_PORT: int
     DB_NAME: str
 
-    # ===== JWT =====
+    # JWT 
     SECRET_KEY: str = "MY_NEW_SECRET_KEY"
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60

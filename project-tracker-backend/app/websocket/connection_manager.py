@@ -8,7 +8,7 @@ class ConnectionManager:
         await sio.emit(
             "new_notification",
             data,
-            room=str(user_id)   # ⚠️ room must be string
+            room=str(user_id)  
         )
 
 manager = ConnectionManager()

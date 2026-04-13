@@ -6,7 +6,7 @@ import CreateProjectModal from "../components/CreateProjectModal";
 
 const Projects = () => {
   const navigate = useNavigate();
-  const { deptId, teamId } = useParams(); // ✅ THIS IS THE KEY
+  const { deptId, teamId } = useParams(); 
 
 
   const [open, setOpen] = useState(false);
@@ -21,7 +21,7 @@ const Projects = () => {
       user?.job_profile?.toUpperCase()
     );
 
-  /* ================= FETCH PROJECTS ================= */
+  /* FETCH PROJECTS */
   const fetchProjects = async () => {
     if (!deptId|| !teamId) return;
 

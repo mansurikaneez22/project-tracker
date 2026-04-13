@@ -93,7 +93,7 @@ const TeamWorkload = ({ data = [] }) => {
                 stroke: isDark ? "#1E293B" : "#E5E7EB",
               },
               "& .MuiBarElement-root": {
-                rx: 6, // rounded bars (modern touch)
+                rx: 6,
               },
             }}
           />

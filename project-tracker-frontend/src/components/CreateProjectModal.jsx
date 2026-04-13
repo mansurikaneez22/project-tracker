@@ -14,7 +14,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { useEffect, useState } from "react";
 import axios from "axios";
 
-/* ===== ROLE OPTIONS ===== */
+/* ROLE OPTIONS */
 const ROLE_OPTIONS = [
   { label: "Team Leader", role_id: 2 },
   { label: "Contributor", role_id: 3 }
@@ -41,7 +41,7 @@ const CreateProjectModal = ({
     }
   };
 
-  /* ================= FETCH USERS ================= */
+  /* FETCH USERS*/
  useEffect(() => {
   if (!open || !deptId || !teamId) return;
 
@@ -56,7 +56,7 @@ const CreateProjectModal = ({
 
 }, [open, deptId, teamId]);
 
-  /* ================= HELPERS ================= */
+  /* HELPERS */
   const handleChange = (index, field, value) => {
     const updated = [...assignments];
     updated[index][field] = value;
@@ -66,7 +66,7 @@ const CreateProjectModal = ({
   const addRow = () => setAssignments([...assignments, { user_id: "", role_id: "" }]);
   const removeRow = (index) => setAssignments(assignments.filter((_, i) => i !== index));
 
-  /* ================= CREATE PROJECT ================= */
+  /*CREATE PROJECT*/
   const handleCreate = async () => {
     try {
       if (!loggedInUser?.user_id) {
@@ -79,7 +79,7 @@ const CreateProjectModal = ({
         return;
       }
 
-      // 1️⃣ Create the project
+      // Create the project
       const projectRes = await axios.post(
         "http://127.0.0.1:8000/api/v1/project/",
         {
@@ -96,7 +96,7 @@ const CreateProjectModal = ({
       const projectId = projectRes.data.project_id;
       let failedMembers = [];
 
-      // 2️⃣ Assign members
+      // Assign members
       for (const a of assignments) {
         if (!a.user_id || !a.role_id) continue;
 
@@ -111,7 +111,7 @@ const CreateProjectModal = ({
             authHeader
           );
         } catch (err) {
-          // Collect failed members for error reporting
+         
           failedMembers.push({
             user_id: a.user_id,
             role_id: a.role_id,
@@ -135,8 +135,8 @@ const CreateProjectModal = ({
       onClose();
 
     } catch (err) {
-      console.error("BACKEND ERROR 👉", err.response?.data || err);
-      alert(`Project creation failed ❌\n${err.response?.data?.detail || err.message}`);
+      console.error("BACKEND ERROR ", err.response?.data || err);
+      alert(`Project creation failed \n${err.response?.data?.detail || err.message}`);
     }
   };
 

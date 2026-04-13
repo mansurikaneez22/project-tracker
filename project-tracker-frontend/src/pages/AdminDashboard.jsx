@@ -21,6 +21,16 @@ const AdminDashboard = () => {
   const [notify, setNotify] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  //  NEW STATES
+  const [users, setUsers] = useState([]);
+  const [invites, setInvites] = useState([]);
+  const [stats, setStats] = useState({
+    totalUsers: 0,
+    activeUsers: 0,
+    pending: 0
+  });
+  const [search, setSearch] = useState("");
+
   const [form, setForm] = useState({
     full_name: "",
     email: "",
@@ -30,10 +40,13 @@ const AdminDashboard = () => {
     team_id: ""
   });
 
-  /* ================= LOAD DATA ================= */
+  /*LOAD DATA */
 
   useEffect(() => {
     fetchCompanies();
+    fetchUsers();
+    fetchInvites();
+    fetchStats();
   }, []);
 
   const fetchCompanies = async () => {
@@ -42,6 +55,33 @@ const AdminDashboard = () => {
       setCompanies(res.data || []);
     } catch {
       setCompanies([]);
+    }
+  };
+
+  const fetchUsers = async () => {
+    try {
+      const res = await api.get("/api/v1/admin/users");
+      setUsers(res.data || []);
+    } catch {
+      setUsers([]);
+    }
+  };
+
+  const fetchInvites = async () => {
+    try {
+      const res = await api.get("/api/v1/admin/invites");
+      setInvites(res.data || []);
+    } catch {
+      setInvites([]);
+    }
+  };
+
+  const fetchStats = async () => {
+    try {
+      const res = await api.get("/api/v1/admin/stats");
+      setStats(res.data);
+    } catch {
+      setStats({ totalUsers: 0, activeUsers: 0, pending: 0 });
     }
   };
 
@@ -57,7 +97,7 @@ const AdminDashboard = () => {
     setTeams(res.data || []);
   };
 
-  /* ================= HANDLE CHANGE ================= */
+  /* HANDLE CHANGE */
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -82,7 +122,7 @@ const AdminDashboard = () => {
     }
   };
 
-  /* ================= INVITE USER ================= */
+  /* INVITE USER*/
 
   const inviteUser = async () => {
     try {
@@ -99,11 +139,26 @@ const AdminDashboard = () => {
 
       setNotify(true);
       resetForm();
+
+      fetchUsers();
+      fetchInvites();
+      fetchStats();
     } catch (err) {
       alert("Failed to send invite");
     } finally {
       setLoading(false);
     }
+  };
+
+  const deleteUser = async (id) => {
+    await api.delete(`/api/v1/admin/users/${id}`);
+    fetchUsers();
+    fetchStats();
+  };
+
+  const resendInvite = async (id) => {
+    await api.post(`/api/v1/admin/resend-invite/${id}`);
+    alert("Invite resent");
   };
 
   const resetForm = () => {
@@ -127,7 +182,18 @@ const AdminDashboard = () => {
     form.department_id &&
     form.team_id;
 
-  /* ================= UI ================= */
+  
+  const filteredUsers = users.filter((u) => {
+  const name = u.user_name || u.name || "";
+  const email = u.email_id || u.email || "";
+
+  return `${name} ${email}`
+    .toLowerCase()
+    .includes(search.toLowerCase());
+});
+
+console.log(users)
+  /* UI */
 
   return (
     <Box sx={{ p: 4 }}>
@@ -139,156 +205,193 @@ const AdminDashboard = () => {
         Invite users and manage organization structure
       </Typography>
 
-      <Box
-        sx={{
-          display: "grid",
-          gridTemplateColumns: { xs: "1fr", md: "2fr 1fr" },
-          gap: 3
-        }}
-      >
-        {/* LEFT : INVITE USER */}
-        <Card sx={{ borderRadius: 3 }}>
+      {/* STATS */}
+      <Box sx={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 2, mb: 3 }}>
+        <Card><CardContent>
+          <Typography>Total Users</Typography>
+          <Typography variant="h5">{stats.totalUsers}</Typography>
+        </CardContent></Card>
+
+        <Card><CardContent>
+          <Typography>Active Users</Typography>
+          <Typography variant="h5">{stats.activeUsers}</Typography>
+        </CardContent></Card>
+
+        <Card><CardContent>
+          <Typography>Pending</Typography>
+          <Typography variant="h5">{stats.pending}</Typography>
+        </CardContent></Card>
+      </Box>
+
+      <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "2fr 1fr" }, gap: 3 }}>
+        
+        {/* INVITE FORM */}
+        <Card>
           <CardContent>
-            <Typography variant="h6" mb={2}>
-              Invite New User
-            </Typography>
+            <Typography variant="h6">Invite New User</Typography>
 
             <Stack spacing={2}>
-              <Divider textAlign="left">Basic Info</Divider>
+              <TextField label="Full Name" name="full_name" value={form.full_name} onChange={handleChange} />
+              <TextField label="Email" name="email" value={form.email} onChange={handleChange} />
 
-              <TextField
-                label="Full Name"
-                name="full_name"
-                value={form.full_name}
-                onChange={handleChange}
-                fullWidth
-              />
-
-              <TextField
-                label="Email"
-                name="email"
-                value={form.email}
-                onChange={handleChange}
-                fullWidth
-              />
-
-              <Typography variant="caption" color="text.secondary">
-                User will receive an email to set their password
-              </Typography>
-
-              <Divider textAlign="left">Role</Divider>
-
-              <Select
-                name="job_profile"
-                value={form.job_profile}
-                onChange={handleChange}
-                displayEmpty
-                fullWidth
-              >
-                <MenuItem value="" disabled>
-                  Select Job Profile
-                </MenuItem>
+              <Select name="job_profile" value={form.job_profile} onChange={handleChange} displayEmpty>
+                <MenuItem value="" disabled>Select Role</MenuItem>
                 <MenuItem value="PROJECT_MANAGER">Project Manager</MenuItem>
                 <MenuItem value="TEAM_LEADER">Team Leader</MenuItem>
                 <MenuItem value="CONTRIBUTOR">Contributor</MenuItem>
-                <MenuItem value="DESIGNER">Designer</MenuItem>
-                <MenuItem value="QA">QA</MenuItem>
-                <MenuItem value="TESTER">Tester</MenuItem>
               </Select>
 
-              <Divider textAlign="left">Organization</Divider>
-
-              <Select
-                name="company_id"
-                value={form.company_id}
-                onChange={handleChange}
-                displayEmpty
-                fullWidth
-              >
-                <MenuItem value="" disabled>
-                  Select Company
-                </MenuItem>
-                {companies.map((c) => (
-                  <MenuItem key={c.id} value={String(c.id)}>
-                    {c.company_name}
-                  </MenuItem>
+              <Select name="company_id" value={form.company_id} onChange={handleChange} displayEmpty>
+                <MenuItem value="" disabled>Select Company</MenuItem>
+                {companies.map(c => (
+                  <MenuItem key={c.id} value={String(c.id)}>{c.company_name}</MenuItem>
                 ))}
               </Select>
 
-              <Select
-                name="department_id"
-                value={form.department_id}
-                onChange={handleChange}
-                displayEmpty
-                disabled={!form.company_id}
-                fullWidth
-              >
-                <MenuItem value="" disabled>
-                  Select Department
-                </MenuItem>
-                {departments.map((d) => (
-                  <MenuItem
-                    key={d.department_id}
-                    value={String(d.department_id)}
-                  >
-                    {d.department_name}
-                  </MenuItem>
+              <Select name="department_id" value={form.department_id} onChange={handleChange} displayEmpty disabled={!form.company_id}>
+                <MenuItem value="" disabled>Select Department</MenuItem>
+                {departments.map(d => (
+                  <MenuItem key={d.department_id} value={String(d.department_id)}>{d.department_name}</MenuItem>
                 ))}
               </Select>
 
-              <Select
-                name="team_id"
-                value={form.team_id}
-                onChange={handleChange}
-                displayEmpty
-                disabled={!form.department_id}
-                fullWidth
-              >
-                <MenuItem value="" disabled>
-                  Select Team
-                </MenuItem>
-                {teams.map((t) => (
-                  <MenuItem key={t.team_id} value={String(t.team_id)}>
-                    {t.team_name}
-                  </MenuItem>
+              <Select name="team_id" value={form.team_id} onChange={handleChange} displayEmpty disabled={!form.department_id}>
+                <MenuItem value="" disabled>Select Team</MenuItem>
+                {teams.map(t => (
+                  <MenuItem key={t.team_id} value={String(t.team_id)}>{t.team_name}</MenuItem>
                 ))}
               </Select>
 
-              <Button
-                variant="contained"
-                size="large"
-                disabled={!isFormValid || loading}
-                onClick={inviteUser}
-                sx={{ mt: 2, borderRadius: 2 }}
-              >
-                {loading ? "Sending Invite..." : "Invite User"}
+              <Button disabled={!isFormValid || loading} onClick={inviteUser}>
+                {loading ? "Sending..." : "Invite User"}
               </Button>
             </Stack>
           </CardContent>
         </Card>
 
-        {/* RIGHT : QUICK INFO */}
-<Card sx={{ borderRadius: 3 }}>
+        <Card
+  sx={{
+    borderRadius: 3,
+    transition: "0.3s",
+    "&:hover": {
+      transform: "translateY(-3px)",
+      boxShadow: 6
+    }
+  }}
+>
   <CardContent>
-
     <Typography variant="h6" mb={2}>
       Admin Info
     </Typography>
 
-    <Typography variant="body2" color="text.secondary">
-      From this dashboard you can invite users and assign them to
-      companies, departments and teams.
-    </Typography>
+    <Stack spacing={2} alignItems="center">
+      
+      {/* Avatar */}
+      <Box
+        sx={{
+          width: 60,
+          height: 60,
+          borderRadius: "50%",
+          background: "#1976d2",
+          color: "#fff",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontSize: 24,
+          fontWeight: 600
+        }}
+      >
+        A
+      </Box>
 
-    <Divider sx={{ my: 2 }} />
+      {/* Name */}
+      <Typography fontWeight={600}>
+        {users[0]?.name || users[0]?.user_name || "Admin"}
+      </Typography>
 
-    <Typography variant="body2">
-      Make sure the organization structure is created before inviting users.
-    </Typography>
+      {/* Email */}
+      <Typography variant="body2" color="text.secondary">
+        {users[0]?.email || users[0]?.email_id || "admin@email.com"}
+      </Typography>
 
+      <Divider sx={{ width: "100%" }} />
+
+      {/* Role */}
+      <Typography
+  sx={(theme) => ({
+    background: theme.palette.primary.main + "20", // light tint
+    color: theme.palette.primary.main,
+    px: 1.5,
+    py: 0.5,
+    borderRadius: 2,
+    fontSize: 12,
+    fontWeight: 600
+  })}
+>
+  {users[0]?.role || "ADMIN"}
+</Typography>
+
+      <Typography variant="caption" color="text.secondary">
+        Manage users, teams & permissions
+      </Typography>
+
+    </Stack>
   </CardContent>
 </Card>
-      </Box>
+</Box> 
+
+      {/* USERS */}
+      <Card sx={{ mt: 4 }}>
+        <CardContent>
+          <Typography variant="h6">Users</Typography>
+
+          <TextField
+            fullWidth
+            placeholder="Search users..."
+            sx={{ my: 2 }}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+
+          
+          {filteredUsers.map((u) => {
+  const name = u.name || u.user_name || "No Name";
+  const email = u.email || u.email_id || "No Email";
+
+  return (
+    <Box
+      key={u.id}
+      sx={{
+        display: "flex",
+        justifyContent: "space-between",
+        p: 1,
+        borderBottom: "1px solid #eee"
+      }}
+    >
+      <span>{name} ({email})</span>
+
+      <Button color="error" onClick={() => deleteUser(u.id)}>
+        Delete
+      </Button>
+    </Box>
+  );
+})}
+        </CardContent>
+      </Card>
+
+      {/* INVITES */}
+      <Card sx={{ mt: 3 }}>
+        <CardContent>
+          <Typography variant="h6">Pending Invites</Typography>
+
+          {invites.map((i) => (
+            <Box key={i.id} sx={{ display: "flex", justifyContent: "space-between", p: 1 }}>
+              <span>{i.email_id || i.email}</span>
+              <Button onClick={() => resendInvite(i.id)}>Resend</Button>
+            </Box>
+          ))}
+        </CardContent>
+      </Card>
 
       <Snackbar
         open={notify}

@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from app.models.notification import Notification
-from app.socket_instance import sio  # ✅ Socket.IO instance import
+from app.socket_instance import sio  #  Socket.IO instance import
 
 async def create_notification(
     db: Session,
@@ -21,7 +21,7 @@ async def create_notification(
     db.commit()
     db.refresh(notification)
 
-    # 🔥 Real-time push using Socket.IO
+    # Real-time push using Socket.IO
     await sio.emit(
         "new_notification",
         {
@@ -33,7 +33,7 @@ async def create_notification(
             "is_read": False,
             "created_at": str(notification.created_at)
         },
-        room=str(user_id)   # ⚠ must match join room
+        room=str(user_id)   #  must match join room
     )
 
     print("EMITTED TO ROOM:", user_id)

@@ -12,7 +12,7 @@ const BoardTaskList = () => {
   const [assignees, setAssignees] = useState([]);
   const [open, setOpen] = useState(false);
 
-  /* ================= PROJECT MEMBERS ================= */
+  /* PROJECT MEMBERS */
   const fetchProjectMembers = useCallback(async () => {
     if (!deptId || !teamId || !projectId) return;
 
@@ -27,7 +27,7 @@ const BoardTaskList = () => {
     }
   }, [deptId, teamId, projectId]);
 
-  /* ================= BOARD TASKS ================= */
+  /*  BOARD TASKS */
   const fetchTasks = useCallback(async () => {
     if (!boardId) return;
 
@@ -42,7 +42,7 @@ const BoardTaskList = () => {
     }
   }, [boardId]);
 
-  /* ================= EFFECT ================= */
+  /*  EFFECT  */
   useEffect(() => {
     fetchProjectMembers();
     fetchTasks();

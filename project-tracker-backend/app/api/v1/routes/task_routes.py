@@ -17,7 +17,7 @@ router = APIRouter(
     tags=["Task"]
 )
 
-# ------------------ CREATE TASK ------------------
+#  CREATE TASK
 @router.post("/")
 async def create_task(
     task: TaskCreate,
@@ -50,7 +50,7 @@ async def create_task(
         message=f"Task '{new_task.task_title}' created"
     )
 
-    # ✅ Notify assignee
+    #  Notify assignee
     if new_task.assignee_id:
         await create_notification(
             db=db,
@@ -66,7 +66,7 @@ async def create_task(
     }
 
 
-# ------------------ EDIT TASK ------------------
+# EDIT TASK 
 @router.post("/{task_id}")
 async def edit_task(
     task_id: int,
@@ -92,7 +92,7 @@ async def edit_task(
         message=f"Task '{task.task_title}' updated"
     )
 
-    # ✅ Notify assignee & reporter
+    #  Notify assignee & reporter
     for uid in set(filter(None, [task.assignee_id, task.reporter_id])):
         await create_notification(
             db=db,
@@ -108,7 +108,7 @@ async def edit_task(
     }
 
 
-# ------------------ DELETE TASK ------------------
+# DELETE TASK 
 @router.delete("/{task_id}")
 async def delete_task(
     task_id: int,
@@ -134,8 +134,7 @@ async def delete_task(
         action_type="TASK DELETED",
         message=f"Task '{title}' deleted"
     )
-
-    # ✅ Notify assignee & reporter
+    #  Notify assignee & reporter
     for uid in set(filter(None, [assignee_id, reporter_id])):
         await create_notification(
             db=db,
@@ -151,7 +150,7 @@ async def delete_task(
     }
 
 
-# ------------------ UPDATE TASK STATUS ------------------
+# UPDATE TASK STATUS
 @router.patch("/{task_id}/status")
 async def update_task_status(
     task_id: int,
@@ -175,7 +174,7 @@ async def update_task_status(
         message=f"Task '{task.task_title}' moved to {task.status}"
     )
 
-    # ✅ Notify reporter
+    #  Notify reporter
     if task.reporter_id:
         await create_notification(
             db=db,
@@ -192,7 +191,7 @@ async def update_task_status(
     }
 
 
-# ------------------ GET ALL TASKS ------------------
+#  GET ALL TASKS 
 @router.get("/list")
 def get_all_tasks(db: Session = Depends(get_db)):
     return db.query(Task).all()
@@ -209,7 +208,7 @@ def get_my_tasks(
     
     return tasks
 
-# ------------------ GET SINGLE TASK ------------------
+#  GET SINGLE TASK 
 @router.get("/{task_id}")
 def get_task(task_id: int, db: Session = Depends(get_db)):
     task = db.query(Task).filter(Task.task_id == task_id).first()

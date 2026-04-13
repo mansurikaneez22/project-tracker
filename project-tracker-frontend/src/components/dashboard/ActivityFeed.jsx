@@ -17,9 +17,9 @@ const ActivityFeed = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // =============================
-  // Time Formatter (Safe Version)
-  // =============================
+
+  // Time Formatter
+
   const formatTimeAgo = (dateString) => {
     if (!dateString) return "";
 
@@ -36,9 +36,9 @@ const ActivityFeed = () => {
     return `${Math.floor(diffInSeconds / 86400)} day(s) ago`;
   };
 
-  // =============================
+  
   // Fetch Activities
-  // =============================
+
   const fetchActivities = useCallback(async () => {
     try {
       setLoading(true);
@@ -55,9 +55,9 @@ const ActivityFeed = () => {
     }
   }, []);
 
-  // =============================
+
   // Initial Load + Auto Refresh
-  // =============================
+ 
   useEffect(() => {
     fetchActivities();
 

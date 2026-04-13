@@ -19,13 +19,16 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogActions
+  DialogActions,
+  Tabs,
+  Tab,
+  Select,
+  MenuItem
 } from "@mui/material";
 
 import { useParams } from "react-router-dom";
 import { useEffect, useState, useCallback } from "react";
 import api from "../services/api";
-import AddToSprintDialog from "../components/AddToSprintDialog";
 import CreateSprintDialog from "../components/CreateSprintDialog";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 
@@ -34,8 +37,9 @@ const SprintPage = () => {
 
   const [sprints, setSprints] = useState([]);
   const [tasks, setTasks] = useState([]);
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [selectedTask, setSelectedTask] = useState(null);
+
+  const [tab, setTab] = useState("ACTIVE");
+
   const [createOpen, setCreateOpen] = useState(false);
 
   const [completeDialogOpen, setCompleteDialogOpen] = useState(false);
@@ -49,7 +53,7 @@ const SprintPage = () => {
   const user = JSON.parse(localStorage.getItem("user"));
   const isPM = user?.job_profile === "PROJECT MANAGER";
 
-  /* ================= FETCH ================= */
+  /* FETCH  */
 
   const fetchSprints = useCallback(async () => {
     try {
@@ -85,20 +89,25 @@ const SprintPage = () => {
     }
   }, [projectId, fetchSprints, fetchTasks]);
 
-  /* ================= BACKLOG ================= */
+  /* FILTER*/
+
+  const filteredSprints =
+    tab === "BACKLOG"
+      ? []
+      : sprints.filter((s) => s.status === tab);
 
   const backlogTasks = tasks.filter(
     (task) => task.sprint_id === null || task.sprint_id === undefined
   );
 
-  /* ================= START ================= */
+  /* START */
 
   const handleStart = async (sprintId) => {
     await api.put(`/api/v1/project/${projectId}/sprints/${sprintId}/start`);
     fetchSprints();
   };
 
-  /* ================= COMPLETE WITH DIALOG ================= */
+  /*COMPLETE  */
 
   const handleCompleteClick = (sprint) => {
     const sprintTasks = tasks.filter(
@@ -139,7 +148,7 @@ const SprintPage = () => {
     }
   };
 
-  /* ================= DRAG ================= */
+  /*  DRAG*/
 
   const onDragEnd = async (result) => {
     if (!isPM) return;
@@ -148,6 +157,7 @@ const SprintPage = () => {
     if (!destination) return;
 
     const taskId = parseInt(draggableId);
+
     const destId =
       destination.droppableId === "backlog"
         ? null
@@ -162,7 +172,7 @@ const SprintPage = () => {
     fetchTasks();
   };
 
-  /* ================= DATE LOGIC ================= */
+  /*DATE LOGIC */
 
   const getSprintMeta = (sprint) => {
     const today = new Date();
@@ -179,11 +189,13 @@ const SprintPage = () => {
     return { start, end, daysLeft, isOverdue };
   };
 
-  /* ================= UI ================= */
+  /*  UI */
 
   return (
     <Box>
-      <Box display="flex" justifyContent="space-between" mb={4}>
+
+      {/* HEADER */}
+      <Box display="flex" justifyContent="space-between" mb={3}>
         <Typography variant="h5" fontWeight={600}>
           Sprint Planning
         </Typography>
@@ -195,9 +207,25 @@ const SprintPage = () => {
         )}
       </Box>
 
+      {/* TABS */}
+      <Tabs
+        value={tab}
+        onChange={(e, val) => setTab(val)}
+        sx={{ mb: 3 }}
+      >
+        <Tab label="Active Sprint" value="ACTIVE" />
+        <Tab label="Planned" value="PLANNED" />
+        <Tab label="Completed" value="COMPLETED" />
+        <Tab label="Backlog" value="BACKLOG" />
+      </Tabs>
+
       <DragDropContext onDragEnd={onDragEnd}>
+
         <Stack spacing={4}>
-          {sprints.map((sprint) => {
+
+          {/* SPRINTS */}
+          {filteredSprints.map((sprint) => {
+
             const sprintTasks = tasks.filter(
               (t) => t.sprint_id === sprint.sprint_id
             );
@@ -209,54 +237,41 @@ const SprintPage = () => {
               <Card key={sprint.sprint_id}>
                 <CardContent>
 
-                  {/* HEADER */}
                   <Box display="flex" justifyContent="space-between">
                     <Box>
+
                       <Typography fontWeight={600} variant="h6">
                         {sprint.sprint_name}
                       </Typography>
 
-                      <Typography
-                        variant="body2"
-                        sx={{ color: "#94a3b8", mt: 0.5 }}
-                      >
-                        {start.toLocaleDateString()} -{" "}
-                        {end.toLocaleDateString()}
+                      <Typography variant="body2" sx={{ color: "#94a3b8" }}>
+                        {start.toLocaleDateString()} - {end.toLocaleDateString()}
                       </Typography>
 
                       {sprint.status === "ACTIVE" && !isOverdue && (
-                        <Typography
-                          variant="body2"
-                          sx={{ color: "#22c55e", mt: 0.5 }}
-                        >
-                          {daysLeft >= 0
-                            ? `${daysLeft} days left`
-                            : null}
+                        <Typography variant="body2" sx={{ color: "#22c55e" }}>
+                          {daysLeft >= 0 ? `${daysLeft} days left` : null}
                         </Typography>
                       )}
 
                       {isOverdue && (
-                        <Typography
-                          variant="body2"
-                          sx={{ color: "#ef4444", mt: 0.5 }}
-                        >
+                        <Typography variant="body2" sx={{ color: "#ef4444" }}>
                           ⚠ Overdue by {Math.abs(daysLeft)} days
                         </Typography>
                       )}
+
                     </Box>
 
                     <Chip label={sprint.status} />
+
                   </Box>
 
-                  {/* ACTIONS */}
                   {sprint.status === "PLANNED" && isPM && (
                     <Button
                       size="small"
                       variant="contained"
                       sx={{ mt: 2 }}
-                      onClick={() =>
-                        handleStart(sprint.sprint_id)
-                      }
+                      onClick={() => handleStart(sprint.sprint_id)}
                     >
                       Start
                     </Button>
@@ -268,15 +283,12 @@ const SprintPage = () => {
                       color="error"
                       variant="contained"
                       sx={{ mt: 2 }}
-                      onClick={() =>
-                        handleCompleteClick(sprint)
-                      }
+                      onClick={() => handleCompleteClick(sprint)}
                     >
                       Complete Sprint
                     </Button>
                   )}
 
-                  {/* TASK TABLE */}
                   <Droppable droppableId={`${sprint.sprint_id}`}>
                     {(provided) => (
                       <TableContainer
@@ -285,7 +297,9 @@ const SprintPage = () => {
                         ref={provided.innerRef}
                         {...provided.droppableProps}
                       >
+
                         <Table size="small">
+
                           <TableHead>
                             <TableRow>
                               <TableCell>Task</TableCell>
@@ -293,7 +307,9 @@ const SprintPage = () => {
                               <TableCell>Status</TableCell>
                             </TableRow>
                           </TableHead>
+
                           <TableBody>
+
                             {sprintTasks.map((task, index) => (
                               <Draggable
                                 key={task.task_id}
@@ -307,127 +323,200 @@ const SprintPage = () => {
                                     {...provided.draggableProps}
                                     {...provided.dragHandleProps}
                                   >
+                                    <TableCell>{task.task_title}</TableCell>
                                     <TableCell>
-                                      {task.task_title}
+                                      {task.assignee_name || "Unassigned"}
                                     </TableCell>
-                                    <TableCell>
-                                      {task.assignee_name ||
-                                        "Unassigned"}
-                                    </TableCell>
-                                    <TableCell>
-                                      {task.status}
-                                    </TableCell>
+                                    <TableCell>{task.status}</TableCell>
                                   </TableRow>
                                 )}
                               </Draggable>
                             ))}
+
                             {provided.placeholder}
+
                           </TableBody>
+
                         </Table>
+
                       </TableContainer>
                     )}
                   </Droppable>
+
                 </CardContent>
               </Card>
             );
           })}
 
-          {/* BACKLOG */}
-          <Divider sx={{ my: 5 }} />
-          <Typography variant="h6" fontWeight={600} mb={2}>
-            Backlog
-          </Typography>
+          {/* BACKLOG TAB */}
 
-          <Droppable droppableId="backlog">
-            {(provided) => (
-              <Card ref={provided.innerRef} {...provided.droppableProps}>
-                <CardContent>
-                  <TableContainer component={Paper}>
-                    <Table size="small">
-                      <TableHead>
-                        <TableRow>
-                          <TableCell>Task</TableCell>
-                          <TableCell>Assignee</TableCell>
-                          <TableCell>Action</TableCell>
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {backlogTasks.length === 0 && (
+          {tab === "BACKLOG" && (
+
+            <Card>
+
+              <CardContent>
+
+                <Typography variant="h6" fontWeight={600} mb={2}>
+                  Backlog
+                </Typography>
+
+                <Droppable droppableId="backlog">
+
+                  {(provided) => (
+
+                    <TableContainer
+                      component={Paper}
+                      ref={provided.innerRef}
+                      {...provided.droppableProps}
+                    >
+
+                      <Table size="small">
+
+                        <TableHead>
                           <TableRow>
-                            <TableCell colSpan={3}>
-                              No backlog tasks.
-                            </TableCell>
+                            <TableCell>Task</TableCell>
+                            <TableCell>Assignee</TableCell>
+                            <TableCell>Add to Sprint</TableCell>
                           </TableRow>
-                        )}
+                        </TableHead>
 
-                        {backlogTasks.map((task, index) => (
-                          <Draggable
-                            key={task.task_id}
-                            draggableId={`${task.task_id}`}
-                            index={index}
-                          >
-                            {(provided) => (
-                              <TableRow
-                                ref={provided.innerRef}
-                                {...provided.draggableProps}
-                                {...provided.dragHandleProps}
-                              >
-                                <TableCell>
-                                  {task.task_title}
-                                </TableCell>
-                                <TableCell>
-                                  {task.assignee_name ||
-                                    "Unassigned"}
-                                </TableCell>
-                                <TableCell>
-                                  Add to Sprint
-                                </TableCell>
-                              </TableRow>
-                            )}
-                          </Draggable>
-                        ))}
-                        {provided.placeholder}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
-                </CardContent>
-              </Card>
-            )}
-          </Droppable>
+                        <TableBody>
+
+                          {backlogTasks.map((task, index) => (
+
+                            <Draggable
+                              key={task.task_id}
+                              draggableId={`${task.task_id}`}
+                              index={index}
+                            >
+
+                              {(provided) => (
+
+                                <TableRow
+  ref={provided.innerRef}
+  {...provided.draggableProps}
+  {...provided.dragHandleProps}
+>
+
+  <TableCell>{task.task_title}</TableCell>
+
+  <TableCell>
+    {task.assignee_name || "Unassigned"}
+  </TableCell>
+
+  <TableCell>
+
+    <Select
+      size="small"
+      displayEmpty
+      value=""
+      onChange={async (e) => {
+
+        const sprintId = e.target.value;
+
+        await api.put(
+          `/api/v1/task/${task.task_id}/assign-sprint`,
+          null,
+          { params: { sprint_id: sprintId } }
+        );
+
+        fetchTasks();
+      }}
+      sx={{ minWidth: 150 }}
+    >
+
+      <MenuItem disabled value="">
+        Select Sprint
+      </MenuItem>
+
+      {sprints
+        .filter(
+          (s) =>
+            s.status === "ACTIVE" ||
+            s.status === "PLANNED"
+        )
+        .map((s) => (
+          <MenuItem
+            key={s.sprint_id}
+            value={s.sprint_id}
+          >
+            {s.sprint_name} ({s.status})
+          </MenuItem>
+        ))}
+
+    </Select>
+
+  </TableCell>
+
+</TableRow>
+
+                              )}
+
+                            </Draggable>
+
+                          ))}
+
+                          {provided.placeholder}
+
+                        </TableBody>
+
+                      </Table>
+
+                    </TableContainer>
+
+                  )}
+
+                </Droppable>
+
+              </CardContent>
+
+            </Card>
+
+          )}
+
         </Stack>
+
       </DragDropContext>
 
       {/* COMPLETE DIALOG */}
+
       <Dialog
         open={completeDialogOpen}
         onClose={() => setCompleteDialogOpen(false)}
       >
+
         <DialogTitle>Unfinished Tasks</DialogTitle>
+
         <DialogContent>
+
           <Typography>
             {unfinishedTasks.length} tasks are not completed.
             Move them to backlog before completing sprint?
           </Typography>
+
         </DialogContent>
+
         <DialogActions>
+
           <Button onClick={() => setCompleteDialogOpen(false)}>
             Cancel
           </Button>
+
           <Button
             variant="contained"
             onClick={() =>
-              completeSprint(
-                selectedSprint.sprint_id,
-                true
-              )
+              completeSprint(selectedSprint.sprint_id, true)
             }
           >
             Move & Complete
           </Button>
+
         </DialogActions>
+
       </Dialog>
 
-      {/* CREATE DIALOG */}
+      {/* CREATE SPRINT */}
+
       <CreateSprintDialog
         open={createOpen}
         onClose={() => setCreateOpen(false)}
@@ -436,19 +525,20 @@ const SprintPage = () => {
       />
 
       {/* SNACKBAR */}
+
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={4000}
         onClose={() => setSnackbarOpen(false)}
         anchorOrigin={{ vertical: "top", horizontal: "right" }}
       >
-        <Alert
-          severity={snackbarSeverity}
-          variant="filled"
-        >
+
+        <Alert severity={snackbarSeverity} variant="filled">
           {snackbarMsg}
         </Alert>
+
       </Snackbar>
+
     </Box>
   );
 };

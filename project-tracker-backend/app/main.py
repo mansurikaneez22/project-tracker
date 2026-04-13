@@ -7,7 +7,7 @@ import os
 from app.socket_instance import sio
 
 from app.database.database import engine, Base
-import app.models  #  REQUIRED – models register hote hain
+import app.models 
 
 from app.api.v1.routes.project_routes import router as project_router
 from app.api.v1.routes.board_routes import router as board_router
@@ -39,25 +39,24 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Project Tracker API")
 
-socket_app = socketio.ASGIApp(sio, other_asgi_app=app)
 
- # This wraps FastAPI + Socket.IO
+# CORS
 
-# ---------- CORS ----------
-origins = ["http://localhost:3000"]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["http://localhost:3000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# ---------- Static files ----------
+socket_app = socketio.ASGIApp(sio, other_asgi_app=app)
+
+#Static files
 os.makedirs("uploads/profile_pics", exist_ok=True)
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
-# ---------- Socket.IO events ----------
+# Socket.IO events
 @sio.event
 async def connect(sid, environ):
     print("Client connected:", sid)

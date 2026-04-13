@@ -16,7 +16,7 @@ def get_db():
     finally:
         db.close()
 
-# ✅ Get all companies
+# Get all companies
 @router.get("/", response_model=list[CompanyResponse])
 def get_companies(db: Session = Depends(get_db)):
     return db.query(Company).all()

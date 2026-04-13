@@ -17,17 +17,17 @@ const KanbanColumn = ({ status, tasks }) => {
       flexDirection: "column",
       gap: 1.5,
 
-      // 🎨 Smart Theme Background
+      //  Smart Theme Background
       backgroundColor:
         theme.palette.mode === "dark"
-          ? "#0F172A"          // premium dark slate
-          : "#F8FAFC",         // soft light surface
+          ? "#0F172A"        
+          : "#F8FAFC",         
 
-      // 🧱 Soft Border
+      
       border: "1px solid",
       borderColor: theme.palette.divider,
 
-      // ✨ Subtle Depth
+      
       boxShadow:
         theme.palette.mode === "dark"
           ? "0 4px 12px rgba(0,0,0,0.25)"
@@ -35,7 +35,7 @@ const KanbanColumn = ({ status, tasks }) => {
 
       transition: "all 0.25s ease",
 
-      // 🖱 Hover Effect
+    
       "&:hover": {
         backgroundColor:
           theme.palette.mode === "dark"
@@ -43,7 +43,7 @@ const KanbanColumn = ({ status, tasks }) => {
             : "#E2E8F0",
       },
 
-      // 🎯 Drag Highlight Effect
+      //  Drag Highlight Effect
       ...(snapshot.isDraggingOver && {
         backgroundColor:
           theme.palette.mode === "dark"

@@ -23,9 +23,9 @@ router = APIRouter(
     tags=["Project"]
 )
 
-# ======================================================
+
 # HELPER : VALIDATE DEPT + TEAM + PROJECT
-# ======================================================
+
 def validate_project_scope(
     db: Session,
     dept_id: int,
@@ -53,9 +53,8 @@ def validate_project_scope(
     return project
 
 
-# ======================================================
+
 # CREATE PROJECT
-# ======================================================
 @router.post("/", response_model=ProjectResponse)
 def create_project(
     data: ProjectCreate,
@@ -94,9 +93,8 @@ def create_project(
     return project
 
 
-# ======================================================
 # VIEW ALL PROJECTS
-# ======================================================
+
 @router.get("/list", response_model=list[ProjectResponse])
 def view_all_projects(
     db: Session = Depends(get_db),
@@ -105,9 +103,8 @@ def view_all_projects(
     return db.query(Project).all()
 
 
-# ======================================================
+
 # GET PROJECT BY DEPT + TEAM + PROJECT
-# ======================================================
 @router.get(
     "/department/{dept_id}/team/{team_id}/project/{project_id}",
     response_model=ProjectResponse
@@ -123,9 +120,7 @@ def view_project_scoped(
     return project
 
 
-# ======================================================
 # GET PROJECTS BY TEAM
-# ======================================================
 @router.get(
     "/department/{dept_id}/team/{team_id}/project",
     response_model=list[ProjectResponse]
@@ -148,9 +143,7 @@ def get_projects_by_team(
     return projects
 
 
-# ======================================================
 # UPDATE PROJECT
-# ======================================================
 @router.put("/department/{dept_id}/team/{team_id}/project/{project_id}")
 def update_project_scoped(
     dept_id: int,
@@ -178,9 +171,8 @@ def update_project_scoped(
     return {"message": "Project updated successfully"}
 
 
-# ======================================================
+
 # DELETE PROJECT
-# ======================================================
 @router.delete("/department/{dept_id}/team/{team_id}/project/{project_id}")
 def delete_project_scoped(
     dept_id: int,
@@ -203,9 +195,8 @@ def delete_project_scoped(
     return {"message": "Project deleted successfully"}
 
 
-# ======================================================
+
 # GET TASKS OF PROJECT (PM)
-# ======================================================
 @router.get("/department/{dept_id}/team/{team_id}/project/{project_id}/task")
 def get_tasks_by_project_scoped(
     dept_id: int,
@@ -247,9 +238,7 @@ def get_tasks_by_project_scoped(
         "tasks": result
     }
 
-# ======================================================
 # GET TASKS OF PROJECT (PROJECT LEVEL - CONTRIBUTOR)
-# ======================================================
 @router.get("/{project_id}/task")
 def get_tasks_by_project(
     project_id: int,
@@ -257,7 +246,7 @@ def get_tasks_by_project(
     current_user: User = Depends(get_current_user)
 ):
 
-    # 🔐 Permission check for contributor
+    # Permission check for contributor
     if current_user.job_profile == "CONTRIBUTOR":
 
         check = db.execute(
@@ -278,7 +267,7 @@ def get_tasks_by_project(
                 detail="Not assigned to this project"
             )
 
-    # 👇 SAME QUERY AS PM
+    #  SAME QUERY AS PM
     query = text("""
         SELECT DISTINCT
             t.task_id,
@@ -306,9 +295,8 @@ def get_tasks_by_project(
         "count": len(result),
         "tasks": result
     }
-# ==================================================
+
 # PROJECT TIMELINE
-# ======================================================
 @router.get("/department/{dept_id}/team/{team_id}/project/{project_id}/timeline")
 def project_timeline_scoped(
     dept_id: int,

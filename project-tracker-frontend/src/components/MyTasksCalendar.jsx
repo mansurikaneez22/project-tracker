@@ -16,7 +16,7 @@ const MyTasksCalendar = ({ tasks = [] }) => {
   const [currentMonth] = useState(dayjs());
   const [selectedDate, setSelectedDate] = useState(dayjs());
 
-  /* ================= STATUS COLORS ================= */
+  /*STATUS COLORS  */
 
   const getStatusStyles = (status) => {
     switch (status) {
@@ -33,7 +33,7 @@ const MyTasksCalendar = ({ tasks = [] }) => {
     }
   };
 
-  /* ================= GROUP TASKS ================= */
+  /*GROUP TASKS */
 
   const tasksByDate = useMemo(() => {
     const map = {};
@@ -50,7 +50,7 @@ const MyTasksCalendar = ({ tasks = [] }) => {
     .sort((a, b) => dayjs(a.due_date) - dayjs(b.due_date))
     .slice(0, 5);
 
-  /* ================= CALENDAR RANGE ================= */
+  /*CALENDAR RANGE*/
 
   const startOfMonth = currentMonth.startOf("month").startOf("week");
   const endOfMonth = currentMonth.endOf("month").endOf("week");
@@ -70,7 +70,7 @@ const MyTasksCalendar = ({ tasks = [] }) => {
 
   return (
     <Grid container spacing={4}>
-      {/* ================= CALENDAR ================= */}
+      {/* CALENDAR*/}
       <Grid item xs={12} xl={9}>
         <Card
           sx={{
@@ -238,7 +238,7 @@ const MyTasksCalendar = ({ tasks = [] }) => {
         </Card>
       </Grid>
 
-      {/* ================= UPCOMING ================= */}
+      {/* UPCOMING*/}
     
 <Grid item xs={12} xl={3} >
   <Card

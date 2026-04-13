@@ -11,7 +11,7 @@ router = APIRouter(
     tags=["PM Dashboard"]
 )
 
-# ---------------- Dashboard Summary ----------------
+#  Dashboard Summary
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import text
@@ -41,7 +41,7 @@ def pm_dashboard_summary(
              FROM project
              WHERE project_manager = :pm_id) AS total_projects,
 
-            -- ✅ Teams (DISTINCT team_id)
+            -- Teams (DISTINCT team_id)
             (SELECT COUNT(DISTINCT tm.team_id)
              FROM team_member tm
              JOIN task t ON t.assignee_id = tm.user_id
@@ -109,7 +109,7 @@ def pm_dashboard_summary(
 
     return {
         "projects": summary.total_projects or 0,
-        "teams": summary.team_count or 0,   # ✅ FIXED
+        "teams": summary.team_count or 0,   
         "tasks": summary.open_tasks or 0,
         "pending_tasks": summary.overdue_tasks or 0,
         "task_status": {
@@ -122,7 +122,7 @@ def pm_dashboard_summary(
 
 
 
-# ---------------- Team Workload ----------------
+# Team Workload
 @router.get("/team/workload")
 def team_workload(
     db: Session = Depends(get_db),
@@ -157,7 +157,7 @@ def team_workload(
 
 
 
-# ---------------- Active Boards / Sprints ----------------
+#  Active Boards 
 @router.get("/boards/active")
 def active_sprints(
     db: Session = Depends(get_db),
@@ -182,7 +182,7 @@ def active_sprints(
     return result
 
 
-# ---------------- PM Tasks ----------------
+#  PM Tasks
 @router.get("/tasks")
 def get_pm_tasks(
     db: Session = Depends(get_db),

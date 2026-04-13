@@ -14,7 +14,7 @@ const BoardList = ({ deptId, teamId, projectId, refresh }) => {
         `/api/v1/board/project/${projectId}`
       );
 
-      // backend aligned response
+     
       setBoards(res.data.boards || []);
     } catch (err) {
       console.error("Error fetching boards:", err);
@@ -28,7 +28,7 @@ const BoardList = ({ deptId, teamId, projectId, refresh }) => {
     }
   }, [projectId, refresh, fetchBoards]);
 
-  /* ===== EMPTY STATE ===== */
+  /*  EMPTY STATE */
   if (!boards.length) {
     return (
       <Typography
@@ -40,7 +40,7 @@ const BoardList = ({ deptId, teamId, projectId, refresh }) => {
     );
   }
 
-  /* ===== BOARD LIST ===== */
+  /* BOARD LIST*/
   return (
     <Box display="flex" flexDirection="column" gap={2}>
       {boards.map((board) => (

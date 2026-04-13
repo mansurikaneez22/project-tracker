@@ -31,7 +31,7 @@ const TeamDetail = () => {
   <Box sx={{ px: 4, py: 5 }}>
 
   
-    {/* ===== HERO HEADER ===== */}
+    
 <Box
   sx={{
     p: 4,
@@ -88,7 +88,7 @@ const TeamDetail = () => {
 
   backgroundColor: (theme) =>
     theme.palette.mode === "dark"
-      ? "#1F2A3D"   // solid deeper tone (not white tint)
+      ? "#1F2A3D"  
       : "rgba(0,0,0,0.02)",
 
   boxShadow: (theme) =>
@@ -124,7 +124,7 @@ const TeamDetail = () => {
 
   backgroundColor: (theme) =>
     theme.palette.mode === "dark"
-      ? "#1F2A3D"   // solid deeper tone (not white tint)
+      ? "#1F2A3D"  
       : "rgba(0,0,0,0.02)",
 
   boxShadow: (theme) =>
@@ -149,7 +149,7 @@ const TeamDetail = () => {
     </Box>
 
 
-    {/* ===== CONTENT CONTAINER ===== */}
+
     <Box
       sx={{
         borderRadius: 4,

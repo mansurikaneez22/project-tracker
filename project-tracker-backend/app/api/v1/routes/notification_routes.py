@@ -12,7 +12,7 @@ router = APIRouter(
     tags=["Notification"]
 )
 
-# ✅ Create notification (for logged-in user)
+# Create notification (for logged-in user)
 @router.post("/", response_model=NotificationResponse)
 async def create_notification(
     notification: NotificationCreate,
@@ -28,7 +28,7 @@ async def create_notification(
     db.commit()
     db.refresh(db_notification)
 
-    # 🔥 REAL-TIME EMIT
+    #  REAL-TIME EMIT
     await sio.emit(
         "new_notification",
         {
@@ -42,7 +42,7 @@ async def create_notification(
 
     return db_notification
 
-# ✅ Get logged-in user's notifications
+# Get logged-in user's notifications
 @router.get("/", response_model=list[NotificationResponse])
 def get_my_notifications(
     db: Session = Depends(get_db),
@@ -54,7 +54,7 @@ def get_my_notifications(
         .all()
 
 
-# ✅ Mark notification as read
+#  Mark notification as read
 @router.put("/{notification_id}/read", response_model=NotificationResponse)
 def mark_as_read(
     notification_id: int,

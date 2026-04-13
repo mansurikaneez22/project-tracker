@@ -3,8 +3,7 @@
 from sqlalchemy import Column, Integer, String, Text, ForeignKey, TIMESTAMP
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
-from app.database.database import Base  # adjust import if needed
-
+from app.database.database import Base  
 class Activity(Base):
     __tablename__ = "activity"
 
@@ -18,6 +17,6 @@ class Activity(Base):
 
     created_at = Column(TIMESTAMP, server_default=func.now())
 
-    # Optional relationships
+   
     project = relationship("Project")
     user = relationship("User")

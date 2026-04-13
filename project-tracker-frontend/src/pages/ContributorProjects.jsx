@@ -42,7 +42,7 @@ const ContributorProjects = () => {
       // Map backend response to consistent keys for frontend
       const formattedProjects = res.data.map((p) => ({
         project_id: p.project_id,
-        project_name: p.project_title.trim(), // use project_name in frontend
+        project_name: p.project_title.trim(), 
         project_description: p.project_description,
         status: p.status,
         created_at: p.created_at,

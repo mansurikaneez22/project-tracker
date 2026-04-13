@@ -9,11 +9,11 @@ const Footer = () => {
       sx={{
         textAlign: "center",
         py: 4,
-        color: "text.secondary",  // theme-aware text
-        px: 2,                    // small padding so content isn't too close to edges
-        width: "100%",             // full width
+        color: "text.secondary", 
+        px: 2,                
+        width: "100%",            
         display: "flex",
-        justifyContent: "center",  // horizontally center
+        justifyContent: "center", 
       }}
     >
       <Typography variant="body2">

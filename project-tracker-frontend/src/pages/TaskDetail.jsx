@@ -48,7 +48,7 @@ const TaskDetail = () => {
     id: null
   });
 
-  /* ================= FETCH TASK ================= */
+  /* FETCH TASK */
   const fetchTask = async () => {
     if (!taskId) return;
 
@@ -61,7 +61,7 @@ const TaskDetail = () => {
     }
   };
 
-  /* ================= FETCH MEMBERS ================= */
+  /*FETCH MEMBERS  */
   const fetchProjectMembers = async () => {
   console.log("Task:", task);
 console.log("Members:", projectMembers);
@@ -78,7 +78,7 @@ console.log(assignee)
     }
   };
 
-  /* ================= ASSIGNEE ================= */
+  /* ASSIGNEE */
   const handleAssigneeChange = async (e) => {
   let newAssignee = e.target.value;
 
@@ -95,7 +95,7 @@ console.log(assignee)
     assignee_id: newAssignee
   });
 };
-  /* ================= COMMENTS ================= */
+  /* COMMENTS */
   const fetchComments = async () => {
     try {
       const res = await api.get(`/api/v1/comment/task/${Number(taskId)}`);
@@ -127,7 +127,7 @@ console.log(assignee)
     fetchComments();
   };
 
-  /* ================= ATTACHMENTS ================= */
+  /* ATTACHMENTS */
   const fetchAttachments = async () => {
     try {
       const res = await api.get(`/api/v1/attachment/task/${Number(taskId)}`);
@@ -149,7 +149,7 @@ console.log(assignee)
     fetchAttachments();
   };
 
-  /* ================= DELETE ================= */
+  /*  DELETE */
   const handleDelete = async () => {
     if (confirm.type === "task" && isProjectManager) {
       await api.delete(`/api/v1/task/${taskId}`);
@@ -169,7 +169,7 @@ console.log(assignee)
     setConfirm({ open: false, type: "", id: null });
   };
 
-  /* ================= EFFECTS ================= */
+  /*  EFFECTS  */
   useEffect(() => {
     fetchTask();
     fetchComments();

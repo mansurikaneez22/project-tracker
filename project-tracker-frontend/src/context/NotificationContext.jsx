@@ -4,7 +4,7 @@ import api from "../services/api";
 
 export const NotificationContext = createContext();
 
-// Socket ko ref me store karo taaki re-renders se recreate na ho
+
 const socketRef = { current: null };
 
 export const NotificationProvider = ({ children, currentUser }) => {
@@ -15,7 +15,7 @@ export const NotificationProvider = ({ children, currentUser }) => {
   const fetchNotifications = async () => {
     try {
       const res = await api.get("/api/v1/notification/");
-      console.log("FETCH NOTIFICATIONS RESPONSE:", res.data);  // ✅ Check yaha
+      console.log("FETCH NOTIFICATIONS RESPONSE:", res.data);  
       setNotifications(res.data);
       setUnreadCount(res.data.filter(n => !n.is_read).length);
     } catch (err) {
@@ -24,13 +24,13 @@ export const NotificationProvider = ({ children, currentUser }) => {
   };
 
   useEffect(() => {
-  if (!currentUser?.user_id) return;  // token optional
+  if (!currentUser?.user_id) return; 
   if (!socketRef.current) {
     socketRef.current = io("http://localhost:8000", { transports: ["websocket"] });
   }
   const socket = socketRef.current;
 
-  // ✅ Token optional check
+ 
   if(currentUser?.token) socket.io.opts.auth = { token: currentUser.token };
 
   socket.connect();

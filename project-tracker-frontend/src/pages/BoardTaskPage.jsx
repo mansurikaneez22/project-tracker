@@ -15,7 +15,7 @@ const BoardTaskPage = () => {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // 🔹 fetch all boards
+  // fetch all boards
   useEffect(() => {
     const fetchBoards = async () => {
       try {
@@ -28,7 +28,7 @@ const BoardTaskPage = () => {
     fetchBoards();
   }, []);
 
-  // 🔹 fetch tasks when board changes
+  //  fetch tasks when board changes
   useEffect(() => {
     if (!selectedBoard) return;
 

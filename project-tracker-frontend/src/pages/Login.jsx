@@ -36,7 +36,7 @@ const Login = () => {
 
     const { access_token, job_profile, user_id, user_name } = res.data;
 
-    // ✅ Save everything properly
+    // Save everything properly
     localStorage.setItem("token", access_token);
     localStorage.setItem("role", job_profile);
 
@@ -52,7 +52,7 @@ const Login = () => {
     setSuccess("Login Successful");
     setError("");
 
-    // ✅ Direct redirect (NO setTimeout)
+    // Direct redirect 
     if (job_profile === "ADMIN") {
       navigate("/admin-dashboard");
 

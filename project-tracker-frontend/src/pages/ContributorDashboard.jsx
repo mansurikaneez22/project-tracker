@@ -69,7 +69,7 @@ const ContributorDashboard = () => {
     }
   };
 
-  // ================= STATS =================
+  // STATS
   const pending = useMemo(
     () => tasks.filter((t) => normalizeStatus(t.status) === "TODO").length,
     [tasks]
@@ -93,7 +93,7 @@ const ContributorDashboard = () => {
     [tasks]
   );
 
-  // ================= PRIORITY DATA =================
+  //PRIORITY DATA
   const normalizePriority = (p) => p?.trim().toLowerCase();
   const priorityData = useMemo(() => {
     const high = tasks.filter((t) => normalizePriority(t.priority) === "high").length;
@@ -108,7 +108,7 @@ const ContributorDashboard = () => {
   }, [tasks]);
   const COLORS = ["#ef4444", "#f59e0b", "#22c55e"];
 
-  // ================= TODAY TASKS =================
+  // TODAY TASKS
   const todayTasks = useMemo(
     () =>
       tasks.filter(
@@ -119,14 +119,41 @@ const ContributorDashboard = () => {
     [tasks]
   );
 
-  // ================= SEARCH =================
-  const filteredTasks = useMemo(
-    () =>
-      tasks.filter((task) =>
-        task.task_title.toLowerCase().includes(search.toLowerCase())
-      ),
-    [tasks, search]
-  );
+  //SEARCH
+
+const filteredTasks = useMemo(() => {
+  const today = new Date();
+
+  return tasks
+    //  Search
+    .filter((task) =>
+      task.task_title.toLowerCase().includes(search.toLowerCase())
+    )
+
+    //  Filter (hide old completed tasks)
+    .filter((task) => {
+      if (!task.due_date) return true; 
+
+      const due = new Date(task.due_date);
+
+      // show:
+      // - future tasks
+      // - today tasks
+      // - overdue but NOT completed
+      return (
+        due >= today ||
+        normalizeStatus(task.status) !== "DONE"
+      );
+    })
+
+    // Sort by date (nearest first)
+    .sort((a, b) => {
+      const dateA = new Date(a.due_date || a.start_date || 0);
+      const dateB = new Date(b.due_date || b.start_date || 0);
+      return dateA - dateB;
+    });
+
+}, [tasks, search]);
 
   return (
     <Box
@@ -150,7 +177,7 @@ const ContributorDashboard = () => {
 
       <Grid container spacing={3}>
         {/* ================= LEFT MAIN (Stats + Tasks) ================= */}
-        <Grid item xs={12} md={8}>
+        <Grid item xs={12} >
           {/* STATS */}
           <Grid container spacing={3} mb={3}>
             {[
@@ -323,7 +350,7 @@ const ContributorDashboard = () => {
           </Paper>
         </Grid>
 
-        {/* ================= RIGHT SIDE (Priority + Activity) ================= */}
+        {/* RIGHT SIDE (Priority + Activity) */}
         <Grid item xs={12}>
   <Grid container spacing={3}>
     

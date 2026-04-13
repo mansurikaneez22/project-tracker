@@ -60,7 +60,7 @@ return (
         px: { xs: 2, md: 4 },
       }}
     >
-      {/* ================= HEADER ================= */}
+      {/*  HEADER */}
       <Box mb={6}>
         <Typography
           variant="h4"
@@ -80,7 +80,7 @@ return (
         </Typography>
       </Box>
 
-      {/* ================= PROJECT SECTION ================= */}
+      {/*  PROJECT SECTION  */}
       <Typography
         variant="h6"
         sx={{
@@ -171,7 +171,7 @@ return (
         })}
       </Grid>
 
-      {/* ================= LOWER SECTION ================= */}
+      {/*  LOWER SECTION*/}
       <Box
         sx={{
           borderTop: "1px solid",

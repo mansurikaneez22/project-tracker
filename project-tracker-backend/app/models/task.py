@@ -21,7 +21,7 @@ class Task(Base):
     project_id = Column(Integer, ForeignKey("project.project_id"), nullable=False)
     sprint_id = Column(Integer, ForeignKey("sprint.sprint_id"), nullable=True)
 
-    # Relationships (string-based)
+    # Relationships 
     boards_mapping = relationship("BoardTaskMapping", back_populates="task", cascade="all, delete")
     attachments = relationship("Attachment", back_populates="task", cascade="all, delete")
     comments = relationship("Comment", back_populates="task", cascade="all, delete")

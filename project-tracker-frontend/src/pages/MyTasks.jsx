@@ -22,7 +22,7 @@ const MyTasks = () => {
     try {
       const res = await api.get("/api/v1/task/my-tasks");
 
-      // 🔥 Map backend fields to calendar format
+      // Map backend fields to calendar format
       const formattedTasks = res.data.map((task) => ({
         id: task.task_id,
         title: task.task_title,
@@ -38,19 +38,33 @@ const MyTasks = () => {
     }
   };
 
-  // 🔵 Apply filters
-  const filteredTasks = useMemo(() => {
-    return tasks.filter((task) => {
-      const matchesStatus =
-        statusFilter === "ALL" || task.status === statusFilter;
+ //  Apply filters
+const filteredTasks = useMemo(() => {
+  const today = new Date();
 
-      const matchesSearch = task.title
-        ?.toLowerCase()
-        .includes(search.toLowerCase());
+  return tasks.filter((task) => {
+    // Status filter (existing)
+    const matchesStatus =
+      statusFilter === "ALL" || task.status === statusFilter;
 
-      return matchesStatus && matchesSearch;
-    });
-  }, [tasks, statusFilter, search]);
+    // Search filter (existing)
+    const matchesSearch = task.title
+      ?.toLowerCase()
+      .includes(search.toLowerCase());
+
+    // NEW: hide completed past tasks
+    let isValidTask = true;
+
+    if (task.due_date) {
+      const due = new Date(task.due_date);
+
+      isValidTask =
+        due >= today || task.status !== "DONE";
+    }
+
+    return matchesStatus && matchesSearch && isValidTask;
+  });
+}, [tasks, statusFilter, search]);
 
   return (
     <Box p={4}>
@@ -82,7 +96,7 @@ const MyTasks = () => {
         </TextField>
       </Stack>
 
-      {/* 🔥 Calendar View */}
+      {/* Calendar View */}
       <MyTasksCalendar tasks={filteredTasks} />
     </Box>
   );

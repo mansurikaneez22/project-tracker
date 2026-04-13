@@ -54,7 +54,7 @@ def is_pm_or_tl(
         )
 
 
-# ADD PROJECT MEMBER
+
 # ADD PROJECT MEMBER
 @router.post("/", response_model=ProjectMemberResponse)
 def add_project_member(
@@ -89,7 +89,7 @@ def add_project_member(
             detail="Project not found under given team/department"
         )
 
-    # 🔹 Check if user is part of team
+    #  Check if user is part of team
     team_check = db.execute(text("""
         SELECT 1
         FROM team_member
@@ -100,7 +100,7 @@ def add_project_member(
         "user_id": data.user_id
     }).first()
 
-    # 🔹 If user NOT in team → auto add to team_member
+    #  If user NOT in team → auto add to team_member
     if not team_check:
         db.execute(text("""
             INSERT INTO team_member (team_id, user_id)
@@ -111,7 +111,7 @@ def add_project_member(
         })
         db.commit()
 
-    # 🔹 Add to project_member table
+    #  Add to project_member table
     try:
         member = ProjectMember(
             project_id=project_id,

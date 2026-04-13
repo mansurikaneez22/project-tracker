@@ -17,9 +17,9 @@ router = APIRouter(
 )
 
 
-# ================================
-# 1️⃣ Project Specific Activity
-# ================================
+
+#  Project Specific Activity
+
 @router.get("/project/{project_id}", response_model=List[ActivityResponse])
 def get_project_activity(
     project_id: int,
@@ -45,9 +45,9 @@ def get_project_activity(
     return results
 
 
-# ================================
-# 2️⃣ PM Combined Activity (NEW)
-# ================================
+
+#  PM Combined Activity
+
 @router.get("/pm", response_model=List[ActivityResponse])
 def get_pm_combined_activity(
     db: Session = Depends(get_db),
@@ -80,9 +80,9 @@ def get_pm_combined_activity(
     return results
 
 
-# ================================
-# 3️⃣ Contributor Activity (NEW)
-# ================================
+
+# Contributor Activity (NEW)
+
 @router.get("/my-activity", response_model=List[ActivityResponse])
 def get_contributor_activity(
     db: Session = Depends(get_db),
@@ -120,7 +120,7 @@ def get_contributor_all_activity(
     Fetch recent activities from all projects where the contributor has tasks assigned.
     """
     try:
-        # 1️⃣ Get all project_ids where contributor has tasks
+        #  Get all project_ids where contributor has tasks
         project_ids = (
             db.query(Task.project_id)
             .filter(Task.assignee_id == current_user.user_id)
@@ -132,7 +132,7 @@ def get_contributor_all_activity(
         if not project_ids:
             return []
 
-        # 2️⃣ Fetch last 50 activities for those projects
+        #  Fetch last 50 activities for those projects
         activities = (
             db.query(
                 Activity.id,

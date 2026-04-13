@@ -16,14 +16,14 @@ const drawerWidth = 230;
 const Sidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const role = localStorage.getItem("role")?.trim(); // safety trim
+  const role = localStorage.getItem("role")?.trim(); 
   const theme = useTheme();
 
   const menuConfig = {
     "PROJECT MANAGER": [
       { label: "Dashboard", path: "/pm/dashboard" },
-      { label: "My Tasks", path: "/pm/tasks" },   // PMTasks.jsx route
-      { label: "Members", path: "/pm/members" },
+      { label: "My Tasks", path: "/pm/tasks" }, 
+     
       
     ],
     "TEAM LEADER": [
@@ -57,7 +57,7 @@ const Sidebar = () => {
         }
       }}
     >
-      {/* ===== BRAND HEADER ===== */}
+      {/* BRAND HEADER*/}
       <Box
         sx={{
           px: 2.5,
@@ -86,7 +86,7 @@ const Sidebar = () => {
         </Typography>
       </Box>
 
-      {/* ===== MENU ITEMS ===== */}
+      {/*MENU ITEMS */}
       <List sx={{ mt: 1 }}>
         {menuItems.map((item) => (
           <ListItemButton

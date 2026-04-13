@@ -2,13 +2,13 @@ from pydantic import BaseModel
 from datetime import datetime
 from typing import Optional
 
-# Base schema (common fields)
+# Base schema
 class ActivityBase(BaseModel):
     action_type: str
     message: str
 
 
-# Response schema (what frontend receives)
+# Response schema 
 class ActivityResponse(ActivityBase):
     id: int
     project_id: int
@@ -17,6 +17,6 @@ class ActivityResponse(ActivityBase):
     user_name: Optional[str] = None
 
     class Config:
-        from_attributes = True   # Pydantic v2
+        from_attributes = True  
        
        

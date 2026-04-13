@@ -23,7 +23,7 @@ function DepartmentList() {
       }
     })
     .then((res) => {
-      setDepartments(res.data);   // ✅ FIX: response ko state me set kiya
+      setDepartments(res.data);  
     })
     .catch((err) => {
       console.error("Error fetching departments", err);

@@ -11,9 +11,9 @@ class UserResponse(UserBase):
     user_id: int
 
     class Config:
-        from_attributes = True   # pydantic v2 ke li EmailStr
+        from_attributes = True  
 
 class UserCreate(BaseModel):
     user_name: str
     email_id: str
-    job_profile: str   # PROJECT MANAGER / PRODUCT MANAGER / CONTRIBUTOR
+    job_profile: str 

@@ -30,8 +30,8 @@ const SprintBoard = () => {
       try {
         setLoading(true);
 
-        // 1️⃣ Fetch all sprints
-        // 1️⃣ Fetch all sprints
+      
+        //  Fetch all sprints
 const sprintRes = await api.get(
   `/api/v1/project/${projectId}/sprints`
 );
@@ -51,7 +51,7 @@ if (!active) {
 setActiveSprint(active);
 
 
-        // 2️⃣ Fetch tasks of active sprint
+        //  Fetch tasks of active sprint
         const taskRes = await api.get(
           `/api/v1/project/${projectId}/sprints/${active.sprint_id}/tasks`
         );
@@ -101,7 +101,7 @@ setActiveSprint(active);
     }
   };
 
-  // 🔹 Loading State
+  //  Loading State
   if (loading) {
     return (
       <Box p={3}>
@@ -110,7 +110,7 @@ setActiveSprint(active);
     );
   }
 
-  // 🔹 No Active Sprint
+  // No Active Sprint
   if (!activeSprint) {
     return (
       <Box p={3}>
@@ -128,7 +128,7 @@ setActiveSprint(active);
     <Box
   sx={{
     p: 3,
-    minHeight: "calc(100vh - 64px)", // adjust if header height different
+    minHeight: "calc(100vh - 64px)",
     backgroundColor: "background.default",
   }}
 >

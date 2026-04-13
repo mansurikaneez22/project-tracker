@@ -14,7 +14,7 @@ router = APIRouter(
     tags=["Users"]
 )
 
-# ---------------- CREATE USER (ADMIN) ----------------
+# CREATE USER (ADMIN)
 @router.post("/")
 async def create_user(
     user: UserCreate,
@@ -42,7 +42,7 @@ async def create_user(
     db.commit()
     db.refresh(new_user)
 
-    # 🔐 Generate reset token
+    # Generate reset token
     token = str(uuid.uuid4())
 
     new_user.reset_token = token
@@ -52,7 +52,7 @@ async def create_user(
 
     db.commit()
 
-    # 📧 Send password set email
+    # Send password set email
     await send_reset_password_email(
         to_email=new_user.email_id,
         first_name=new_user.user_name,
@@ -64,7 +64,7 @@ async def create_user(
     }
 
 
-# ---------------- GET USERS ----------------
+#GET USERS 
 @router.get("/", response_model=List[UserResponse])
 def get_users(db: Session = Depends(get_db)):
     return db.query(User).all()

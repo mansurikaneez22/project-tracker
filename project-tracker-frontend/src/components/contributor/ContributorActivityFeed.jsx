@@ -28,13 +28,13 @@ const ContributorActivityFeed = () => {
       });
 
       const mapped = res.data.map((act) => {
-  // Determine type for avatar
+
   let type = "update";
   if (act.action_type === "COMPLETED") type = "completed";
   else if (act.action_type === "ASSIGNED") type = "assigned";
 
-  // Safely get initials from user_name
-  const name = act.user_name || "NA"; // fallback
+ 
+  const name = act.user_name || "NA";
   const nameParts = name.split(" ");
   const initials =
     nameParts.length === 1
@@ -44,7 +44,7 @@ const ContributorActivityFeed = () => {
   return {
     activity_id: act.id,
     action: type,
-    text: `${name} ${act.message}`, // combine name + message
+    text: `${name} ${act.message}`, 
     created_at: act.created_at,
     initials: initials.toUpperCase(),
   };

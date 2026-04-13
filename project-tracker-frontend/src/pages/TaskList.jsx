@@ -18,7 +18,6 @@ import api from "../services/api";
 import CreateTaskModal from "../components/CreateTaskModal";
 import { NotificationContext } from "../context/NotificationContext";
 
-
 const TaskList = ({ deptId, teamId, projectId }) => {
   const { currentUser } = useContext(NotificationContext);
   const navigate = useNavigate();
@@ -26,25 +25,21 @@ const TaskList = ({ deptId, teamId, projectId }) => {
   const [tasks, setTasks] = useState([]);
   const [activeBoardId, setActiveBoardId] = useState(null);
   const [openCreateTask, setOpenCreateTask] = useState(false);
-  console.log("TaskList currentUser:", currentUser);
-  // ==============================
-  // FETCH TASKS (PM + CONTRIBUTOR)
-  // ==============================
+
+  
+  // FETCH TASKS
+  
   const fetchTasks = async () => {
     try {
       let url;
 
       if (deptId && teamId) {
-        // PM endpoint
         url = `/api/v1/project/department/${deptId}/team/${teamId}/project/${projectId}/task`;
       } else {
-        // Contributor endpoint
         url = `/api/v1/project/${projectId}/task`;
       }
 
       const res = await api.get(url);
-
-      console.log("TASK API RESPONSE:", res.data);
       setTasks(res.data.tasks || []);
     } catch (err) {
       console.error("Task fetch error:", err);
@@ -52,9 +47,9 @@ const TaskList = ({ deptId, teamId, projectId }) => {
     }
   };
 
-  // ==============================
-  // FETCH BOARDS (by project only)
-  // ==============================
+
+  // FETCH BOARDS
+  
   const fetchBoards = async () => {
     try {
       const res = await api.get(`/api/v1/board/project/${projectId}`);
@@ -66,9 +61,6 @@ const TaskList = ({ deptId, teamId, projectId }) => {
     }
   };
 
-  // ==============================
-  // USE EFFECT
-  // ==============================
   useEffect(() => {
     if (projectId) {
       fetchTasks();
@@ -76,28 +68,44 @@ const TaskList = ({ deptId, teamId, projectId }) => {
     }
   }, [deptId, teamId, projectId]);
 
-  // ==============================
+ 
   // NAVIGATION
-  // ==============================
+
   const goToTaskDetail = (taskId) => {
     navigate(`/project/${projectId}/task/${taskId}`);
   };
+
+
+  //  FILTER TASKS (DATE BASED HACK)
+  
+  const today = new Date();
+
+  const filteredTasks = tasks.filter((task) => {
+    if (!task.start_date) return false;
+
+    const start = new Date(task.start_date);
+
+    // show only current + upcoming tasks (hide old/completed)
+    const twoDaysAgo = new Date();
+    twoDaysAgo.setDate(today.getDate() - 2);
+
+    return start >= twoDaysAgo;
+  });
 
   return (
     <Box p={3}>
       <Box display="flex" justifyContent="space-between" mb={2}>
         <Typography variant="h4">All Tasks</Typography>
 
-        {/* Show Create Task button only for Project Manager */}
         {currentUser?.job_profile?.toUpperCase() === "PROJECT MANAGER" && (
-  <Button
-    variant="contained"
-    startIcon={<AddIcon />}
-    onClick={() => setOpenCreateTask(true)}
-  >
-    Create Task
-  </Button>
-)}
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={() => setOpenCreateTask(true)}
+          >
+            Create Task
+          </Button>
+        )}
       </Box>
 
       <TableContainer component={Paper}>
@@ -114,7 +122,7 @@ const TaskList = ({ deptId, teamId, projectId }) => {
           </TableHead>
 
           <TableBody>
-            {tasks.map((task) => (
+            {filteredTasks.map((task) => (
               <TableRow key={task.task_id} hover>
                 <TableCell
                   sx={{ cursor: "pointer", color: "primary.main" }}
@@ -155,4 +163,5 @@ const TaskList = ({ deptId, teamId, projectId }) => {
     </Box>
   );
 };
+
 export default TaskList;

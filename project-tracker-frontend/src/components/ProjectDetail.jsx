@@ -10,7 +10,7 @@ import {
 } from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
 import { NotificationContext } from "../context/NotificationContext";
-import api from "../services/api"; // axios instance with baseURL
+import api from "../services/api"; 
 
 import TaskList from "../pages/TaskList";
 import ProjectMembers from "./ProjectMembers";
@@ -31,7 +31,7 @@ const ProjectDetail = () => {
   const [loading, setLoading] = useState(false);
   const [project, setProject] = useState(null);
 
-  // --- FETCH PROJECT DETAILS ---
+  // FETCH PROJECT DETAILS 
   useEffect(() => {
     const fetchProject = async () => {
       try {
@@ -63,7 +63,7 @@ const ProjectDetail = () => {
     fetchProject();
   }, [deptId, teamId, projectId, currentUser]);
 
-  // --- EDIT PROJECT ---
+  //EDIT PROJECT
   const handleEdit = async () => {
     if (!project) return;
     const newName = prompt("Enter new project name:", project.project_title);
@@ -73,12 +73,12 @@ const ProjectDetail = () => {
     try {
       const res = await api.put(
         `api/v1/project/department/${deptId}/team/${teamId}/project/${projectId}`,
-        { project_title: newName } // backend expects project_title
+        { project_title: newName } 
       );
       alert(res.data.message);
       setProject({ ...project, project_title: newName });
 
-      // 🔥 Refresh notifications after edit
+      // Refresh notifications after edit
       if (fetchNotifications) fetchNotifications();
     } catch (err) {
       alert(err.response?.data?.detail || "Failed to update project");
@@ -87,7 +87,7 @@ const ProjectDetail = () => {
     }
   };
 
-  // --- DELETE PROJECT ---
+  // DELETE PROJECT 
   const handleDelete = async () => {
     if (!window.confirm("Are you sure you want to delete this project?")) return;
 
@@ -98,10 +98,10 @@ const ProjectDetail = () => {
       );
       alert(res.data.message);
 
-      // 🔥 Refresh notifications after delete
+      //  Refresh notifications after delete
       if (fetchNotifications) fetchNotifications();
 
-      navigate("/projects"); // redirect to projects list
+      navigate("/projects"); 
     } catch (err) {
       alert(err.response?.data?.detail || "Failed to delete project");
     } finally {

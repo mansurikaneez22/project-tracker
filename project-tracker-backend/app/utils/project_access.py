@@ -6,11 +6,11 @@ from app.models.user import User
 
 def validate_project_access(db: Session, project_id: int, user: User):
 
-    # PM → always allowed (assuming PM already scoped correctly)
+  
     if user.job_profile == "PROJECT MANAGER":
         return
 
-    # Contributor → must be project member
+    # Contributor  must be project member
     check = db.execute(
         text("""
             SELECT 1 FROM project_member

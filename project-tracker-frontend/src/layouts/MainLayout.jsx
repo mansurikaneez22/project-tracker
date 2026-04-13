@@ -4,23 +4,27 @@ import { Outlet } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import Navbar from "../components/Navbar";
 
-
-
 const MainLayout = () => {
   const currentUser = JSON.parse(localStorage.getItem("user")) || null;
 
   return (
     <Box sx={{ display: "flex" }}>
-      <Sidebar />
+  <Sidebar />
 
-      <Box sx={{ flexGrow: 1 }}>
-        <Navbar currentUser={currentUser} />
+  <Box
+    sx={{
+      flexGrow: 1,
+      width: `calc(100% - 230px)`,
+      overflow: "hidden",
+    }}
+  >
+    <Navbar currentUser={currentUser} />
 
-        <Box sx={{ p: 3 }}>
-          <Outlet />
-        </Box>
-      </Box>
+    <Box sx={{ p: 3 }}>
+      <Outlet />
     </Box>
+  </Box>
+</Box>
   );
 };
 

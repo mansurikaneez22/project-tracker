@@ -13,7 +13,7 @@ class TaskCreate(BaseModel):
     start_date: Optional[datetime] = None
     due_date: Optional[datetime] = None
 
-    priority: Optional[str] = None        # Low | Medium | High
+    priority: Optional[str] = None        
     estimation_points: Optional[int] = None
 
     status: Optional[str] = "TODO"
@@ -33,7 +33,7 @@ class TaskUpdate(BaseModel):
     start_date: Optional[datetime] = None
     due_date: Optional[datetime] = None
 
-    priority: Optional[str] = None        # Low | Medium | High
+    priority: Optional[str] = None       
     estimation_points: Optional[int] = None
 
     status: Optional[str] = None

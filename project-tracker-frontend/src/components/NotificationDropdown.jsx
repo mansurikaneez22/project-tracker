@@ -21,7 +21,7 @@ const NotificationDropdown = () => {
     // Call your backend API
     await api.put(`/api/v1/notification/${notif.notification_id}/read`);
 
-    // 🔥 Update UI instantly (no refresh needed)
+    //  Update UI instantly (no refresh needed)
     notif.is_read = true;
     setUnreadCount((prev) => Math.max(prev - 1, 0));
 
